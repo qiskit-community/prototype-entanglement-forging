@@ -127,15 +127,15 @@ See [here](./documentation/3-reference_guide/reference_guide.md#running-tests).
 <!-- CONTACT -->
 ## Contact
 
-Aggie Branczyk - [Bluepages Profile](https://w3.ibm.com/bluepages/profile.html?uid=0B2365649) - agata.branczyk@ibm.com
-
-Iskandar Sitdikov - [Bluepages Profile](https://w3.ibm.com/bluepages/profile.html?uid=6J6909897) - iskandar.sitdikov@ibm.com
+Caleb Johnson - Caleb.Johnson@ibm.com
 
 ## Acknowledgments
 
 This module is based on the theory and experiment described in [[1]](./README.md#references).
 
-The initial codebase was written by Andrew Eddins, Mario Motta, Tanvi P. Gujarati & Charles Hadfield.
+The initial code on which this module is based was written by Andrew Eddins, Mario Motta, Tanvi Gujarati, and Charles Hadfield. The module was developed by Aggie Branczyk, Iskandar Sitdikov, and Luciano Bello, with help from Caleb Johnson, Mario Motta, Andrew Eddins, Tanvi Gujarati, Stefan Wörner, Max Rossmannek, Ikko Hamamura, and Takashi Imamichi. The documentation was written by Aggie Branczyk, with help from Ieva Liepuoniute, Mario Motta and Travis Scholten.
+
+We also thank Lev Bishop, Sarah Sheldon, and John Lapeyre for useful discussions.
 
 ## References
 [1] Andrew Eddins, Mario Motta, Tanvi P. Gujarati, Sergey Bravyi, Antonio Mezzacapo, Charles Hadfield, Sarah Sheldon, *Doubling the size of quantum simulators by entanglement forging*, https://arxiv.org/abs/2104.10220
