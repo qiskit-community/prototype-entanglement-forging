@@ -1,0 +1,4 @@
+pylint==2.8.3
+tox==3.24.0
+nbmake==0.8
+pytest==6.2.5
