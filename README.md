@@ -5,11 +5,13 @@ Table of Contents:
 1. <a href="#the-module">The module</a>
 2. <a href="#documentation">Documentation</a>
 3. <a href="#how-to-use-this-module">How to use this module</a>
-4. <a href="#for-contributors">For contributors</a>
-5. <a href="#contact">Contact</a>
-6. <a href="#acknowledgments">Acknowledgments</a>
-7. <a href="#references">References</a>
-8. <a href="#license">License</a>
+4. <a href="#using-quantum-services">Using quantum services</a>
+5. <a href="#installation-instructions">Installation instructions</a>
+6. <a href="#for-contributors">For contributors</a>
+8. <a href="#how-to-give-feedback">How to give feedback</a>
+9. <a href="#acknowledgments">Acknowledgments</a>
+10. <a href="#references">References</a>
+11. <a href="#license">License</a>
 
 ## The module
 The module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging  [[1]](./README.md#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
@@ -112,6 +114,12 @@ We use [GitHub issues](https://github.ibm.com/IBM-Q-Software/forging/issues) for
 
 ⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
 
+### How to give feedback
+Would you like to share your thoughts with us? We encourage you to offer feedback by:
+- Opening an issue in the repository
+- Starting a conversation on GitHub Discussions
+- Sharing your feedback through a survey
+
 ### Installing dependencies
   
 To install the dependencies needed:
@@ -123,11 +131,6 @@ For detailed instructions, refer to the [setup instructions](./documentation/3-r
 ### Running tests
 
 See [here](./documentation/3-reference_guide/reference_guide.md#running-tests).
-
-<!-- CONTACT -->
-## Contact
-
-Caleb Johnson - Caleb.Johnson@ibm.com
 
 ## Acknowledgments
 
