@@ -31,7 +31,7 @@ Information about this documentation philosophy can be found on the [Divio websi
 
 ## How to use this module
 
-After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/) and the [how-to guides](./documentation/2-how_to_guides/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/4-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](https://github.ibm.com/IBM-Q-Software/forging/blob/master/documentation/4-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
+After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/) and the [how-to guides](./documentation/2-how_to_guides/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/4-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/4-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
 
 ### ⚠️ CAUTION
 
@@ -48,7 +48,7 @@ https://qiskit.org/documentation/partners/
 ### Installation instructions   
 Clone the repo and install the package as follows:
 ```bash
-git clone https://github.ibm.com/IBM-Q-Software/forging.git
+git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 cd forging
 pip install -e .
 ```
@@ -110,7 +110,7 @@ print(f"Ground state energy: {forged_result.ground_state_energy}.")
 If you'd like to contribute to this module, please take a look at our
 [contribution instructions](./documentation/3-reference_guide/reference_guide.md#for-contributoris-making-a-pull-request). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-We use [GitHub issues](https://github.ibm.com/IBM-Q-Software/forging/issues) for tracking requests and bugs. 
+We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs. 
 
 ⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
 

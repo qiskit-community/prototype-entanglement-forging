@@ -37,7 +37,7 @@ This guide is for those who want to extend the module or documentation. If you j
     ```
 2. Within terminal, clone repository:
 ```bash
-git clone https://github.ibm.com/IBM-Q-Software/forging.git
+git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 ```
 3. Change directory to the freshly cloned forging module:
 ```bash
@@ -123,7 +123,7 @@ git push
     ```
 2. Within terminal,  clone repository:
 ```bash
-git clone https://github.ibm.com/IBM-Q-Software/forging.git
+git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 ```
 3. Change directory to the freshly cloned forging module:
 ```bash
