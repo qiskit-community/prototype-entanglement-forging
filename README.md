@@ -115,10 +115,10 @@ We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-fo
 ⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
 
 ### How to give feedback
-Would you like to share your thoughts with us? We encourage you to offer feedback by:
+We encourage your feedback! You can share your thoughts with us by:
 - [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
 - [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
-- Sharing your feedback through a survey
+- Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
 
 ### Installing dependencies
   
