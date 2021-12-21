@@ -4,14 +4,17 @@ This directory contains artefacts related to the entanglement forging module.
 Table of Contents:
 1. <a href="#the-module">The module</a>
 2. <a href="#documentation">Documentation</a>
-3. <a href="#how-to-use-this-module">How to use this module</a>
-4. <a href="#using-quantum-services">Using quantum services</a>
-5. <a href="#installation-instructions">Installation instructions</a>
-6. <a href="#for-contributors">For contributors</a>
-8. <a href="#how-to-give-feedback">How to give feedback</a>
-9. <a href="#acknowledgments">Acknowledgments</a>
-10. <a href="#references">References</a>
-11. <a href="#license">License</a>
+3. <a href="#how-to-give-feedback">How to give feedback</a>
+4. <a href="#how-to-use-this-module">How to use this module</a>
+    - <a href="#using-quantum-services">Using quantum services</a>
+    - <a href="#installation-instructions">Installation instructions</a>
+    - <a href="#how-to-use-the-installed-package">How to use the installed package</a>
+5. <a href="#for-contributors">For contributors</a>
+    - <a href="#installing-dependencies">Installing dependencies</a>
+    - <a href="#running-tests">Running tests</a>
+6. <a href="#acknowledgments">Acknowledgments</a>
+7. <a href="#references">References</a>
+8. <a href="#license">License</a>
 
 ## The module
 The module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging  [[1]](./README.md#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
@@ -29,13 +32,19 @@ The documentation can be found in the [documentation](./documentation/) director
 
 Information about this documentation philosophy can be found on the [Divio website](https://documentation.divio.com).
 
+## How to give feedback
+We encourage your feedback! You can share your thoughts with us by:
+- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
+- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
+- Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
+
 ## How to use this module
 
 After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/) and the [how-to guides](./documentation/2-how_to_guides/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/4-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/4-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
 
 ### ⚠️ CAUTION
 
-Before using the module for new work, users should read through the [reference guide](./documentation/3-reference_guide/) and the [explanatory material](./documentation/4-explanatory_material/), specifically the [current limitations](./documentation/4-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module. 
+Before using the module for new work, users should read through the [reference guide](./documentation/3-reference_guide/reference_guide.md) and the [explanatory material](./documentation/4-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/4-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module. 
 
 ### Using quantum services
 
@@ -46,19 +55,21 @@ partner organizations that have provider packages available for their offerings:
 https://qiskit.org/documentation/partners/
 
 ### Installation instructions   
+We suggest working inside a new conda environment with `python=3.8`. 
+
 Clone the repo and install the package as follows:
 ```bash
 git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
-cd forging
+cd entanglement-forging
 pip install -e .
 ```
 You can now use the package. 
 
-For detailed instructions, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions-for-users).
+For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions).
 
 ### How to use the installed package
 
-Now that you have the package installed, you can follow examples within [tutorial notebooks](./documentation/tutorials/)
+Now that you have the package installed, you can follow examples within [tutorial notebooks](./documentation/1-tutorials)
 or see the simple example below for ground-state energy calculation of hydrogen (copy the code into a file `example.py` and execute within terminal using   `python example.py`):
 
 ```python
@@ -108,17 +119,11 @@ print(f"Ground state energy: {forged_result.ground_state_energy}.")
 ## For contributors
 
 If you'd like to contribute to this module, please take a look at our
-[contribution instructions](./documentation/3-reference_guide/reference_guide.md#for-contributoris-making-a-pull-request). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+[contribution instructions](./documentation/3-reference_guide/reference_guide.md#contribution-guide). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs. 
 
 ⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
-
-### How to give feedback
-We encourage your feedback! You can share your thoughts with us by:
-- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
-- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
-- Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
 
 ### Installing dependencies
   
@@ -126,7 +131,7 @@ To install the dependencies needed:
 ```
 pip install -r requirements.txt
 ```
-For detailed instructions, refer to the [setup instructions](./documentation/3-reference_guide/reference_guide.md#for-contributors-initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/3-reference_guide/).
+For detailed instructions, refer to the [setup instructions](./documentation/3-reference_guide/reference_guide.md#initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/3-reference_guide/reference_guide.md).
 
 ### Running tests
 
