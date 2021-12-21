@@ -131,7 +131,7 @@ To install the dependencies needed:
 ```
 pip install -r requirements.txt
 ```
-For detailed instructions, refer to the [setup instructions](./documentation/3-reference_guide/reference_guide.md#for-contributors-initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/3-reference_guide/).
+For detailed instructions, refer to the [setup instructions](./documentation/3-reference_guide/reference_guide.md#initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/3-reference_guide/reference_guide.md).
 
 ### Running tests
 
