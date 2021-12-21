@@ -4,14 +4,17 @@ This directory contains artefacts related to the entanglement forging module.
 Table of Contents:
 1. <a href="#the-module">The module</a>
 2. <a href="#documentation">Documentation</a>
-3. <a href="#how-to-use-this-module">How to use this module</a>
-4. <a href="#using-quantum-services">Using quantum services</a>
-5. <a href="#installation-instructions">Installation instructions</a>
-6. <a href="#for-contributors">For contributors</a>
-8. <a href="#how-to-give-feedback">How to give feedback</a>
-9. <a href="#acknowledgments">Acknowledgments</a>
-10. <a href="#references">References</a>
-11. <a href="#license">License</a>
+3. <a href="#how-to-give-feedback">How to give feedback</a>
+4. <a href="#how-to-use-this-module">How to use this module</a>
+    - <a href="#using-quantum-services">Using quantum services</a>
+    - <a href="#installation-instructions">Installation instructions</a>
+    - <a href="#how-to-use-the-installed-package">How to use the installed package</a>
+5. <a href="#for-contributors">For contributors</a>
+    - <a href="#installing-dependencies">Installing dependencies</a>
+    - <a href="#running-tests">Running tests</a>
+6. <a href="#acknowledgments">Acknowledgments</a>
+7. <a href="#references">References</a>
+8. <a href="#license">License</a>
 
 ## The module
 The module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging  [[1]](./README.md#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
@@ -28,6 +31,12 @@ The documentation for this module is structured around four functions:
 The documentation can be found in the [documentation](./documentation/) directory.
 
 Information about this documentation philosophy can be found on the [Divio website](https://documentation.divio.com).
+
+## How to give feedback
+We encourage your feedback! You can share your thoughts with us by:
+- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
+- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
+- Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
 
 ## How to use this module
 
@@ -115,12 +124,6 @@ If you'd like to contribute to this module, please take a look at our
 We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs. 
 
 ⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
-
-### How to give feedback
-We encourage your feedback! You can share your thoughts with us by:
-- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
-- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
-- Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
 
 ### Installing dependencies
   
