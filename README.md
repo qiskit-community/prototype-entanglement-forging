@@ -49,12 +49,12 @@ https://qiskit.org/documentation/partners/
 Clone the repo and install the package as follows:
 ```bash
 git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
-cd forging
+cd entanglement-forging
 pip install -e .
 ```
 You can now use the package. 
 
-For detailed instructions, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions-for-users).
+For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions-for-users).
 
 ### How to use the installed package
 
