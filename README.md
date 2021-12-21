@@ -39,7 +39,7 @@ We encourage your feedback! You can share your thoughts with us by:
 
 ## How to use this module
 
-After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/) and the [how-to guides](./documentation/2-how_to_guides/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/3-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/3-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
+After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/3-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/3-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
 
 ### ⚠️ CAUTION
 
