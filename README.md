@@ -110,7 +110,7 @@ print(f"Ground state energy: {forged_result.ground_state_energy}.")
 ## For contributors
 
 If you'd like to contribute to this module, please take a look at our
-[contribution instructions](./documentation/3-reference_guide/reference_guide.md#for-contributoris-making-a-pull-request). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+[contribution instructions](./documentation/3-reference_guide/reference_guide.md#contribution-guide). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs. 
 
