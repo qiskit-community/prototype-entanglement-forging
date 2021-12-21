@@ -4,24 +4,24 @@
 
 1. <a href="#contribution-guide">Contribution guide</a>
     - <a href="#initial-set-up-and-installing-dependencies">Initial set-up and installing dependencies</a>
-    - <a href="#running-tests">Running tests</a>    
-    - <a href="#making-a-pull-request">Making a pull request</a> 
-2. <a href="#using-the-module">Using the module</a> 
-    - <a href="#installation-instructions">Installation instructions</a>    
-    - <a href="#specifying-the-problem">Specifying the problem</a> 
-    - <a href="#specifying-the-bitstrings">Specifying the bitstrings</a> 
-    - <a href="#freezing-orbitals">Freezing orbitals</a> 
-    - <a href="#specifying-the-ansatz">Specifying the Ansatz</a> 
-    - <a href="#options-entanglementforgedconfig">Options (`EntanglementForgedConfig`)</a> 
+    - <a href="#running-tests">Running tests</a>
+    - <a href="#making-a-pull-request">Making a pull request</a>
+2. <a href="#using-the-module">Using the module</a>
+    - <a href="#installation-instructions">Installation instructions</a>
+    - <a href="#specifying-the-problem">Specifying the problem</a>
+    - <a href="#specifying-the-bitstrings">Specifying the bitstrings</a>
+    - <a href="#freezing-orbitals">Freezing orbitals</a>
+    - <a href="#specifying-the-ansatz">Specifying the Ansatz</a>
+    - <a href="#options-entanglementforgedconfig">Options (`EntanglementForgedConfig`)</a>
     - <a href="#specifying-the-converter">Specifying the converter</a>
-    - <a href="#the-solver">The solver</a> 
+    - <a href="#the-solver">The solver</a>
     - <a href="#running-the-algorithm">Running the algorithm</a>
     - <a href="#viewing-the-results">Viewing the results</a>
-    - <a href="#verbose">Verbose</a> 
+    - <a href="#verbose">Verbose</a>
 
 ## Contribution guide
 
-This guide is for those who want to extend the module or documentation. If you just want to use the package, skip to [this section](./reference_guide.md#using-the-module). 
+This guide is for those who want to extend the module or documentation. If you just want to use the package, skip to [this section](./reference_guide.md#using-the-module).
 
 ### Initial set-up and installing dependencies
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
@@ -198,9 +198,9 @@ Example 2: Seven qubits with three bitstrings.
 bitstrings = bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
 ```
 
-For information on picking bitstrings, refer to [this section](./documentation/4-explanatory_material/explanatory_material.md#picking-the-bitstrings) of the Explanatory Material. 
+For information on picking bitstrings, refer to [this section](./documentation/3-explanatory_material/explanatory_material.md#picking-the-bitstrings) of the Explanatory Material.
 
-For current limitations on specifying bitstrings, refer to [this section](./documentation/4-explanatory_material/explanatory_material.md#ansatz--bitstrings) of the Explanatory Material. 
+For current limitations on specifying bitstrings, refer to [this section](./documentation/3-explanatory_material/explanatory_material.md#ansatz--bitstrings) of the Explanatory Material.
 
 ### Freezing orbitals
 
@@ -218,7 +218,7 @@ Output:
 [1,1,1,0,0],[0,1,1,0,1],[0,1,1,1,0]]
 ```
 
-For discussion of scaling and orbital freezing, refer to the [this section](./documentation/4-explanatory_material/explanatory_material.md#freezing-orbitals) of the Explanatory Material.
+For discussion of scaling and orbital freezing, refer to the [this section](./documentation/3-explanatory_material/explanatory_material.md#freezing-orbitals) of the Explanatory Material.
 
 ### Specifying the Ansatz
 
@@ -264,7 +264,7 @@ The options are:
 - `max_evals_grouped` (int): Maximum number of evaluations performed simultaneously.
 - `rep_delay` (float): Delay between programs in seconds.
 - `shots` (int): The total number of shots for the simulation (overwritten for the statevector backend).
-- `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form. ⚠️ There is a known bug for this setting. It does not produce expected results. 
+- `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form. ⚠️ There is a known bug for this setting. It does not produce expected results.
 - `bootstrap_trials` (int): A setting for generating error bars (not used for the statevector backend).
 - `copysample_job_size` (int or NoneType): A setting to approximately realize weighted sampling of circuits according to their relative significance
         (Schmidt coefficients). This number should be bigger than the number of unique circuits running (not used for the statevector backend).
