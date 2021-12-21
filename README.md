@@ -58,7 +58,7 @@ For detailed instructions, including setting up a conda environment, refer to th
 
 ### How to use the installed package
 
-Now that you have the package installed, you can follow examples within [tutorial notebooks](./documentation/tutorials/)
+Now that you have the package installed, you can follow examples within [tutorial notebooks](./documentation/1-tutorials)
 or see the simple example below for ground-state energy calculation of hydrogen (copy the code into a file `example.py` and execute within terminal using   `python example.py`):
 
 ```python
