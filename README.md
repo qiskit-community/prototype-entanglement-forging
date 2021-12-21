@@ -54,7 +54,7 @@ pip install -e .
 ```
 You can now use the package. 
 
-For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions-for-users).
+For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions).
 
 ### How to use the installed package
 
