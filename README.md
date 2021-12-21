@@ -46,6 +46,8 @@ partner organizations that have provider packages available for their offerings:
 https://qiskit.org/documentation/partners/
 
 ### Installation instructions   
+We suggest working inside a new conda environment with `python=3.8`. 
+
 Clone the repo and install the package as follows:
 ```bash
 git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
