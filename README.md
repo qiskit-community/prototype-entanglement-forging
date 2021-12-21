@@ -24,9 +24,8 @@ The module contents can be found in the [entanglement_forging](./entanglement_fo
 ## Documentation
 The documentation for this module is structured around four functions:
 - [Tutorials](./documentation/1-tutorials/): to teach a beginner user how the module works
-- [How-to guides](./documentation/2-how_to_guides/): to show how to apply the module to solve a problem
-- [A reference guide](./documentation/3-reference_guide/): technical description of the machinery of the module
-- [Explanatory material](./documentation/4-explanatory_material/): discussion of concepts and further reading
+- [A reference guide](./documentation/2-reference_guide/): technical description of the machinery of the module
+- [Explanatory material](./documentation/3-explanatory_material/): discussion of concepts and further reading
 
 The documentation can be found in the [documentation](./documentation/) directory.
 
@@ -40,11 +39,11 @@ We encourage your feedback! You can share your thoughts with us by:
 
 ## How to use this module
 
-After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/) and the [how-to guides](./documentation/2-how_to_guides/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/4-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/4-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
+After [installing the module](./README.md#installation-instructions), we recommend that new users work their way through the examples in the [tutorials](./documentation/1-tutorials/). A brief overview of the technique can be found in [overview of Entanglement Forging](./documentation/3-explanatory_material/explanatory_material.md#overview-of-entanglement-forging) and [Entanglement Forging procedure](./documentation/3-explanatory_material/explanatory_material.md#entanglement-forging-procedure).
 
 ### ⚠️ CAUTION
 
-Before using the module for new work, users should read through the [reference guide](./documentation/3-reference_guide/reference_guide.md) and the [explanatory material](./documentation/4-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/4-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module. 
+Before using the module for new work, users should read through the [reference guide](./documentation/2-reference_guide/reference_guide.md) and the [explanatory material](./documentation/3-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
 
 ### Using quantum services
 
@@ -54,8 +53,8 @@ partner organizations that have provider packages available for their offerings:
 
 https://qiskit.org/documentation/partners/
 
-### Installation instructions   
-We suggest working inside a new conda environment with `python=3.8`. 
+### Installation instructions
+We suggest working inside a new conda environment with `python=3.8`.
 
 Clone the repo and install the package as follows:
 ```bash
@@ -63,9 +62,9 @@ git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 cd entanglement-forging
 pip install -e .
 ```
-You can now use the package. 
+You can now use the package.
 
-For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/3-reference_guide/reference_guide.md#installation-instructions).
+For detailed instructions, including setting up a conda environment, refer to the [installation instructions](./documentation/2-reference_guide/reference_guide.md#installation-instructions).
 
 ### How to use the installed package
 
@@ -119,23 +118,23 @@ print(f"Ground state energy: {forged_result.ground_state_energy}.")
 ## For contributors
 
 If you'd like to contribute to this module, please take a look at our
-[contribution instructions](./documentation/3-reference_guide/reference_guide.md#contribution-guide). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+[contribution instructions](./documentation/2-reference_guide/reference_guide.md#contribution-guide). This project adheres to Qiskit's [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs. 
+We use [GitHub issues](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) for tracking requests and bugs.
 
-⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible. 
+⚠️ Please note that we can't commit to implementing all feature requests, but we will review them and allocate resources when possible.
 
 ### Installing dependencies
-  
+
 To install the dependencies needed:
 ```
 pip install -r requirements.txt
 ```
-For detailed instructions, refer to the [setup instructions](./documentation/3-reference_guide/reference_guide.md#initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/3-reference_guide/reference_guide.md).
+For detailed instructions, refer to the [setup instructions](./documentation/2-reference_guide/reference_guide.md#initial-set-up-and-installing-dependencies) in the [reference guide](./documentation/2-reference_guide/reference_guide.md).
 
 ### Running tests
 
-See [here](./documentation/3-reference_guide/reference_guide.md#running-tests).
+See [here](./documentation/2-reference_guide/reference_guide.md#running-tests).
 
 ## Acknowledgments
 
