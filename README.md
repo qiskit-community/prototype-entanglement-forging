@@ -35,7 +35,7 @@ After [installing the module](./README.md#installation-instructions), we recomme
 
 ### ⚠️ CAUTION
 
-Before using the module for new work, users should read through the [reference guide](./documentation/3-reference_guide/) and the [explanatory material](./documentation/4-explanatory_material/), specifically the [current limitations](./documentation/4-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module. 
+Before using the module for new work, users should read through the [reference guide](./documentation/3-reference_guide/reference_guide.md) and the [explanatory material](./documentation/4-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/4-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module. 
 
 ### Using quantum services
 
