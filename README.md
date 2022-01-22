@@ -31,7 +31,7 @@ The documentation for this module is structured around four functions:
 
 The documentation can be found in the [documentation](./documentation/) directory.
 
-Information about this documentation philosophy can be found on the [Divio website](https://documentation.divio.com).
+Information about this documentation philosophy can be found on the [Diátaxis website](https://diataxis.fr/).
 
 ## How to give feedback
 We encourage your feedback! You can share your thoughts with us by:
