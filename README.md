@@ -8,7 +8,6 @@ Table of Contents:
 2. <a href="#documentation">Documentation</a>
 3. <a href="#how-to-give-feedback">How to give feedback</a>
 4. <a href="#how-to-use-this-module">How to use this module</a>
-    - <a href="#using-quantum-services">Using quantum services</a>
     - <a href="#installation-instructions">Installation instructions</a>
     - <a href="#how-to-use-the-installed-package">How to use the installed package</a>
 5. <a href="#for-contributors">For contributors</a>
@@ -46,14 +45,6 @@ After [installing the module](./README.md#installation-instructions), we recomme
 ### ⚠️ CAUTION
 
 Before using the module for new work, users should read through the [reference guide](./documentation/2-reference_guide/reference_guide.md) and the [explanatory material](./documentation/3-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
-
-### Using quantum services
-
-If you are interested in using quantum services (i.e. using a real quantum
-computer, not a simulator) you can look at the Qiskit Partners program for
-partner organizations that have provider packages available for their offerings:
-
-https://qiskit.org/documentation/partners/
 
 ### Installation instructions
 We suggest working inside a new conda environment with `python=3.8`.
