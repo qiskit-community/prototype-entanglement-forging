@@ -138,7 +138,7 @@ The initial code on which this module is based was written by Andrew Eddins, Mar
 We also thank Lev Bishop, Sarah Sheldon, and John Lapeyre for useful discussions.
 
 ## References
-[1] Andrew Eddins, Mario Motta, Tanvi P. Gujarati, Sergey Bravyi, Antonio Mezzacapo, Charles Hadfield, Sarah Sheldon, *Doubling the size of quantum simulators by entanglement forging*, https://arxiv.org/abs/2104.10220
+[1] Andrew Eddins, Mario Motta, Tanvi P. Gujarati, Sergey Bravyi, Antonio Mezzacapo, Charles Hadfield, Sarah Sheldon, *Doubling the size of quantum simulators by entanglement forging*, https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.3.010309
 
 ## License
 
