@@ -45,6 +45,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                             charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
+        driver_result = problem.second_q_ops()
 
         # solution
         bitstrings = [[1, 0], [0, 1]]

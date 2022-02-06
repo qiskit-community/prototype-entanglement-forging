@@ -18,6 +18,7 @@ import numpy as np
 import qiskit_nature.drivers
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 from .cholesky_hamiltonian import get_fermionic_ops_with_cholesky
 from .orbitals_to_reduce import OrbitalsToReduce
@@ -44,20 +45,20 @@ class ForgedOperator:
     """
 
     def __init__(self,
-                 driver_result: ElectronicStructureDriverResult,
+                 problem: ElectronicStructureProblem,
                  all_orbitals_to_reduce: List[int]):
-        self.driver_result = driver_result
+        self.problem = problem
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
         self.orbitals_to_reduce = OrbitalsToReduce(
-            self.all_orbitals_to_reduce, self.driver_result)
+            self.all_orbitals_to_reduce, self.problem)
         self.epsilon_cholesky = 1e-10
 
+        electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
+        electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
 
-        mo_coeff = self.driver_result._properties['ElectronicBasisTransform'].coeff_alpha
-        hcore = self.driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 1)._matrices
-        eri = self.driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 2)._matrices
-        print(type(hcore))
-        print(type(eri))
+        mo_coeff = electronic_basis_transform.coeff_alpha
+        hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)._matrices[0]
+        eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)._matrices[0]
 
         fermionic_results = get_fermionic_ops_with_cholesky(
             mo_coeff,
@@ -71,7 +72,10 @@ class ForgedOperator:
 
         self.h_1_op, self.h_chol_ops, _, _, _ = fermionic_results
 
-        assert self.qmolecule.num_alpha == self.qmolecule.num_beta, \
+        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
+        num_alpha = particle_number.num_alpha
+        num_beta = particle_number.num_beta
+        assert num_alpha == num_beta, \
             "Currently only supports molecules with equal number of alpha and beta particles."
 
     def construct(self):

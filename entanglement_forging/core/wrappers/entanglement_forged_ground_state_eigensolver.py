@@ -77,8 +77,8 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         start_time = time.time()
 
         driver_result = problem.driver.run()
-        forged_operator = ForgedOperator(driver_result, self.orbitals_to_reduce)
-        classical_energies = ClassicalEnergies(driver_result, self.orbitals_to_reduce)
+        forged_operator = ForgedOperator(problem, self.orbitals_to_reduce)
+        classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
 
         solver = EntanglementForgedVQE(ansatz=self._ansatz,
                                        bitstrings=self._bitstrings,

@@ -14,23 +14,26 @@
 
 import numpy as np
 
+from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
 
 class OrbitalsToReduce:
 
-    def __init__(self, all_orbitals_to_reduce, driver_result):
-        self.driver_result = driver_result
+    def __init__(self, all_orbitals_to_reduce, problem):
+        self.problem = problem
         self.all = all_orbitals_to_reduce
 
     def occupied(self):
         """Returns occupied orbitals."""
         orbitals_to_reduce_array = np.asarray(self.all)
-        num_alpha = np.shape(self.driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[0]
+        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
+        num_alpha = particle_number.num_alpha
         return orbitals_to_reduce_array[
             orbitals_to_reduce_array < num_alpha].tolist()
 
     def virtual(self):
         """Returns virtual orbitals."""
         orbitals_to_reduce_array = np.asarray(self.all)
-        num_alpha = np.shape(self.driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[0]
+        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
+        num_alpha = particle_number.num_alpha
         return orbitals_to_reduce_array[
             orbitals_to_reduce_array >= num_alpha].tolist()

@@ -15,6 +15,8 @@
 import numpy as np
 from pyscf import gto, scf, mp, ao2mo, fci
 
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+
 from entanglement_forging.core.cholesky_hamiltonian import get_fermionic_ops_with_cholesky
 from entanglement_forging.core.orbitals_to_reduce import OrbitalsToReduce
 
@@ -31,21 +33,27 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
                         and the energy shift due to orbital freezing
     """
 
-    def __init__(self, driver_result, all_orbitals_to_reduce):  # pylint: disable=too-many-locals
-        self.driver_result = driver_result
-        self.all_orbitals_to_reduce = all_orbitals_to_reduce
-        self.orbitals_to_reduce = OrbitalsToReduce(self.all_orbitals_to_reduce, driver_result)
-        self.epsilon_cholesky = 1e-10
-        n_electrons = qmolecule.num_molecular_orbitals - len(self.orbitals_to_reduce.all)
+    def __init__(self, problem: ElectronicStructureProblem, all_orbitals_to_reduce):  # pylint: disable=too-many-locals
+        self.problem = problem
 
-        num_alpha = np.shape(driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[0]
-        num_beta = np.shape(driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[1]
+        self.all_orbitals_to_reduce = all_orbitals_to_reduce
+        self.orbitals_to_reduce = OrbitalsToReduce(self.all_orbitals_to_reduce, problem)
+        self.epsilon_cholesky = 1e-10
+        num_molecular_orbitals = self.problem.molecule_data.num_molecular_orbitals
+        n_electrons = num_molecular_orbitals - len(self.orbitals_to_reduce.all)
+
+        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
+        electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
+        electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
+
+        num_alpha = particle_number.num_alpha
+        num_beta = particle_number.num_beta
         n_alpha_electrons = num_alpha - len(self.orbitals_to_reduce.occupied())
         n_beta_electrons = num_beta - len(self.orbitals_to_reduce.occupied())
 
-        mo_coeff = driver_result._properties['ElectronicBasisTransform'].coeff_alpha
-        hcore = driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 1)
-        eri = driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 2)
+        mo_coeff = electronic_basis_transform.coeff_alpha
+        hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)[0]
+        eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)[0]
         fermionic_op = get_fermionic_ops_with_cholesky(mo_coeff,
                                                        hcore, eri,
                                                        opname='H',
@@ -57,7 +65,8 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
                                                        epsilon_cholesky=self.epsilon_cholesky)
         # hi - 2D array representing operator coefficients of one-body integrals in the AO basis.
         _, _, freeze_shift, h1, h2 = fermionic_op
-        Enuc = freeze_shift + qmolecule.nuclear_repulsion_energy
+        nuclear_repulsion_energy = electronic_energy.nuclear_repulsion_energy
+        Enuc = freeze_shift + nuclear_repulsion_energy
         # 4D array representing operator coefficients of two-body integrals in the AO basis.
         h2 = 2 * h2
         mol_FC = gto.M(verbose=0)

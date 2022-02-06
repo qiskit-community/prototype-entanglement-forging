@@ -41,12 +41,12 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        qmolecule = problem.driver.run()
+        driver_result = problem.second_q_ops()
 
         all_orbitals_to_reduce = [0,1,2,3,4,5,6,7,8]
 
         # solution
-        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
+        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, problem)
         self.assertEqual(orbitals_to_reduce.occupied(), [0, 1, 2, 3, 4])
         self.assertEqual(orbitals_to_reduce.virtual(), [5, 6, 7, 8])
 
@@ -67,12 +67,12 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        qmolecule = problem.driver.run()
+        driver_result = problem.second_q_ops()
 
         all_orbitals_to_reduce = [0,2,4]
 
         # solution
-        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
+        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, problem)
         self.assertEqual(orbitals_to_reduce.occupied(), [0, 2, 4])
         self.assertFalse(orbitals_to_reduce.virtual())
 
@@ -93,11 +93,11 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        qmolecule = problem.driver.run()
+        driver_result = problem.second_q_ops()
 
         all_orbitals_to_reduce = [6,7,9]
 
         # solution
-        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
+        orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, problem)
         self.assertFalse(orbitals_to_reduce.occupied())
         self.assertEqual(orbitals_to_reduce.virtual(), [6,7,9])
