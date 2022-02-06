@@ -31,26 +31,23 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
                         and the energy shift due to orbital freezing
     """
 
-    def __init__(self, qmolecule, all_orbitals_to_reduce):  # pylint: disable=too-many-locals
-        """ Initialize the classical energies.
-
-        Args:
-            qmolecule (qiskit_nature.drivers.QMolecule): Molecule data class containing driver
-                                                         result.
-            all_to_reduce (entanglement_forging.core.orbitals_to_reduce.OrbitalsToReduce):
-                All orbitals to be reduced.
-            epsilon_cholesky (float): The threshold for the Cholesky decomposition
-                                      (typically a number close to 0)
-        """
-        self.qmolecule = qmolecule
+    def __init__(self, driver_result, all_orbitals_to_reduce):  # pylint: disable=too-many-locals
+        self.driver_result = driver_result
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
-        self.orbitals_to_reduce = OrbitalsToReduce(self.all_orbitals_to_reduce, qmolecule)
+        self.orbitals_to_reduce = OrbitalsToReduce(self.all_orbitals_to_reduce, driver_result)
         self.epsilon_cholesky = 1e-10
         n_electrons = qmolecule.num_molecular_orbitals - len(self.orbitals_to_reduce.all)
-        n_alpha_electrons = qmolecule.num_alpha - len(self.orbitals_to_reduce.occupied())
-        n_beta_electrons = qmolecule.num_beta - len(self.orbitals_to_reduce.occupied())
-        fermionic_op = get_fermionic_ops_with_cholesky(qmolecule.mo_coeff,
-                                                       qmolecule.hcore, qmolecule.eri,
+
+        num_alpha = np.shape(driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[0]
+        num_beta = np.shape(driver_result._properties['ElectronicBasisTransform'].coeff_alpha)[1]
+        n_alpha_electrons = num_alpha - len(self.orbitals_to_reduce.occupied())
+        n_beta_electrons = num_beta - len(self.orbitals_to_reduce.occupied())
+
+        mo_coeff = driver_result._properties['ElectronicBasisTransform'].coeff_alpha
+        hcore = driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 1)
+        eri = driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 2)
+        fermionic_op = get_fermionic_ops_with_cholesky(mo_coeff,
+                                                       hcore, eri,
                                                        opname='H',
                                                        halve_transformed_h2=True,
                                                        occupied_orbitals_to_reduce=

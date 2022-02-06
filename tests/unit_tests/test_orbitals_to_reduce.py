@@ -15,6 +15,7 @@ import unittest
 
 import numpy as np
 from qiskit_nature.drivers import PySCFDriver, Molecule
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 from entanglement_forging import OrbitalsToReduce
@@ -38,7 +39,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     ['H', [hydrogen_1_x_coord, 0., 0.]],
                                     ['H', [hydrogen_2_x_coord, hydrogen_2_y_coord, 0.0]]],
                                     charge=0, multiplicity=1)
-        driver = PySCFDriver(molecule = molecule, basis='sto6g')
+        driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
         qmolecule = problem.driver.run()
 
@@ -46,8 +47,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         # solution
         orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
-        self.assertAlmostEqual(orbitals_to_reduce.occupied(), [0, 1, 2, 3, 4])
-        self.assertAlmostEqual(orbitals_to_reduce.virtual(), [5, 6, 7, 8])
+        self.assertEqual(orbitals_to_reduce.occupied(), [0, 1, 2, 3, 4])
+        self.assertEqual(orbitals_to_reduce.virtual(), [5, 6, 7, 8])
 
     def test_orbitals_to_reduce_water_occupied(self):
         """ Test for when we have only occupied orbitals.  """
@@ -64,7 +65,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     ['H', [hydrogen_1_x_coord, 0., 0.]],
                                     ['H', [hydrogen_2_x_coord, hydrogen_2_y_coord, 0.0]]],
                                     charge=0, multiplicity=1)
-        driver = PySCFDriver(molecule = molecule, basis='sto6g')
+        driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
         qmolecule = problem.driver.run()
 
@@ -72,8 +73,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         # solution
         orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
-        self.assertAlmostEqual(orbitals_to_reduce.occupied(), [0, 2, 4])
-        self.assertAlmostEqual(orbitals_to_reduce.virtual(), [])
+        self.assertEqual(orbitals_to_reduce.occupied(), [0, 2, 4])
+        self.assertFalse(orbitals_to_reduce.virtual())
 
     def test_orbitals_to_reduce_water_virtual(self):
         """ Test for when we have only virtual orbitals.  """
@@ -90,7 +91,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                     ['H', [hydrogen_1_x_coord, 0., 0.]],
                                     ['H', [hydrogen_2_x_coord, hydrogen_2_y_coord, 0.0]]],
                                     charge=0, multiplicity=1)
-        driver = PySCFDriver(molecule = molecule, basis='sto6g')
+        driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
         qmolecule = problem.driver.run()
 
@@ -98,5 +99,5 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         # solution
         orbitals_to_reduce = OrbitalsToReduce(all_orbitals_to_reduce, qmolecule)
-        self.assertAlmostEqual(orbitals_to_reduce.occupied(), [])
-        self.assertAlmostEqual(orbitals_to_reduce.virtual(), [6,7,9])
+        self.assertFalse(orbitals_to_reduce.occupied())
+        self.assertEqual(orbitals_to_reduce.virtual(), [6,7,9])

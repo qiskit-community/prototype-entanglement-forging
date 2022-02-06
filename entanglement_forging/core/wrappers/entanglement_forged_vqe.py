@@ -15,7 +15,7 @@
 import datetime
 import time
 import warnings
-from typing import List, Tuple
+from typing import List, Tuple, Callable, Union
 
 import numpy as np
 from qiskit import transpile
@@ -23,6 +23,7 @@ from qiskit.algorithms import VQE
 from qiskit.ignis.mitigation.measurement import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
+from qiskit.opflow import OperatorBase
 
 from entanglement_forging.core.wrappers.entanglement_forged_vqe_result import \
     DataResults, Bootstrap, AuxiliaryResults
@@ -93,114 +94,132 @@ class EntanglementForgedVQE(VQE):
         self.energy_mean_each_parameter_set = []
         self.energy_std_each_parameter_set = []
 
+        # Paramters for get_energy_evaluation. Moved them here to match parent function signature
+        self._shots_multiplier=1
+        self._bootstrap_trials=0
+
         if self.ansatz.num_qubits != len(self.bitstrings[0]):
             raise ValueError('The number of qubits in ansatz does '
                              'not match the number of bits in reduced_bitstrings.')
 
-    def _energy_evaluation(self, parameters, shots_multiplier=1, bootstrap_trials=0):  # pylint: disable=arguments-differ
-        """ Evaluate energy at given parameters for the variational form.
+    @property
+    def shots_multiplier(self):
+        return self._shots_multiplier
 
-        This is the objective function to be passed to the optimizer that is used for evaluation
+    @shots_multiplier.setter
+    def shots_multiplier(self, multiplier):
+        self._shots_multiplier = multiplier
 
-        Args:
-            parameters (numpy.ndarray): parameters for variational form.
+    @property
+    def bootstrap_trials(self):
+        return self._bootstrap_trials
 
-            If L = len(self._bitstrings_s), then the first L-1
-                parameters are used to produce the corresponding Schmidt coefficients s_u.
-            If self._determine_schmidts_from_results is True, the given
-                Schmidt coefficients are factored out of the sum
-            until all measurements are complete, then assigned values that minimize the energy.
+    @bootstrap_trials.setter
+    def bootstrap_trials(self, trials):
+        self._bootstrap_trials = trials
 
-        Returns:
-            Union(float, list[float]): energy of the Hamiltonian of each parameter.
-        """
+    def get_energy_evaluation(
+            self,
+            operator: OperatorBase,
+            return_expectation: bool = False
+        ) -> Callable[[np.ndarray], Union[float, List[float]]]:
 
         if self._backend.name() == 'statevector_simulator':
-            shots_multiplier = 1
+            self._shots_multiplier = 1
 
-        Log.log('------ new iteration energy evaluation -----')
+        ansatz_params = self.ansatz.parameters
+        expect_op, expectation = self.construct_expectation(
+            ansatz_params, operator, return_expectation=True
+        )
 
-        num_parameter_sets = len(parameters) // self._ansatz.num_parameters
-        parameter_sets = np.split(parameters, num_parameter_sets)
-        new_iteration_start_time = time.time()
+        def energy_evaluation(parameters):
+            Log.log('------ new iteration energy evaluation -----')
+            num_parameter_sets = len(parameters) // self.ansatz.num_parameters
+            parameter_sets = np.split(parameters, num_parameter_sets)
+            new_iteration_start_time = time.time()
 
-        Log.log('duration of last iteration:',
-                new_iteration_start_time - self._iteration_start_time)
+            Log.log('duration of last iteration:',
+                    new_iteration_start_time - self._iteration_start_time)
 
-        self._iteration_start_time = new_iteration_start_time
+            self._iteration_start_time = new_iteration_start_time
 
-        Log.log('Parameter sets:', parameter_sets)
+            Log.log('Parameter sets:', parameter_sets)
 
-        eval_forged_result = self._evaluate_forged_operator(
-            parameter_sets=parameter_sets,
-            hf_value=self._hf_energy,
-            add_this_to_mean_values_displayed=self._add_this_to_energies_displayed,
-            shots_multiplier=shots_multiplier,
-            bootstrap_trials=bootstrap_trials)
+            eval_forged_result = self._evaluate_forged_operator(
+                parameter_sets=parameter_sets,
+                hf_value=self._hf_energy,
+                add_this_to_mean_values_displayed=self._add_this_to_energies_displayed,
+                shots_multiplier=self._shots_multiplier,
+                bootstrap_trials=self._bootstrap_trials)
 
-        (energy_mean_each_parameter_set, bootstrap_means_each_parameter_set,
-         energy_mean_raw_each_parameter_set, energy_mean_sv_each_parameter_set,
-         schmidt_coeffs_each_parameter_set, schmidt_coeffs_raw_each_parameter_set,
-         schmidt_coeffs_sv_each_parameter_set) = eval_forged_result
+            (energy_mean_each_parameter_set, bootstrap_means_each_parameter_set,
+             energy_mean_raw_each_parameter_set, energy_mean_sv_each_parameter_set,
+             schmidt_coeffs_each_parameter_set, schmidt_coeffs_raw_each_parameter_set,
+             schmidt_coeffs_sv_each_parameter_set) = eval_forged_result
 
-        self._schmidt_coeffs_each_iteration_each_paramset.append(schmidt_coeffs_each_parameter_set)
+            self._schmidt_coeffs_each_iteration_each_paramset.append(schmidt_coeffs_each_parameter_set)
 
-        # TODO Not Implemented  # pylint: disable=fixme
-        energy_std_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
-        # TODO Not Implemented  # pylint: disable=fixme
-        energy_std_raw_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
-        energy_std_sv_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
+            # TODO Not Implemented  # pylint: disable=fixme
+            energy_std_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
+            # TODO Not Implemented  # pylint: disable=fixme
+            energy_std_raw_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
+            energy_std_sv_each_parameter_set = [0] * len(energy_mean_each_parameter_set)
 
-        self._energy_each_iteration_each_paramset.append(energy_mean_each_parameter_set)
-        self._paramsets_each_iteration.append(parameter_sets)
+            self._energy_each_iteration_each_paramset.append(energy_mean_each_parameter_set)
+            self._paramsets_each_iteration.append(parameter_sets)
 
-        timestamp_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+            timestamp_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
 
-        # additional results
-        for params, bootstrap_means in zip(parameter_sets, bootstrap_means_each_parameter_set):
-            self.aux_results.append(("bootstrap",
-                                     Bootstrap(eval_count=self._eval_count,
-                                               eval_timestamp=timestamp_string,
-                                               parameters=params,
-                                               bootstrap_values=
-                                               [v + self._add_this_to_energies_displayed
-                                                for v in bootstrap_means])))
+            # additional results
+            for params, bootstrap_means in zip(parameter_sets, bootstrap_means_each_parameter_set):
+                self.aux_results.append(("bootstrap",
+                                         Bootstrap(eval_count=self._eval_count,
+                                                   eval_timestamp=timestamp_string,
+                                                   parameters=params,
+                                                   bootstrap_values=
+                                                   [v + self._add_this_to_energies_displayed
+                                                    for v in bootstrap_means])))
 
-        data_titles = ['data', 'data_noextrapolation', 'data_statevec'][:-1]
-        for filename, energies_each_paramset, stds_each_paramset, schmidts_each_paramset in zip(
-                data_titles,
-                [energy_mean_each_parameter_set, energy_mean_raw_each_parameter_set,
-                 energy_mean_sv_each_parameter_set],
-                [energy_std_each_parameter_set, energy_std_raw_each_parameter_set,
-                 energy_std_sv_each_parameter_set],
-                [schmidt_coeffs_each_parameter_set, schmidt_coeffs_raw_each_parameter_set,
-                 schmidt_coeffs_sv_each_parameter_set]):
+            data_titles = ['data', 'data_noextrapolation', 'data_statevec'][:-1]
+            for filename, energies_each_paramset, stds_each_paramset, schmidts_each_paramset in zip(
+                    data_titles,
+                    [energy_mean_each_parameter_set, energy_mean_raw_each_parameter_set,
+                     energy_mean_sv_each_parameter_set],
+                    [energy_std_each_parameter_set, energy_std_raw_each_parameter_set,
+                     energy_std_sv_each_parameter_set],
+                    [schmidt_coeffs_each_parameter_set, schmidt_coeffs_raw_each_parameter_set,
+                     schmidt_coeffs_sv_each_parameter_set]):
 
-            for params, energy_mean, energy_std, schmidts in zip(parameter_sets,
-                                                                 energies_each_paramset,
-                                                                 stds_each_paramset,
-                                                                 schmidts_each_paramset):
-                self.aux_results.append((filename,
-                                         DataResults(eval_count=self._eval_count,
-                                                     eval_timestamp=timestamp_string,
-                                                     energy_hartree=(
-                                                             energy_mean +
-                                                             self._add_this_to_energies_displayed),
-                                                     energy_std=energy_std,
-                                                     parameters=parameters,
-                                                     schmidts=schmidts)))
+                for params, energy_mean, energy_std, schmidts in zip(parameter_sets,
+                                                                     energies_each_paramset,
+                                                                     stds_each_paramset,
+                                                                     schmidts_each_paramset):
+                    self.aux_results.append((filename,
+                                             DataResults(eval_count=self._eval_count,
+                                                         eval_timestamp=timestamp_string,
+                                                         energy_hartree=(
+                                                                 energy_mean +
+                                                                 self._add_this_to_energies_displayed),
+                                                         energy_std=energy_std,
+                                                         parameters=parameters,
+                                                         schmidts=schmidts)))
 
-        for params, energy_mean, energy_std in zip(parameter_sets, energy_mean_each_parameter_set,
-                                                   energy_std_each_parameter_set):
-            self._eval_count += 1
-            if self._callback is not None:
-                self._callback(self._eval_count, params, energy_mean, energy_std)
+            for params, energy_mean, energy_std in zip(parameter_sets, energy_mean_each_parameter_set,
+                                                       energy_std_each_parameter_set):
+                self._eval_count += 1
+                if self._callback is not None:
+                    self._callback(self._eval_count, params, energy_mean, energy_std)
 
-        self.parameter_sets = parameter_sets
-        self.energy_mean_each_parameter_set = energy_mean_each_parameter_set
-        self.energy_std_each_parameter_set = energy_std_each_parameter_set
-        return (energy_mean_each_parameter_set if len(energy_mean_each_parameter_set) > 1 else
-                energy_mean_each_parameter_set[0])
+            self.parameter_sets = parameter_sets
+            self.energy_mean_each_parameter_set = energy_mean_each_parameter_set
+            self.energy_std_each_parameter_set = energy_std_each_parameter_set
+            return (energy_mean_each_parameter_set if len(energy_mean_each_parameter_set) > 1 else
+                    energy_mean_each_parameter_set[0])
+
+        if return_expectation:
+            return energy_evaluation, expectation
+
+        return energy_evaluation
 
     def _evaluate_forged_operator(self, parameter_sets,
                                   hf_value=0, add_this_to_mean_values_displayed=0,

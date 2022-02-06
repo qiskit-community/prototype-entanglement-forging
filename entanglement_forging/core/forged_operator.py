@@ -16,6 +16,8 @@ from typing import List
 
 import numpy as np
 import qiskit_nature.drivers
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 from .cholesky_hamiltonian import get_fermionic_ops_with_cholesky
 from .orbitals_to_reduce import OrbitalsToReduce
@@ -42,24 +44,25 @@ class ForgedOperator:
     """
 
     def __init__(self,
-                 qmolecule: qiskit_nature.drivers.QMolecule,
+                 driver_result: ElectronicStructureDriverResult,
                  all_orbitals_to_reduce: List[int]):
-        """Initializes the forged operator class.
-
-        Args:
-            qmolecule: Molecule data class containing driver result.
-            all_orbitals_to_reduce: All orbitals to be reduced.
-        """
-        self.qmolecule = qmolecule
+        self.driver_result = driver_result
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
         self.orbitals_to_reduce = OrbitalsToReduce(
-            self.all_orbitals_to_reduce, qmolecule)
+            self.all_orbitals_to_reduce, self.driver_result)
         self.epsilon_cholesky = 1e-10
 
+
+        mo_coeff = self.driver_result._properties['ElectronicBasisTransform'].coeff_alpha
+        hcore = self.driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 1)._matrices
+        eri = self.driver_result._properties['ElectronicEnergy'].get_electronic_integral(ElectronicBasis.AO, 2)._matrices
+        print(type(hcore))
+        print(type(eri))
+
         fermionic_results = get_fermionic_ops_with_cholesky(
-            self.qmolecule.mo_coeff,
-            self.qmolecule.hcore,
-            self.qmolecule.eri,
+            mo_coeff,
+            hcore,
+            eri,
             opname='H',
             halve_transformed_h2=True,
             occupied_orbitals_to_reduce=self.orbitals_to_reduce.occupied(),
