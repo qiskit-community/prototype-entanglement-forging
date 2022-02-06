@@ -14,7 +14,7 @@
 import unittest
 
 import numpy as np
-from qiskit import Aer
+from qiskit.providers.aer import AerSimulator
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.circuit.library import TwoLocal
 from qiskit_nature.converters.second_quantization import QubitConverter
@@ -24,18 +24,19 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.algorithms.ground_state_solvers import (GroundStateEigensolver,
                                                            NumPyMinimumEigensolverFactory)
+from qiskit_nature import settings
+settings.dict_aux_operators = True
 
 from entanglement_forging import (EntanglementForgedConfig, EntanglementForgedDriver,
                                   EntanglementForgedGroundStateSolver)
 from entanglement_forging import reduce_bitstrings
-
 
 class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
     """ EntanglementForgedGroundStateEigensolver tests. """
 
     def setUp(self):
         np.random.seed(42)
-        self.backend = Aer.get_backend('statevector_simulator')
+        self.backend = AerSimulator(method="statevector")
 
     def test_forged_vqe_for_hydrogen(self):
         """ Test of applying Entanglement Forged VQE to to compute the energy of a H2 molecule. """
@@ -60,7 +61,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         forged_result = forged_ground_state_solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-    @unittest.skip("skipping test_forged_vqe_for_water")
     def test_forged_vqe_for_water(self):  # pylint: disable=too-many-locals
         """ Test of applying Entanglement Forged VQE to to compute the energy of a H20 molecule. """
         # setup problem
@@ -77,6 +77,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                       ('H', [h2_x, h2_y, 0.0])], charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
+        driver_result = problem.second_q_ops()
 
         # solution
         orbitals_to_reduce = [0, 3]
@@ -114,7 +115,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                                      orbitals_to_reduce)
         forged_result = solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -75.68366174497027)
-    @unittest.skip("skipping test_ef_driver")
+
     def test_ef_driver(self):
         """Test for entanglement forging driver."""
         hcore = np.array([
@@ -139,6 +140,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                           num_beta=1,
                                           nuclear_repulsion_energy=0.7199689944489797)
         problem = ElectronicStructureProblem(driver)
+        driver_result = problem.second_q_ops()
 
         bitstrings = [[1, 0], [0, 1]]
         ansatz = TwoLocal(2, [], 'cry', [[0, 1], [1, 0]], reps=1)
@@ -152,7 +154,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         forged_result = forged_ground_state_solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-    @unittest.skip("skipping test_aux_results")
     def test_aux_results(self):
         """Test for aux results data.
         NOTE: aux data was added only because of before this data was stored in file system,
@@ -164,6 +165,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                             charge=0, multiplicity=1)
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
+        driver_result = problem.second_q_ops()
 
         # solution
         bitstrings = [[1, 0], [0, 1]]
@@ -180,7 +182,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         self.assertEqual([name for name, _ in forged_result.auxiliary_results],
                          ['bootstrap', 'data', 'data_noextrapolation', 'optimal_params'])
 
-    @unittest.skip("skipping test_ground_state_eigensolver_with_ef_driver")
     def test_ground_state_eigensolver_with_ef_driver(self):
         """Tests standard qiskit nature solver."""
         hcore = np.array([
@@ -206,6 +207,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
                                           num_beta=1,
                                           nuclear_repulsion_energy=repulsion_energy)
         problem = ElectronicStructureProblem(driver)
+        driver_result = problem.second_q_ops()
+
         converter = QubitConverter(JordanWignerMapper())
         solver = GroundStateEigensolver(converter,
                                         NumPyMinimumEigensolverFactory(

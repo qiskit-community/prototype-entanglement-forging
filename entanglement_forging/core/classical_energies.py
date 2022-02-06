@@ -16,6 +16,8 @@ import numpy as np
 from pyscf import gto, scf, mp, ao2mo, fci
 
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 
 from entanglement_forging.core.cholesky_hamiltonian import get_fermionic_ops_with_cholesky
 from entanglement_forging.core.orbitals_to_reduce import OrbitalsToReduce
@@ -39,21 +41,40 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
         self.orbitals_to_reduce = OrbitalsToReduce(self.all_orbitals_to_reduce, problem)
         self.epsilon_cholesky = 1e-10
-        num_molecular_orbitals = self.problem.molecule_data.num_molecular_orbitals
+
+
+        if isinstance(problem.driver, ElectronicStructureDriver):
+            particle_number = self.problem.grouped_property.get_property("ParticleNumber")
+            electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
+            electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
+
+            num_alpha = particle_number.num_alpha
+            num_beta = particle_number.num_beta
+            mo_coeff = electronic_basis_transform.coeff_alpha
+            hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)._matrices[0]
+            eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)._matrices[0]
+
+            if isinstance(problem.driver.atom, str):
+                num_molecular_orbitals = len(problem.driver.atom.split(";"))
+            else:
+                num_molecular_orbitals = len(problem.driver.atom)
+
+            nuclear_repulsion_energy = electronic_energy.nuclear_repulsion_energy
+
+        else:
+            hcore = problem.driver._hcore
+            mo_coeff = problem.driver._mo_coeff
+            eri = problem.driver._eri
+            num_alpha = problem.driver._num_alpha
+            num_beta = problem.driver._num_beta
+            nuclear_repulsion_energy = problem.driver._nuclear_repulsion_energy
+            num_molecular_orbitals = mo_coeff.shape[0]
+
         n_electrons = num_molecular_orbitals - len(self.orbitals_to_reduce.all)
 
-        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
-        electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
-        electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
-
-        num_alpha = particle_number.num_alpha
-        num_beta = particle_number.num_beta
         n_alpha_electrons = num_alpha - len(self.orbitals_to_reduce.occupied())
         n_beta_electrons = num_beta - len(self.orbitals_to_reduce.occupied())
 
-        mo_coeff = electronic_basis_transform.coeff_alpha
-        hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)[0]
-        eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)[0]
         fermionic_op = get_fermionic_ops_with_cholesky(mo_coeff,
                                                        hcore, eri,
                                                        opname='H',
@@ -65,7 +86,6 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
                                                        epsilon_cholesky=self.epsilon_cholesky)
         # hi - 2D array representing operator coefficients of one-body integrals in the AO basis.
         _, _, freeze_shift, h1, h2 = fermionic_op
-        nuclear_repulsion_energy = electronic_energy.nuclear_repulsion_energy
         Enuc = freeze_shift + nuclear_repulsion_energy
         # 4D array representing operator coefficients of two-body integrals in the AO basis.
         h2 = 2 * h2
@@ -79,6 +99,7 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
         mf_FC = scf.RHF(mol_FC)
         mf_FC.get_hcore = lambda *args: h1
         mf_FC.get_ovlp = lambda *args: np.eye(n_electrons)
+
         mf_FC._eri = ao2mo.restore(8, h2, n_electrons)
         rho = np.zeros((n_electrons, n_electrons))
         for i in range(n_alpha_electrons):

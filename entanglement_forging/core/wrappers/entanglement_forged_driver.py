@@ -13,13 +13,12 @@
 """EntanglementForgedDriver."""
 
 import numpy as np
-from qiskit_nature.drivers import FermionicDriver, QMolecule
+from qiskit_nature.drivers import QMolecule, FermionicDriver
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 
 
-# pylint: disable=too-many-arguments)
 class EntanglementForgedDriver(FermionicDriver):
     """EntanglementForgedDriver."""
-
     def __init__(self,
                  hcore: np.ndarray,
                  mo_coeff: np.ndarray,
@@ -49,6 +48,8 @@ class EntanglementForgedDriver(FermionicDriver):
     def run(self) -> QMolecule:
         """Returns QMolecule constructed from input data."""
         q_molecule = QMolecule()
+        q_molecule.atom_symbol = []
+        q_molecule.atom_xyz = []
         q_molecule.hcore = self._hcore
         q_molecule.mo_coeff = self._mo_coeff
         q_molecule.eri = self._eri
