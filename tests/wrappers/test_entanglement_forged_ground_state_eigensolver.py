@@ -79,7 +79,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         molecule = Molecule(geometry=[('O', [0., 0., 0.]),
                                       ('H', [h1_x, 0., 0.]),
                                       ('H', [h2_x, h2_y, 0.0])], charge=0, multiplicity=1)
-        driver = PySCFDriver.from_molecule(molecule)
+        driver = PySCFDriver.from_molecule(molecule, basis='sto6g')
         problem = ElectronicStructureProblem(driver)
         driver_result = problem.second_q_ops()
 
