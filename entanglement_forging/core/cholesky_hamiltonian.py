@@ -17,6 +17,8 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
     build_ferm_op_from_ints
+from qiskit_nature.properties.second_quantization.electronic.integrals import IntegralProperty, OneBodyElectronicIntegrals, TwoBodyElectronicIntegrals
+from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 
 from ..utils.log import Log
 
@@ -61,7 +63,6 @@ def modified_cholesky(two_body_overlap_integrals, eps):
 
 
 def get_fermionic_ops_with_cholesky(
-        # pylint: disable=too-many-arguments disable-msg=too-many-locals disable=too-many-branches disable=too-many-statements
         mo_coeff,
         h1,
         h2,
@@ -172,14 +173,20 @@ def get_fermionic_ops_with_cholesky(
     h2 = np.einsum('prg,qsg->prqs', L, L)
     if halve_transformed_h2:
         h2 /= 2
+    h1_int = OneBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=h1)
+    h2_int = TwoBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=h2)
+    int_property = IntegralProperty("fer_op", [h1_int, h2_int])
 
-    fer_op = build_ferm_op_from_ints(h1, h2)
+    fer_op = int_property.second_q_ops()["fer_op"]
+
     converter = QubitConverter(JordanWignerMapper())
     qubit_op = converter.convert(fer_op)
     qubit_op._name = opname + '_onebodyop'  # pylint: disable=protected-access
     cholesky_ops = []
     for g in range(L.shape[2]):
-        cholesky_op = converter.convert(build_ferm_op_from_ints(L[:, :, g]))
+        cholesky_int = OneBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=L[:, :, g])
+        cholesky_property = IntegralProperty("cholesky_op", [cholesky_int])
+        cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
         cholesky_op._name = opname + '_chol' + str(g)  # pylint: disable=protected-access
         cholesky_ops.append(cholesky_op)
     return qubit_op, cholesky_ops, freeze_shift, h1, h2

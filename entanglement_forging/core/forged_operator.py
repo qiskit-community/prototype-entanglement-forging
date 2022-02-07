@@ -19,6 +19,7 @@ import qiskit_nature.drivers
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 
 from .cholesky_hamiltonian import get_fermionic_ops_with_cholesky
 from .orbitals_to_reduce import OrbitalsToReduce
@@ -53,12 +54,23 @@ class ForgedOperator:
             self.all_orbitals_to_reduce, self.problem)
         self.epsilon_cholesky = 1e-10
 
-        electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
-        electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
+        if isinstance(problem.driver, ElectronicStructureDriver):
+            electronic_basis_transform = self.problem.grouped_property.get_property("ElectronicBasisTransform")
+            electronic_energy = self.problem.grouped_property.get_property("ElectronicEnergy")
+            particle_number = self.problem.grouped_property.get_property("ParticleNumber")
 
-        mo_coeff = electronic_basis_transform.coeff_alpha
-        hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)._matrices[0]
-        eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)._matrices[0]
+            mo_coeff = electronic_basis_transform.coeff_alpha
+            hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)._matrices[0]
+            eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)._matrices[0]
+            num_alpha = particle_number.num_alpha
+            num_beta = particle_number.num_beta
+
+        else:
+            mo_coeff = problem.driver._mo_coeff
+            hcore = problem.driver._hcore
+            eri = problem.driver._eri
+            num_alpha = problem.driver._num_alpha
+            num_beta = problem.driver._num_beta
 
         fermionic_results = get_fermionic_ops_with_cholesky(
             mo_coeff,
@@ -69,12 +81,8 @@ class ForgedOperator:
             occupied_orbitals_to_reduce=self.orbitals_to_reduce.occupied(),
             virtual_orbitals_to_reduce=self.orbitals_to_reduce.virtual(),
             epsilon_cholesky=self.epsilon_cholesky)
-
         self.h_1_op, self.h_chol_ops, _, _, _ = fermionic_results
 
-        particle_number = self.problem.grouped_property.get_property("ParticleNumber")
-        num_alpha = particle_number.num_alpha
-        num_beta = particle_number.num_beta
         assert num_alpha == num_beta, \
             "Currently only supports molecules with equal number of alpha and beta particles."
 
