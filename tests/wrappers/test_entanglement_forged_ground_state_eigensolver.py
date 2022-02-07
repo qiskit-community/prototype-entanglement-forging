@@ -37,7 +37,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
     def setUp(self):
         np.random.seed(42)
         self.backend = AerSimulator(method="statevector")
-    @unittest.skip("skip")
+
     def test_forged_vqe_for_hydrogen(self):
         """ Test of applying Entanglement Forged VQE to to compute the energy of a H2 molecule. """
         # setup problem
@@ -47,6 +47,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
         driver_result = problem.second_q_ops()
+        print(driver_result)
 
         # solution
         bitstrings = [[1, 0], [0, 1]]
@@ -55,12 +56,17 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         config = EntanglementForgedConfig(backend=self.backend,
                                           maxiter=0,
                                           initial_params=[0, 0.5 * np.pi])
+
         converter = QubitConverter(JordanWignerMapper())
+
         forged_ground_state_solver = EntanglementForgedGroundStateSolver(
             converter, ansatz, bitstrings, config)
+
         forged_result = forged_ground_state_solver.solve(problem)
+
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
+    @unittest.skip("skip")
     def test_forged_vqe_for_water(self):  # pylint: disable=too-many-locals
         """ Test of applying Entanglement Forged VQE to to compute the energy of a H20 molecule. """
         # setup problem
