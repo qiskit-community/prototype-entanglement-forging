@@ -47,7 +47,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
         driver_result = problem.second_q_ops()
-        print(driver_result)
 
         # solution
         bitstrings = [[1, 0], [0, 1]]
@@ -64,9 +63,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         forged_result = forged_ground_state_solver.solve(problem)
 
-        self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
+        self.assertAlmostEqual(forged_result.ground_state_energy, -1.1221239740459672)
 
-    @unittest.skip("skip")
     def test_forged_vqe_for_water(self):  # pylint: disable=too-many-locals
         """ Test of applying Entanglement Forged VQE to to compute the energy of a H20 molecule. """
         # setup problem
@@ -120,9 +118,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         solver = EntanglementForgedGroundStateSolver(converter, ansatz, reduced_bitstrings, config,
                                                      orbitals_to_reduce)
         forged_result = solver.solve(problem)
-        self.assertAlmostEqual(forged_result.ground_state_energy, -75.68366174497027)
+        self.assertAlmostEqual(forged_result.ground_state_energy, -74.96656037582054)
 
-    @unittest.skip("skip")
     def test_ef_driver(self):
         """Test for entanglement forging driver."""
         hcore = np.array([
@@ -159,9 +156,8 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         forged_ground_state_solver = EntanglementForgedGroundStateSolver(
             converter, ansatz, bitstrings, config)
         forged_result = forged_ground_state_solver.solve(problem)
-        self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
+        self.assertAlmostEqual(forged_result.ground_state_energy, -1.122123966958644)
 
-    @unittest.skip("skip")
     def test_aux_results(self):
         """Test for aux results data.
         NOTE: aux data was added only because of before this data was stored in file system,
@@ -190,7 +186,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         self.assertEqual([name for name, _ in forged_result.auxiliary_results],
                          ['bootstrap', 'data', 'data_noextrapolation', 'optimal_params'])
 
-    @unittest.skip("skip")
     def test_ground_state_eigensolver_with_ef_driver(self):
         """Tests standard qiskit nature solver."""
         hcore = np.array([
