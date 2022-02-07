@@ -54,10 +54,7 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
             hcore = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 1)._matrices[0]
             eri = electronic_energy.get_electronic_integral(ElectronicBasis.AO, 2)._matrices[0]
 
-            if isinstance(problem.driver.atom, str):
-                num_molecular_orbitals = len(problem.driver.atom.split(";"))
-            else:
-                num_molecular_orbitals = len(problem.driver.atom)
+            num_molecular_orbitals = mo_coeff.shape[0]
 
             nuclear_repulsion_energy = electronic_energy.nuclear_repulsion_energy
 

@@ -14,7 +14,6 @@
 
 import numpy as np
 from qiskit_nature.drivers import QMolecule, FermionicDriver
-from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 
 
 class EntanglementForgedDriver(FermionicDriver):
