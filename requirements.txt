@@ -6,3 +6,4 @@ qiskit_ibmq_provider>=0.18.3
 pyscf>=2.0.1
 h5py>=3.6.0
 matplotlib>=2.1,<3.4
+jupyter
