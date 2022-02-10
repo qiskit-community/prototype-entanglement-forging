@@ -360,6 +360,7 @@ def get_optimizer_instance(config):
         optimizer = SPSA
     else:
         optimizer = getattr(optimizers, config.optimizer_name)
+
     optimizer_config = {}
     optimizer_arg_names = inspect.signature(optimizer).parameters.keys()
     iter_kw = [kw for kw in ["maxiter", "max_trials"] if kw in optimizer_arg_names][0]

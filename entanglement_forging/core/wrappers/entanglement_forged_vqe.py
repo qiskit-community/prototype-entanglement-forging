@@ -20,6 +20,8 @@ from typing import List, Tuple, Callable, Union
 import numpy as np
 from qiskit import transpile
 from qiskit.algorithms import VQE
+from qiskit.algorithms.optimizers import SPSA
+from qiskit.algorithms.optimizers.spsa import powerseries
 from qiskit.ignis.mitigation.measurement import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
@@ -165,8 +167,9 @@ class EntanglementForgedVQE(VQE):
 
         def energy_evaluation(parameters):
             Log.log("------ new iteration energy evaluation -----")
-            num_parameter_sets = len(parameters) // self.ansatz.num_parameters
-            parameter_sets = np.split(parameters, num_parameter_sets)
+            #num_parameter_sets = len(parameters) // self.ansatz.num_parameters
+            #parameter_sets = np.split(parameters, num_parameter_sets)
+            parameter_sets = np.reshape(parameters, (-1, self.ansatz.num_parameters))
             new_iteration_start_time = time.time()
 
             Log.log(
@@ -294,7 +297,7 @@ class EntanglementForgedVQE(VQE):
             self.energy_mean_each_parameter_set = energy_mean_each_parameter_set
             self.energy_std_each_parameter_set = energy_std_each_parameter_set
             return (
-                energy_mean_each_parameter_set
+                np.array(energy_mean_each_parameter_set)
                 if len(energy_mean_each_parameter_set) > 1
                 else energy_mean_each_parameter_set[0]
             )

@@ -190,7 +190,10 @@ def get_fermionic_ops_with_cholesky(
     h2_int = TwoBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=h2)
     int_property = IntegralProperty("fer_op", [h1_int, h2_int])
 
-    fer_op = int_property.second_q_ops()["fer_op"]
+    if isinstance(int_property.second_q_ops(), dict):
+        fer_op = int_property.second_q_ops()["fer_op"]
+    else:
+        fer_op = int_property.second_q_ops()[0]
 
     converter = QubitConverter(JordanWignerMapper())
     qubit_op = converter.convert(fer_op)
@@ -202,7 +205,10 @@ def get_fermionic_ops_with_cholesky(
             basis=ElectronicBasis.SO, matrices=L[:, :, g]
         )
         cholesky_property = IntegralProperty("cholesky_op", [cholesky_int])
-        cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
+        if isinstance(cholesky_property.second_q_ops(), dict):
+            cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
+        else:
+            cholesky_op = converter.convert(cholesky_property.second_q_ops()[0])
         #pylint: disable=protected-access
         cholesky_op._name = (
             opname + "_chol" + str(g)
