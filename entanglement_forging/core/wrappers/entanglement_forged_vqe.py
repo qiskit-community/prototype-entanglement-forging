@@ -20,8 +20,6 @@ from typing import List, Tuple, Callable, Union
 import numpy as np
 from qiskit import transpile
 from qiskit.algorithms import VQE
-from qiskit.algorithms.optimizers import SPSA
-from qiskit.algorithms.optimizers.spsa import powerseries
 from qiskit.ignis.mitigation.measurement import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
