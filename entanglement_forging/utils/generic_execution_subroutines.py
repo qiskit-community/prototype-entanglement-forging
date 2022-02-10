@@ -42,7 +42,7 @@ def execute_with_retry(circuits, backend, shots, rep_delay=None, noise_model=Non
             qobj = assemble(circuits, backend=backend,
                             shots=shots, rep_delay=rep_delay, noise_model=noise_model,
                             seed_simulator=42)
-            if backend.name() in ['statevector_simulator', 'qasm_simulator']:
+            if backend.name() in ['statevector_simulator', 'qasm_simulator', 'aer_simulator_statevector']:
                 job = backend.run(qobj, noise_model=noise_model)
             else:
                 job = backend.run(qobj)
@@ -58,6 +58,7 @@ def execute_with_retry(circuits, backend, shots, rep_delay=None, noise_model=Non
             trials += 1
             if trials > 100:
                 raise RuntimeError('Timed out trying to run job successfully (100 attempts)')  # pylint: disable=raise-missing-from
+    print(result.results[0])
     return result
 
 

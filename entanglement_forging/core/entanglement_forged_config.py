@@ -90,6 +90,7 @@ class EntanglementForgedConfig:
                  zero_noise_extrap=False,
                  ):
         """ The constructor for the EntanglementForgedConfig class. """
+        statevector_sims = ['statevector_simulator', 'aer_simulator_statevector']
         self.backend = backend
         self.backend_name = self.backend.configuration().backend_name
         self.qubit_layout = qubit_layout
@@ -104,11 +105,11 @@ class EntanglementForgedConfig:
         self.spsa_c1 = spsa_c1
         self.max_evals_grouped = max_evals_grouped
         self.rep_delay = rep_delay
-        self.shots = shots if self.backend_name != 'statevector_simulator' else 1
+        self.shots = shots if self.backend_name not in statevector_sims else 1
         self.fix_first_bitstring = fix_first_bitstring
         self.bootstrap_trials = bootstrap_trials
         self.copysample_job_size = copysample_job_size \
-            if self.backend_name != 'statevector_simulator' else None
+            if self.backend_name not in statevector_sims else None
         self.meas_error_mit = meas_error_mit
         self.meas_error_shots = meas_error_shots
         self.meas_error_refresh_period_minutes = meas_error_refresh_period_minutes
@@ -117,14 +118,14 @@ class EntanglementForgedConfig:
 
     def validate(self):
         """Validates the configuration settings."""
-
+        statevector_sims = ['statevector_simulator', 'aer_simulator_statevector']
         # TODO check this. I might have mixed up the error mitigations  # pylint: disable=fixme
         if self.meas_error_mit and self.zero_noise_extrap is None:
             raise ValueError(
                 'You have set meas_error_mit == True and must therefore '
                 'specify zero_noise_extrap, e.g., zero_noise_extrap = [1,3].')
 
-        if self.backend_name != 'statevector_simulator' \
+        if self.backend_name not in statevector_sims \
                 and self.backend_name != 'qasm_simulator' \
                 and self.backend is None:
             raise ValueError(
@@ -139,24 +140,24 @@ class EntanglementForgedConfig:
             warnings.warn(
                 "Ignoring setting for 'shots' as it is not used for the statevector simulator.")
 
-        if self.backend_name == 'statevector_simulator' \
+        if self.backend_name not in statevector_sims \
                 and self.copysample_job_size is not None:
             warnings.warn(
                 "Ignoring setting for 'copysample_job_size' as it is "
                 "not used for the statevector simulator.")
 
-        if self.backend_name == 'statevector_simulator' and self.meas_error_mit is True:
+        if self.backend_name in statevector_sims and self.meas_error_mit is True:
             warnings.warn(
                 "Ignoring setting for 'meas_error_mit' as it is "
                 "not used for the statevector simulator.")
 
-        if self.backend_name == 'statevector_simulator' \
+        if self.backend_name in statevector_sims \
                 and self.meas_error_refresh_period_minutes is not None:
             warnings.warn(
                 "Ignoring setting for 'meas_error_refresh_period_minutes' "
                 "as it is not used for the statevector simulator.")
 
-        if self.backend_name == 'statevector_simulator' and self.zero_noise_extrap != [
+        if self.backend_name in statevector_sims and self.zero_noise_extrap != [
             1]:
             warnings.warn(
                 "Ignoring setting for 'zero_noise_extrap' as it is "
