@@ -14,13 +14,20 @@
 
 import numpy as np
 
-from qiskit_nature.problems.second_quantization.electronic import (
-    ElectronicStructureProblem,
-)
-
 
 class OrbitalsToReduce:
+    """A class that describes which orbitals (all, occupied and virtual) to reduce.
+    Attributes:
+        all (list): All orbitals to be reduced.
+        occupied (list): Only the occupied orbitals to be reduced.
+        virtual (list): Only the virtual orbitals to be reduced.
+    """
     def __init__(self, all_orbitals_to_reduce, problem):
+        """Initialize the orbitals to reduce.
+        Args:
+            all_orbitals_to_reduce (list): All orbitals to be reduced.
+            problem (ElectronicStructureProblem): Problem class which holds driver
+        """
         self.problem = problem
         self.all = all_orbitals_to_reduce
 

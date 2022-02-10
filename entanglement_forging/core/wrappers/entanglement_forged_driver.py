@@ -18,7 +18,7 @@ from qiskit_nature.drivers import QMolecule, FermionicDriver
 
 class EntanglementForgedDriver(FermionicDriver):
     """EntanglementForgedDriver."""
-
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         hcore: np.ndarray,

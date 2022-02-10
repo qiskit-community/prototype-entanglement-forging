@@ -166,10 +166,11 @@ def check_commutativity(op_1, op_2, anti=False):
     return bool(com.is_empty())
 
 
+# pylint: disable=too-many-statements
 def evolution_instruction(
     pauli_list,
     evo_time,
-    num_time_slices,  # pylint: disable=too-many-statements
+    num_time_slices,
     controlled=False,
     power=1,
     use_basis_gates=True,

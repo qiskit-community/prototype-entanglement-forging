@@ -103,6 +103,7 @@ class LegacyBaseOperator(ABC):
         """
         raise NotImplementedError
 
+    # pylint: disable=too-many-arguments
     @abstractmethod
     def evolve(
         self,
@@ -110,7 +111,7 @@ class LegacyBaseOperator(ABC):
         evo_time,
         num_time_slices,
         expansion_mode,
-        expansion_order,  # pylint: disable=too-many-arguments
+        expansion_order,
         **kwargs
     ):
         r"""

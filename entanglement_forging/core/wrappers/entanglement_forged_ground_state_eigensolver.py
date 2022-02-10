@@ -62,14 +62,18 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         self._bitstrings = bitstrings
         self._config = config  # pylint: disable=arguments-differ
 
+    # pylint: disable=arguments-differ
     def solve(
-        self, problem, **kwargs
-    ) -> EntanglementForgedVQEResult:  # pylint: disable=unused-argument,arguments-differ
+            self,
+            problem: ElectronicStructureProblem,
+    ) -> EntanglementForgedVQEResult:
         """Compute Ground State properties of chemical problem.
 
         Args:
             problem: a qiskit_nature.problems.second_quantization
                 .electronic.electronic_structure_problem object.
+            aux_operators: additional auxiliary operators to evaluate
+            **kwargs: keyword args to pass to solver
 
         Raises:
             ValueError: If the transformation is not of the type FermionicTransformation.
@@ -88,7 +92,7 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
 
         start_time = time.time()
 
-        driver_result = problem.driver.run()
+        problem.driver.run()
         forged_operator = ForgedOperator(problem, self.orbitals_to_reduce)
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
 

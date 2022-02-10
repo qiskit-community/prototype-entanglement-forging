@@ -38,13 +38,13 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
     """
     TPB Grouped Weighted Pauli Operator
     """
-
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         paulis,
         basis,
         z2_symmetries=None,
-        atol=1e-12,  # pylint: disable=too-many-arguments
+        atol=1e-12,
         name=None,
         grouping_func=None,
         kwargs=None,

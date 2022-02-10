@@ -15,9 +15,6 @@
 import numpy as np
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import (
-    build_ferm_op_from_ints,
-)
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
@@ -70,6 +67,7 @@ def modified_cholesky(two_body_overlap_integrals, eps):
 
 
 def get_fermionic_ops_with_cholesky(
+    # pylint: disable=too-many-arguments disable-msg=too-many-locals disable=too-many-branches disable=too-many-statements
     mo_coeff,
     h1,
     h2,
@@ -196,7 +194,8 @@ def get_fermionic_ops_with_cholesky(
 
     converter = QubitConverter(JordanWignerMapper())
     qubit_op = converter.convert(fer_op)
-    qubit_op._name = opname + "_onebodyop"  # pylint: disable=protected-access
+    #pylint: disable=protected-access
+    qubit_op._name = opname + "_onebodyop"
     cholesky_ops = []
     for g in range(L.shape[2]):
         cholesky_int = OneBodyElectronicIntegrals(
@@ -204,8 +203,9 @@ def get_fermionic_ops_with_cholesky(
         )
         cholesky_property = IntegralProperty("cholesky_op", [cholesky_int])
         cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
+        #pylint: disable=protected-access
         cholesky_op._name = (
             opname + "_chol" + str(g)
-        )  # pylint: disable=protected-access
+        )
         cholesky_ops.append(cholesky_op)
     return qubit_op, cholesky_ops, freeze_shift, h1, h2

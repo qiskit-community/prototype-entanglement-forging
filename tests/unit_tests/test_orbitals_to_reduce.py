@@ -14,8 +14,8 @@
 import unittest
 
 import numpy as np
-from qiskit_nature.drivers import PySCFDriver, Molecule
 from qiskit_nature.drivers.second_quantization import PySCFDriver
+from qiskit_nature.drivers import Molecule
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 from entanglement_forging import OrbitalsToReduce
@@ -46,7 +46,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         all_orbitals_to_reduce = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -77,7 +77,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         all_orbitals_to_reduce = [0, 2, 4]
 
@@ -108,7 +108,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         all_orbitals_to_reduce = [6, 7, 9]
 

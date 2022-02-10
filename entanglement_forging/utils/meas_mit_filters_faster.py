@@ -143,9 +143,10 @@ class MeasurementFilter:
         if method == "pseudo_inverse":
             pinv_cal_mat = la.pinv(self._cal_matrix)
 
+            # pylint: disable=unused-variable
             corrected_data = np.einsum(
                 "ij,xj->xi", pinv_cal_mat, raw_data_array
-            )  # pylint: disable=unused-variable
+            )
 
         elif method == "least_squares":
 

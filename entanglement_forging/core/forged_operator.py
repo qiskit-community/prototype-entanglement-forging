@@ -15,10 +15,6 @@
 from typing import List
 
 import numpy as np
-import qiskit_nature.drivers
-from qiskit_nature.properties.second_quantization.electronic import (
-    ElectronicStructureDriverResult,
-)
 from qiskit_nature.properties.second_quantization.electronic.bases import (
     ElectronicBasis,
 )
@@ -172,14 +168,14 @@ class ForgedOperator:
         for paulis_this_gamma in paulis_each_op[1:]:
             for pname_1, w_1 in paulis_this_gamma.items():
                 i = pauli_ordering_for_tensor_states[pname_1]
-                a = pauli_ordering_for_superpos_states[
+                superpos_ordering1 = pauli_ordering_for_superpos_states[
                     pname_1
                 ]  # pylint: disable=invalid-name
                 for pname_2, w_2 in paulis_this_gamma.items():
                     j = pauli_ordering_for_tensor_states[pname_2]
-                    b = pauli_ordering_for_superpos_states[
+                    superpos_ordering2 = pauli_ordering_for_superpos_states[
                         pname_2
                     ]  # pylint: disable=invalid-name
                     w_ij[i, j] += np.real(w_1 * w_2)
-                    w_ab[a, b] += np.real(w_1 * w_2)  # pylint: disable=invalid-name
+                    w_ab[superpos_ordering1, superpos_ordering2] += np.real(w_1 * w_2)  # pylint: disable=invalid-name
         return tensor_paulis, superpos_paulis, w_ij, w_ab

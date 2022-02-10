@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Integration tests for EntanglementForgedVQE module."""
+# pylint: disable=wrong-import-position
 import unittest
 
 import numpy as np
@@ -30,12 +31,12 @@ from qiskit_nature import settings
 
 settings.dict_aux_operators = True
 
+from entanglement_forging import reduce_bitstrings
 from entanglement_forging import (
     EntanglementForgedConfig,
     EntanglementForgedDriver,
     EntanglementForgedGroundStateSolver,
 )
-from entanglement_forging import reduce_bitstrings
 
 
 class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
@@ -55,7 +56,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         # solution
         bitstrings = [[1, 0], [0, 1]]
@@ -97,7 +98,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule, basis="sto6g")
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         # solution
         orbitals_to_reduce = [0, 3]
@@ -173,7 +174,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             nuclear_repulsion_energy=0.7199689944489797,
         )
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         bitstrings = [[1, 0], [0, 1]]
         ansatz = TwoLocal(2, [], "cry", [[0, 1], [1, 0]], reps=1)
@@ -201,7 +202,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         driver = PySCFDriver.from_molecule(molecule)
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         # solution
         bitstrings = [[1, 0], [0, 1]]
@@ -248,7 +249,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             nuclear_repulsion_energy=repulsion_energy,
         )
         problem = ElectronicStructureProblem(driver)
-        driver_result = problem.second_q_ops()
+        problem.second_q_ops()
 
         converter = QubitConverter(JordanWignerMapper())
         solver = GroundStateEigensolver(

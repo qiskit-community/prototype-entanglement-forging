@@ -73,10 +73,11 @@ def execute_with_retry(circuits, backend, shots, rep_delay=None, noise_model=Non
             # Add more error types to the exception as new ones crop up (as appropriate).
             time.sleep(300)
             trials += 1
+            # pylint: disable=raise-missing-from
             if trials > 100:
                 raise RuntimeError(
                     "Timed out trying to run job successfully (100 attempts)"
-                )  # pylint: disable=raise-missing-from
+                )
     return result
 
 

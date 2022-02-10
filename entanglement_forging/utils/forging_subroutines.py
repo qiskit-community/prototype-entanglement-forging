@@ -13,7 +13,7 @@
 """ A set of subroutines that are used by the VQE_forged_entanglement class,
 which is defined in the vqe_forged_entanglement module
 """
-
+# pylint: disable=wrong-import-order
 import inspect
 import warnings
 
@@ -27,7 +27,6 @@ from .generic_execution_subroutines import compute_pauli_means_and_cov_for_one_b
 from .log import Log
 from .prepare_bitstring import prepare_bitstring
 from .pseudorichardson import richardson_extrapolate
-
 
 # pylint: disable=too-many-locals,too-many-arguments,too-many-branches,invalid-name
 def make_stateprep_circuits(bitstrings, no_bs0_circuits=True):
@@ -86,10 +85,8 @@ def prepare_circuits_to_execute(
     """
     circuits_to_execute = []
     # Generate the requisite circuits:
-    if (
-        type(var_form)
-        != "entanglement_forging.core.variational_forms.VarFormHopgateForged"
-    ):  # pylint: disable=unidiomatic-typecheck
+    # pylint: disable=unidiomatic-typecheck
+    if type(var_form) != 'entanglement_forging.core.variational_forms.VarFormHopgateForged':
         param_bindings = dict(zip(var_form.parameters, params))
         u_circuit = var_form.bind_parameters(param_bindings)
     else:
@@ -175,6 +172,7 @@ def eval_forged_op_with_result(
         raw_states, richardson_stretch_factors, axis=2
     )
 
+    # pylint: disable=unbalanced-tuple-unpacking
     forged_op_results_w_and_wo_extrapolation = []
     for (pauli_vals_tensor_states, pauli_vals_superpos_states) in [
         [pauli_vals_tensor_states_extrap, pauli_vals_superpos_states_extrap],
@@ -206,11 +204,12 @@ def eval_forged_op_with_result(
         schmidts = evecs[:, 0]
         op_mean = evals[0]
         op_std = None
+
         forged_op_results_w_and_wo_extrapolation.append([op_mean, op_std, schmidts])
     (
         forged_op_results_extrap,
         forged_op_results_raw,
-    ) = forged_op_results_w_and_wo_extrapolation  # pylint: disable=unbalanced-tuple-unpacking
+    ) = forged_op_results_w_and_wo_extrapolation
     return forged_op_results_extrap, forged_op_results_raw
 
 
@@ -305,9 +304,10 @@ def _eval_each_pauli_with_result(
     cov = np.zeros((num_paulis, num_paulis))
     for basis, p_indices in tpbgwpo._basis:  # pylint: disable=protected-access
         counts = result.get_counts(circuit_name_prefix + basis.to_label())
+        # pylint: disable=protected-access
         paulis = [
             tpbgwpo._paulis[idx] for idx in p_indices
-        ]  # pylint: disable=protected-access
+        ]
         paulis = [p[1] for p in paulis]  ## DISCARDING THE WEIGHTS
         means_this_basis, cov_this_basis = compute_pauli_means_and_cov_for_one_basis(
             paulis, counts

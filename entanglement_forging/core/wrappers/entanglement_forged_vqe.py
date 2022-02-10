@@ -133,18 +133,22 @@ class EntanglementForgedVQE(VQE):
 
     @property
     def shots_multiplier(self):
+        """Return the shots multiplier."""
         return self._shots_multiplier
 
     @shots_multiplier.setter
     def shots_multiplier(self, multiplier):
+        """Set the shots multiplier."""
         self._shots_multiplier = multiplier
 
     @property
     def bootstrap_trials(self):
+        """Return the bootstrap trials."""
         return self._bootstrap_trials
 
     @bootstrap_trials.setter
     def bootstrap_trials(self, trials):
+        """Set the bootstrap trials."""
         self._bootstrap_trials = trials
 
     def get_energy_evaluation(
@@ -155,7 +159,7 @@ class EntanglementForgedVQE(VQE):
             self._shots_multiplier = 1
 
         ansatz_params = self.ansatz.parameters
-        expect_op, expectation = self.construct_expectation(
+        _, expectation = self.construct_expectation(
             ansatz_params, operator, return_expectation=True
         )
 
