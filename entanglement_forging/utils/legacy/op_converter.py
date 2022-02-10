@@ -27,8 +27,10 @@ logger = logging.getLogger(__name__)
 
 # pylint: disable=invalid-name,no-else-return
 def to_tpb_grouped_weighted_pauli_operator(
-        operator: Union[WeightedPauliOperator, TPBGroupedWeightedPauliOperator],
-        grouping_func: Callable, **kwargs: int) -> TPBGroupedWeightedPauliOperator:
+    operator: Union[WeightedPauliOperator, TPBGroupedWeightedPauliOperator],
+    grouping_func: Callable,
+    **kwargs: int
+) -> TPBGroupedWeightedPauliOperator:
     """
 
     Args:
@@ -52,5 +54,7 @@ def to_tpb_grouped_weighted_pauli_operator(
         else:
             return op_tpb
     else:
-        raise AlgorithmError("Unsupported type to convert to TPBGroupedWeightedPauliOperator: "
-                             "{}".format(operator.__class__))
+        raise AlgorithmError(
+            "Unsupported type to convert to TPBGroupedWeightedPauliOperator: "
+            "{}".format(operator.__class__)
+        )

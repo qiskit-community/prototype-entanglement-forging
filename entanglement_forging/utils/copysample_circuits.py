@@ -34,8 +34,9 @@ def copysample_circuits(circuits_to_execute, weights, new_job_size=800):
 
     new_job_size = int(new_job_size)
     num_initial_circuits = len(circuits_to_execute)
-    assert new_job_size >= num_initial_circuits, \
-        'Try increasing copysample_job_size.' # turn this into a proper RaiseError
+    assert (
+        new_job_size >= num_initial_circuits
+    ), "Try increasing copysample_job_size."  # turn this into a proper RaiseError
 
     weights = np.array(weights) / np.sum(weights)
 
@@ -49,8 +50,9 @@ def copysample_circuits(circuits_to_execute, weights, new_job_size=800):
     copies_still_wanted_each_circuit = weights * new_job_size
     copies_still_wanted_each_circuit[copies_still_wanted_each_circuit < 1] = 1
     copies_still_wanted_each_circuit -= 1
-    copies_still_wanted_each_circuit *= (new_job_size - num_initial_circuits) \
-                                        / np.sum(copies_still_wanted_each_circuit)
+    copies_still_wanted_each_circuit *= (new_job_size - num_initial_circuits) / np.sum(
+        copies_still_wanted_each_circuit
+    )
     num_slots_available = new_job_size - num_initial_circuits
 
     easy_copies = np.floor(copies_still_wanted_each_circuit)
@@ -59,33 +61,41 @@ def copysample_circuits(circuits_to_execute, weights, new_job_size=800):
     copies_still_wanted_each_circuit %= 1
 
     if np.sum(copies_still_wanted_each_circuit):
-        prob_for_randomly_picking_from_leftovers = copies_still_wanted_each_circuit / np.sum(
-            copies_still_wanted_each_circuit)
-        hard_to_fill_idxs = np.random.choice(num_initial_circuits,
-                                             p=prob_for_randomly_picking_from_leftovers,
-                                             size=int(round(new_job_size -
-                                                            np.sum(copies_each_circuit))),
-                                             replace=False)
+        prob_for_randomly_picking_from_leftovers = (
+            copies_still_wanted_each_circuit / np.sum(copies_still_wanted_each_circuit)
+        )
+        hard_to_fill_idxs = np.random.choice(
+            num_initial_circuits,
+            p=prob_for_randomly_picking_from_leftovers,
+            size=int(round(new_job_size - np.sum(copies_each_circuit))),
+            replace=False,
+        )
         copies_each_circuit[hard_to_fill_idxs] += 1
 
-    circuit_name_templates = [qc.name + '_copysample{}' for qc in circuits_to_execute]
+    circuit_name_templates = [qc.name + "_copysample{}" for qc in circuits_to_execute]
 
-    for qcirc, num_copies, name_template in zip(circuits_to_execute, copies_each_circuit,
-                                             circuit_name_templates):
+    for qcirc, num_copies, name_template in zip(
+        circuits_to_execute, copies_each_circuit, circuit_name_templates
+    ):
         qcirc.name = name_template.format(0)
         if num_copies > 1:
-            circuits_to_execute += [qcirc.copy(name=name_template.format(i))
-                                    for i in range(1, int(num_copies))]
+            circuits_to_execute += [
+                qcirc.copy(name=name_template.format(i))
+                for i in range(1, int(num_copies))
+            ]
     return circuits_to_execute
 
 
 def combine_copysampled_results(aqua_result):
     """Combine results of compysampled circuits."""
     result_each_circuit = aqua_result.results
-    original_circuit_names = [re.sub('_copysample[0-9]+', '', r.header.name)
-                              for r in result_each_circuit]
+    original_circuit_names = [
+        re.sub("_copysample[0-9]+", "", r.header.name) for r in result_each_circuit
+    ]
     deduped_counts = {name: Counter({}) for name in set(original_circuit_names)}
     for name, res in zip(original_circuit_names, result_each_circuit):
         deduped_counts[name] += Counter(aqua_result.get_counts(res.header.name))
-    return CombinedResult(original_circuit_names, [deduped_counts[name]
-                                                   for name in original_circuit_names])
+    return CombinedResult(
+        original_circuit_names,
+        [deduped_counts[name] for name in original_circuit_names],
+    )

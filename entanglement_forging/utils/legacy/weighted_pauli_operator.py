@@ -30,9 +30,14 @@ from qiskit.utils import algorithm_globals
 from qiskit.providers.aer.extensions import SnapshotExpectationValue
 
 from .base_operator import LegacyBaseOperator
-from .common import (measure_pauli_z, covariance, pauli_measurement,
-                     suzuki_expansion_slice_pauli_list,
-                     check_commutativity, evolution_instruction)
+from .common import (
+    measure_pauli_z,
+    covariance,
+    pauli_measurement,
+    suzuki_expansion_slice_pauli_list,
+    check_commutativity,
+    evolution_instruction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,15 +46,18 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-branches,too-many-public-methods
 # pylint: disable=duplicate-code
 
-class WeightedPauliOperator(LegacyBaseOperator):
-    """ Weighted Pauli Operator """
 
-    def __init__(self,
-                 paulis: List[List[Union[complex, Pauli]]],
-                 basis: Optional[List[Tuple[object, List[int]]]] = None,
-                 z2_symmetries: 'Z2Symmetries' = None,
-                 atol: float = 1e-12,
-                 name: Optional[str] = None) -> None:
+class WeightedPauliOperator(LegacyBaseOperator):
+    """Weighted Pauli Operator"""
+
+    def __init__(
+        self,
+        paulis: List[List[Union[complex, Pauli]]],
+        basis: Optional[List[Tuple[object, List[int]]]] = None,
+        z2_symmetries: "Z2Symmetries" = None,
+        atol: float = 1e-12,
+        name: Optional[str] = None,
+    ) -> None:
         """
         Args:
             paulis: the list of weighted Paulis, where a weighted pauli is
@@ -67,8 +75,11 @@ class WeightedPauliOperator(LegacyBaseOperator):
         # plain store the paulis, the group information is store in the basis
         self._paulis_table = None
         self._paulis = paulis
-        self._basis = \
-            [(pauli[1], [i]) for i, pauli in enumerate(paulis)] if basis is None else basis
+        self._basis = (
+            [(pauli[1], [i]) for i, pauli in enumerate(paulis)]
+            if basis is None
+            else basis
+        )
         # combine the paulis and remove those with zero weight
         self.simplify()
         self._atol = atol
@@ -98,7 +109,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
     # pylint: disable=arguments-differ
     def to_opflow(self, reverse_endianness=False):
-        """ to op flow """
+        """to op flow"""
         # pylint: disable=import-outside-toplevel
         from qiskit.opflow import PrimitiveOp
 
@@ -122,17 +133,17 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
     @property
     def paulis(self):
-        """ get paulis """
+        """get paulis"""
         return self._paulis
 
     @property
     def atol(self):
-        """ get atol """
+        """get atol"""
         return self._atol
 
     @atol.setter
     def atol(self, new_value):
-        """ set atol """
+        """set atol"""
         self._atol = new_value
 
     @property
@@ -151,7 +162,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return res
 
     def __eq__(self, other):
-        """ Overload == operation """
+        """Overload == operation"""
         # need to clean up the zeros
         self.simplify()
         other.simplify()
@@ -165,7 +176,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
                     found_pauli = True
                     other_weight = weight2
                     break
-            if not found_pauli and other_weight != 0.0:  # since we might have 0 weights of paulis.
+            if (
+                not found_pauli and other_weight != 0.0
+            ):  # since we might have 0 weights of paulis.
                 return False
             if weight != other_weight:
                 return False
@@ -192,8 +205,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
         if not self.is_empty() and not other.is_empty():
             if self.num_qubits != other.num_qubits:
-                raise AlgorithmError("Can not add/sub two operators "
-                                     "with different number of qubits.")
+                raise AlgorithmError(
+                    "Can not add/sub two operators " "with different number of qubits."
+                )
 
         ret_op = self.copy() if copy else self
 
@@ -239,19 +253,19 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return self._add_or_sub(other, op_sub, copy=copy)
 
     def __add__(self, other):
-        """ Overload + operator """
+        """Overload + operator"""
         return self.add(other, copy=True)
 
     def __iadd__(self, other):
-        """ Overload += operator """
+        """Overload += operator"""
         return self.add(other, copy=False)
 
     def __sub__(self, other):
-        """ Overload - operator """
+        """Overload - operator"""
         return self.sub(other, copy=True)
 
     def __isub__(self, other):
-        """ Overload -= operator """
+        """Overload -= operator"""
         return self.sub(other, copy=False)
 
     def _scaling_weight(self, scaling_factor, copy=False):
@@ -271,10 +285,15 @@ class WeightedPauliOperator(LegacyBaseOperator):
         if not isinstance(scaling_factor, (int, float, complex)):
             raise ValueError(
                 "Type of scaling factor is a valid type. {} if given.".format(
-                    scaling_factor.__class__))
+                    scaling_factor.__class__
+                )
+            )
         ret = self.copy() if copy else self
         for idx in range(len(ret._paulis)):  # pylint: disable=consider-using-enumerate
-            ret._paulis[idx] = [ret._paulis[idx][0] * scaling_factor, ret._paulis[idx][1]]
+            ret._paulis[idx] = [
+                ret._paulis[idx][0] * scaling_factor,
+                ret._paulis[idx][1],
+            ]
         return ret
 
     def multiply(self, other):
@@ -298,31 +317,31 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return ret_op
 
     def __rmul__(self, other):
-        """ Overload other * self """
+        """Overload other * self"""
         if isinstance(other, (int, float, complex)):
             return self._scaling_weight(other, copy=True)
         else:
             return other.multiply(self)
 
     def __mul__(self, other):
-        """ Overload self * other """
+        """Overload self * other"""
         if isinstance(other, (int, float, complex)):
             return self._scaling_weight(other, copy=True)
         else:
             return self.multiply(other)
 
     def __neg__(self):
-        """Overload unary - """
+        """Overload unary -"""
         return self._scaling_weight(-1.0, copy=True)
 
     def __str__(self):
-        """ Overload str() """
-        curr_repr = 'paulis'
+        """Overload str()"""
+        curr_repr = "paulis"
         length = len(self._paulis)
-        name = "" if self._name == '' else "{}: ".format(self._name)
-        ret = "{}Representation: {}, qubits: {}, size: {}".format(name,
-                                                                  curr_repr,
-                                                                  self.num_qubits, length)
+        name = "" if self._name == "" else "{}: ".format(self._name)
+        ret = "{}Representation: {}, qubits: {}, size: {}".format(
+            name, curr_repr, self.num_qubits, length
+        )
         return ret
 
     def print_details(self):
@@ -336,12 +355,12 @@ class WeightedPauliOperator(LegacyBaseOperator):
             return "Operator is empty."
         ret = ""
         for weight, pauli in self._paulis:
-            ret = ''.join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
+            ret = "".join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
 
         return ret
 
     def copy(self):
-        """ Get a copy of self """
+        """Get a copy of self"""
         return deepcopy(self)
 
     def simplify(self, copy=False):
@@ -418,7 +437,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
         """
         op = self.copy() if copy else self
 
-        op._paulis = [[np.around(weight, decimals=decimals), pauli] for weight, pauli in op.paulis]
+        op._paulis = [
+            [np.around(weight, decimals=decimals), pauli] for weight, pauli in op.paulis
+        ]
 
         return op
 
@@ -467,8 +488,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
                 paulis.append([new_weight, pauli])
 
         op._paulis = paulis
-        op._paulis_table = \
-            {weighted_pauli[1].to_label(): i for i, weighted_pauli in enumerate(paulis)}
+        op._paulis_table = {
+            weighted_pauli[1].to_label(): i for i, weighted_pauli in enumerate(paulis)
+        }
         # update the grouping info, since this method only remove pauli,
         # we can handle it here for both
         # pauli and tpb grouped pauli
@@ -485,11 +507,11 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return op
 
     def commute_with(self, other):
-        """ Commutes with """
+        """Commutes with"""
         return check_commutativity(self, other)
 
     def anticommute_with(self, other):
-        """ Anti commutes with """
+        """Anti commutes with"""
         return check_commutativity(self, other, anti=True)
 
     def is_empty(self):
@@ -518,7 +540,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         Returns:
             WeightedPauliOperator: the loaded operator.
         """
-        with open(file_name, 'r') as file:
+        with open(file_name, "r") as file:
             return cls.from_dict(json.load(file), before_04=before_04)
 
     def to_file(self, file_name):
@@ -529,7 +551,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
             file_name (str): path to the file
 
         """
-        with open(file_name, 'w') as file:
+        with open(file_name, "w") as file:
             json.dump(self.to_dict(), file)
 
     @classmethod
@@ -562,25 +584,25 @@ class WeightedPauliOperator(LegacyBaseOperator):
         Raises:
             AlgorithmError: Invalid dictionary
         """
-        if 'paulis' not in dictionary:
+        if "paulis" not in dictionary:
             raise AlgorithmError('Dictionary missing "paulis" key')
 
         paulis = []
-        for op in dictionary['paulis']:
-            if 'label' not in op:
+        for op in dictionary["paulis"]:
+            if "label" not in op:
                 raise AlgorithmError('Dictionary missing "label" key')
 
-            pauli_label = op['label']
-            if 'coeff' not in op:
+            pauli_label = op["label"]
+            if "coeff" not in op:
                 raise AlgorithmError('Dictionary missing "coeff" key')
 
-            pauli_coeff = op['coeff']
-            if 'real' not in pauli_coeff:
+            pauli_coeff = op["coeff"]
+            if "real" not in pauli_coeff:
                 raise AlgorithmError('Dictionary missing "real" key')
 
-            coeff = pauli_coeff['real']
-            if 'imag' in pauli_coeff:
-                coeff = complex(pauli_coeff['real'], pauli_coeff['imag'])
+            coeff = pauli_coeff["real"]
+            if "imag" in pauli_coeff:
+                coeff = complex(pauli_coeff["real"], pauli_coeff["imag"])
 
             pauli_label = pauli_label[::-1] if before_04 else pauli_label
             paulis.append([coeff, Pauli(pauli_label)])
@@ -598,9 +620,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         for coeff, pauli in self._paulis:
             op = {"label": pauli.to_label()}
             if isinstance(coeff, complex):
-                op["coeff"] = {"real": np.real(coeff),
-                               "imag": np.imag(coeff)
-                               }
+                op["coeff"] = {"real": np.real(coeff), "imag": np.imag(coeff)}
             else:
                 op["coeff"] = {"real": coeff}
 
@@ -609,9 +629,15 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return ret_dict
 
     # pylint: disable=arguments-differ
-    def construct_evaluation_circuit(self, wave_function, statevector_mode,
-                                     qr=None, cr=None, use_simulator_snapshot_mode=False,
-                                     circuit_name_prefix=''):
+    def construct_evaluation_circuit(
+        self,
+        wave_function,
+        statevector_mode,
+        qr=None,
+        cr=None,
+        use_simulator_snapshot_mode=False,
+        circuit_name_prefix="",
+    ):
         r"""
         Construct the circuits for evaluation, which calculating the expectation <psi\|H\|psi>.
 
@@ -646,31 +672,39 @@ class WeightedPauliOperator(LegacyBaseOperator):
         from qiskit.utils.run_circuits import find_regs_by_name
 
         if qr is None:
-            qr = find_regs_by_name(wave_function, 'q')
+            qr = find_regs_by_name(wave_function, "q")
             if qr is None:
-                raise AlgorithmError("Either provide the quantum register "
-                                     "(qreg) explicitly or use `q` as the name "
-                                     "of the quantum register in the input circuit.")
+                raise AlgorithmError(
+                    "Either provide the quantum register "
+                    "(qreg) explicitly or use `q` as the name "
+                    "of the quantum register in the input circuit."
+                )
         else:
             if not wave_function.has_register(qr):
-                raise AlgorithmError("The provided QuantumRegister (qreg) is not in the circuit.")
+                raise AlgorithmError(
+                    "The provided QuantumRegister (qreg) is not in the circuit."
+                )
 
         n_qubits = self.num_qubits
-        instructions = self.evaluation_instruction(statevector_mode, use_simulator_snapshot_mode)
+        instructions = self.evaluation_instruction(
+            statevector_mode, use_simulator_snapshot_mode
+        )
         circuits = []
         if use_simulator_snapshot_mode:
-            circuit = wave_function.copy(name=circuit_name_prefix + 'snapshot_mode')
+            circuit = wave_function.copy(name=circuit_name_prefix + "snapshot_mode")
             # Add expectation value snapshot instruction
-            instr = instructions.get('expval_snapshot', None)
+            instr = instructions.get("expval_snapshot", None)
             if instr is not None:
                 circuit.append(instr, qr)
             circuits.append(circuit)
         elif statevector_mode:
-            circuits.append(wave_function.copy(name=circuit_name_prefix + 'psi'))
+            circuits.append(wave_function.copy(name=circuit_name_prefix + "psi"))
             for _, pauli in self._paulis:
                 inst = instructions.get(pauli.to_label(), None)
                 if inst is not None:
-                    circuit = wave_function.copy(name=circuit_name_prefix + pauli.to_label())
+                    circuit = wave_function.copy(
+                        name=circuit_name_prefix + pauli.to_label()
+                    )
                     circuit.append(inst, qr)
                     circuits.append(circuit)
         else:
@@ -679,9 +713,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
                 if not base_circuit.has_register(cr):
                     base_circuit.add_register(cr)
             else:
-                cr = find_regs_by_name(base_circuit, 'c', qreg=False)
+                cr = find_regs_by_name(base_circuit, "c", qreg=False)
                 if cr is None:
-                    cr = ClassicalRegister(n_qubits, name='c')
+                    cr = ClassicalRegister(n_qubits, name="c")
                     base_circuit.add_register(cr)
 
             for basis, _ in self._basis:
@@ -691,7 +725,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
         return circuits
 
-    def evaluation_instruction(self, statevector_mode, use_simulator_snapshot_mode=False):
+    def evaluation_instruction(
+        self, statevector_mode, use_simulator_snapshot_mode=False
+    ):
         """
         Args:
             statevector_mode (bool): will it be run on statevector simulator or not
@@ -710,12 +746,14 @@ class WeightedPauliOperator(LegacyBaseOperator):
         qr = QuantumRegister(self.num_qubits)
         qc = QuantumCircuit(qr)
         if use_simulator_snapshot_mode and self.paulis:
-            snapshot = SnapshotExpectationValue('expval', self.paulis)
-            instructions = {'expval_snapshot': snapshot}
+            snapshot = SnapshotExpectationValue("expval", self.paulis)
+            instructions = {"expval_snapshot": snapshot}
         elif statevector_mode:
             for _, pauli in self._paulis:
                 tmp_qc = qc.copy(name="Pauli " + pauli.to_label())
-                if np.all(np.logical_not(pauli.z)) and np.all(np.logical_not(pauli.x)):  # all I
+                if np.all(np.logical_not(pauli.z)) and np.all(
+                    np.logical_not(pauli.x)
+                ):  # all I
                     continue
                 # This explicit barrier is needed for statevector simulator since Qiskit-terra
                 # will remove global phase at default compilation level but the results here
@@ -733,8 +771,13 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return instructions
 
     # pylint: disable=arguments-differ
-    def evaluate_with_result(self, result, statevector_mode, use_simulator_snapshot_mode=False,
-                             circuit_name_prefix=''):
+    def evaluate_with_result(
+        self,
+        result,
+        statevector_mode,
+        use_simulator_snapshot_mode=False,
+        circuit_name_prefix="",
+    ):
         """
         This method can be only used with the circuits generated by the
         :meth:`construct_evaluation_circuit` method with the same `circuit_name_prefix`
@@ -762,34 +805,44 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
         avg, std_dev, variance = 0.0, 0.0, 0.0
         if use_simulator_snapshot_mode:
-            snapshot_data = result.data(
-                circuit_name_prefix + 'snapshot_mode')['snapshots']
-            avg = snapshot_data['expectation_value']['expval'][0]['value']
+            snapshot_data = result.data(circuit_name_prefix + "snapshot_mode")[
+                "snapshots"
+            ]
+            avg = snapshot_data["expectation_value"]["expval"][0]["value"]
             if isinstance(avg, (list, tuple)):
                 # Aer versions before 0.4 use a list snapshot format
                 # which must be converted to a complex value.
                 avg = avg[0] + 1j * avg[1]
         elif statevector_mode:
-            quantum_state = np.asarray(result.get_statevector(circuit_name_prefix + 'psi'))
+            quantum_state = np.asarray(
+                result.get_statevector(circuit_name_prefix + "psi")
+            )
             for weight, pauli in self._paulis:
                 # all I
                 if np.all(np.logical_not(pauli.z)) and np.all(np.logical_not(pauli.x)):
                     avg += weight
                 else:
-                    quantum_state_i = \
-                        result.get_statevector(circuit_name_prefix + pauli.to_label())
-                    avg += (weight * (np.vdot(quantum_state, quantum_state_i)))
+                    quantum_state_i = result.get_statevector(
+                        circuit_name_prefix + pauli.to_label()
+                    )
+                    avg += weight * (np.vdot(quantum_state, quantum_state_i))
         else:
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug("Computing the expectation from measurement results:")
                 TextProgressBar(sys.stderr)
             # pick the first result to get the total number of shots
             num_shots = sum(list(result.get_counts(0).values()))
-            results = parallel_map(WeightedPauliOperator._routine_compute_mean_and_var,
-                                   [([self._paulis[idx] for idx in indices],
-                                     result.get_counts(circuit_name_prefix + basis.to_label()))
-                                    for basis, indices in self._basis],
-                                   num_processes=algorithm_globals.num_processes)
+            results = parallel_map(
+                WeightedPauliOperator._routine_compute_mean_and_var,
+                [
+                    (
+                        [self._paulis[idx] for idx in indices],
+                        result.get_counts(circuit_name_prefix + basis.to_label()),
+                    )
+                    for basis, indices in self._basis
+                ],
+                num_processes=algorithm_globals.num_processes,
+            )
             for res in results:
                 avg += res[0]
                 variance += res[1]
@@ -811,8 +864,17 @@ class WeightedPauliOperator(LegacyBaseOperator):
             weight_1, pauli_1 = weighted_pauli_1
             for idx_2, weighted_pauli_2 in enumerate(paulis):
                 weight_2, pauli_2 = weighted_pauli_2
-                variance += weight_1 * weight_2 * covariance(measured_results, pauli_1, pauli_2,
-                                                             avg_paulis[idx_1], avg_paulis[idx_2])
+                variance += (
+                    weight_1
+                    * weight_2
+                    * covariance(
+                        measured_results,
+                        pauli_1,
+                        pauli_2,
+                        avg_paulis[idx_1],
+                        avg_paulis[idx_2],
+                    )
+                )
 
         return avg, variance
 
@@ -845,8 +907,15 @@ class WeightedPauliOperator(LegacyBaseOperator):
         return self._paulis
 
     # pylint: disable=arguments-differ
-    def evolve(self, state_in=None, evo_time=0, num_time_slices=1, quantum_registers=None,
-               expansion_mode='trotter', expansion_order=1):
+    def evolve(
+        self,
+        state_in=None,
+        evo_time=0,
+        num_time_slices=1,
+        quantum_registers=None,
+        expansion_mode="trotter",
+        expansion_order=1,
+    ):
         """
         Carry out the eoh evolution for the operator under supplied specifications.
 
@@ -875,7 +944,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
 
         if state_in is not None and quantum_registers is not None:
             if not state_in.has_register(quantum_registers):
-                raise AlgorithmError("quantum_registers must be in the provided state_in circuit.")
+                raise AlgorithmError(
+                    "quantum_registers must be in the provided state_in circuit."
+                )
         elif state_in is None and quantum_registers is None:
             quantum_registers = QuantumRegister(self.num_qubits)
             qc = QuantumCircuit(quantum_registers)
@@ -886,13 +957,15 @@ class WeightedPauliOperator(LegacyBaseOperator):
         else:
             qc = QuantumCircuit(quantum_registers)
 
-        instruction = self.evolve_instruction(evo_time, num_time_slices,
-                                              expansion_mode, expansion_order)
+        instruction = self.evolve_instruction(
+            evo_time, num_time_slices, expansion_mode, expansion_order
+        )
         qc.append(instruction, quantum_registers)
         return qc
 
-    def evolve_instruction(self, evo_time=0, num_time_slices=1,
-                           expansion_mode='trotter', expansion_order=1):
+    def evolve_instruction(
+        self, evo_time=0, num_time_slices=1, expansion_mode="trotter", expansion_order=1
+    ):
         """
         Carry out the eoh evolution for the operator under supplied specifications.
 
@@ -918,30 +991,30 @@ class WeightedPauliOperator(LegacyBaseOperator):
             raise AlgorithmError("Operator is empty, can not build evolve instruction.")
         # pylint: disable=no-member
         if num_time_slices <= 0 or not isinstance(num_time_slices, int):
-            raise ValueError('Number of time slices should be a non-negative integer.')
-        if expansion_mode not in ['trotter', 'suzuki']:
-            raise NotImplementedError('Expansion mode {} not supported.'.format(expansion_mode))
+            raise ValueError("Number of time slices should be a non-negative integer.")
+        if expansion_mode not in ["trotter", "suzuki"]:
+            raise NotImplementedError(
+                "Expansion mode {} not supported.".format(expansion_mode)
+            )
 
         pauli_list = self.reorder_paulis()
 
         if len(pauli_list) == 1:
             slice_pauli_list = pauli_list
         else:
-            if expansion_mode == 'trotter':
+            if expansion_mode == "trotter":
                 slice_pauli_list = pauli_list
             # suzuki expansion
             else:
                 slice_pauli_list = suzuki_expansion_slice_pauli_list(
-                    pauli_list,
-                    1,
-                    expansion_order
+                    pauli_list, 1, expansion_order
                 )
         instruction = evolution_instruction(slice_pauli_list, evo_time, num_time_slices)
         return instruction
 
 
 class Z2Symmetries:
-    """ Z2 Symmetries """
+    """Z2 Symmetries"""
 
     def __init__(self, symmetries, sq_paulis, sq_list, tapering_values=None):
         """
@@ -957,17 +1030,23 @@ class Z2Symmetries:
             AlgorithmError: Invalid paulis
         """
         if len(symmetries) != len(sq_paulis):
-            raise AlgorithmError("Number of Z2 symmetries has to be the same as number "
-                                 "of single-qubit pauli x.")
+            raise AlgorithmError(
+                "Number of Z2 symmetries has to be the same as number "
+                "of single-qubit pauli x."
+            )
 
         if len(sq_paulis) != len(sq_list):
-            raise AlgorithmError("Number of single-qubit pauli x has to be the same "
-                                 "as length of single-qubit list.")
+            raise AlgorithmError(
+                "Number of single-qubit pauli x has to be the same "
+                "as length of single-qubit list."
+            )
 
         if tapering_values is not None:
             if len(sq_list) != len(tapering_values):
-                raise AlgorithmError("The length of single-qubit list has "
-                                     "to be the same as length of tapering values.")
+                raise AlgorithmError(
+                    "The length of single-qubit list has "
+                    "to be the same as length of tapering values."
+                )
 
         self._symmetries = symmetries
         self._sq_paulis = sq_paulis
@@ -976,12 +1055,12 @@ class Z2Symmetries:
 
     @property
     def symmetries(self):
-        """ return symmetries """
+        """return symmetries"""
         return self._symmetries
 
     @property
     def sq_paulis(self):
-        """ returns sq paulis """
+        """returns sq paulis"""
         return self._sq_paulis
 
     @property
@@ -992,24 +1071,27 @@ class Z2Symmetries:
         Returns:
             list[WeightedPauliOperator]: a list of unitaries used to diagonalize the Hamiltonian.
         """
-        cliffords = [WeightedPauliOperator(paulis=[[1 / np.sqrt(2), pauli_symm],
-                                                   [1 / np.sqrt(2), sq_pauli]])
-                     for pauli_symm, sq_pauli in zip(self._symmetries, self._sq_paulis)]
+        cliffords = [
+            WeightedPauliOperator(
+                paulis=[[1 / np.sqrt(2), pauli_symm], [1 / np.sqrt(2), sq_pauli]]
+            )
+            for pauli_symm, sq_pauli in zip(self._symmetries, self._sq_paulis)
+        ]
         return cliffords
 
     @property
     def sq_list(self):
-        """ returns sq list """
+        """returns sq list"""
         return self._sq_list
 
     @property
     def tapering_values(self):
-        """ returns tapering values """
+        """returns tapering values"""
         return self._tapering_values
 
     @tapering_values.setter
     def tapering_values(self, new_value):
-        """ set tapering values """
+        """set tapering values"""
         self._tapering_values = new_value
 
     def __str__(self):
@@ -1027,10 +1109,11 @@ class Z2Symmetries:
         ret.append(str(self._sq_list))
         ret.append("Tapering values:")
         if self._tapering_values is None:
-            possible_values = \
-                [str(list(coeff)) for coeff in itertools.product([1, -1],
-                                                                 repeat=len(self._sq_list))]
-            possible_values = ', '.join(x for x in possible_values)
+            possible_values = [
+                str(list(coeff))
+                for coeff in itertools.product([1, -1], repeat=len(self._sq_list))
+            ]
+            possible_values = ", ".join(x for x in possible_values)
             ret.append("  - Possible values: " + possible_values)
         else:
             ret.append(str(self._tapering_values))
@@ -1038,7 +1121,7 @@ class Z2Symmetries:
         ret = "\n".join(ret)
         return ret
 
-    def copy(self) -> 'Z2Symmetries':
+    def copy(self) -> "Z2Symmetries":
         """
         Get a copy of self.
 
@@ -1078,8 +1161,10 @@ class Z2Symmetries:
             AlgorithmError: Z2 symmetries, single qubit pauli and single qubit list cannot be empty
         """
         if not self._symmetries or not self._sq_paulis or not self._sq_list:
-            raise AlgorithmError("Z2 symmetries, single qubit pauli and "
-                                 "single qubit list cannot be empty.")
+            raise AlgorithmError(
+                "Z2 symmetries, single qubit pauli and "
+                "single qubit list cannot be empty."
+            )
 
         if operator.is_empty():
             logger.warning("The operator is empty, return the empty operator directly.")
@@ -1088,22 +1173,29 @@ class Z2Symmetries:
         for clifford in self.cliffords:
             operator = clifford * operator * clifford
 
-        tapering_values = tapering_values if tapering_values is not None else self._tapering_values
+        tapering_values = (
+            tapering_values if tapering_values is not None else self._tapering_values
+        )
 
         def _taper(op, curr_tapering_values):
             z2_symmetries = self.copy()
             z2_symmetries.tapering_values = curr_tapering_values
-            operator_out = WeightedPauliOperator(paulis=[], z2_symmetries=z2_symmetries,
-                                                 name=operator.name)
+            operator_out = WeightedPauliOperator(
+                paulis=[], z2_symmetries=z2_symmetries, name=operator.name
+            )
             for pauli_term in op.paulis:
                 coeff_out = pauli_term[0]
                 for idx, qubit_idx in enumerate(self._sq_list):
-                    if not (not pauli_term[1].z[qubit_idx] and not pauli_term[1].x[qubit_idx]):
+                    if not (
+                        not pauli_term[1].z[qubit_idx]
+                        and not pauli_term[1].x[qubit_idx]
+                    ):
                         coeff_out = curr_tapering_values[idx] * coeff_out
                 z_temp = np.delete(pauli_term[1].z.copy(), np.asarray(self._sq_list))
                 x_temp = np.delete(pauli_term[1].x.copy(), np.asarray(self._sq_list))
                 pauli_term_out = WeightedPauliOperator(
-                    paulis=[[coeff_out, Pauli((z_temp, x_temp))]])
+                    paulis=[[coeff_out, Pauli((z_temp, x_temp))]]
+                )
                 operator_out += pauli_term_out
             operator_out.chop(0.0)
             return operator_out
@@ -1139,8 +1231,10 @@ class Z2Symmetries:
 
         """
         if operator.is_empty():
-            logger.info("Operator is empty, can not do two qubit reduction. "
-                        "Return the empty operator back.")
+            logger.info(
+                "Operator is empty, can not do two qubit reduction. "
+                "Return the empty operator back."
+            )
             return operator
 
         if isinstance(num_particles, (tuple, list)):
@@ -1162,14 +1256,14 @@ class Z2Symmetries:
         # build symmetries, sq_paulis:
         symmetries, sq_paulis = [], []
         for idx in sq_list:
-            pauli_str = ['I'] * num_qubits
+            pauli_str = ["I"] * num_qubits
 
-            pauli_str[idx] = 'Z'
-            z_sym = Pauli(''.join(pauli_str)[::-1])
+            pauli_str[idx] = "Z"
+            z_sym = Pauli("".join(pauli_str)[::-1])
             symmetries.append(z_sym)
 
-            pauli_str[idx] = 'X'
-            sq_pauli = Pauli(''.join(pauli_str)[::-1])
+            pauli_str[idx] = "X"
+            sq_pauli = Pauli("".join(pauli_str)[::-1])
             sq_paulis.append(sq_pauli)
 
         z2_symmetries = Z2Symmetries(symmetries, sq_paulis, sq_list, tapering_values)
@@ -1194,7 +1288,9 @@ class Z2Symmetries:
 
         for symmetry in self._symmetries:
             if not operator.commute_with(symmetry):
-                raise AlgorithmError("The given operator does not commute with "
-                                     "the symmetry, can not taper it.")
+                raise AlgorithmError(
+                    "The given operator does not commute with "
+                    "the symmetry, can not taper it."
+                )
 
         return self.taper(operator)

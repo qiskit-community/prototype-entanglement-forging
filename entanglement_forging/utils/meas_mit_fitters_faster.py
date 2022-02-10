@@ -43,11 +43,13 @@ class CompleteMeasFitter:
     Measurement correction fitter for a full calibration
     """
 
-    def __init__(self,
-                 results: Union[Result, List[Result]],
-                 state_labels: List[str],
-                 qubit_list: List[int] = None,
-                 circlabel: str = ''):
+    def __init__(
+        self,
+        results: Union[Result, List[Result]],
+        state_labels: List[str],
+        qubit_list: List[int] = None,
+        circlabel: str = "",
+    ):
         """
         Initialize a measurement calibration matrix from the results of running
         the circuits returned by `measurement_calibration_circuits`
@@ -70,10 +72,9 @@ class CompleteMeasFitter:
             qubit_list = range(len(state_labels[0]))
         self._qubit_list = qubit_list
 
-        self._tens_fitt = TensoredMeasFitter(results,
-                                             [qubit_list],
-                                             [state_labels],
-                                             circlabel)
+        self._tens_fitt = TensoredMeasFitter(
+            results, [qubit_list], [state_labels], circlabel
+        )
 
     @property
     def cal_matrix(self):
@@ -160,7 +161,7 @@ class CompleteMeasFitter:
         state_labels_reduced = []
         for label in self.state_labels:
             tmplabel = [label[index] for index in qubit_sublist_ind]
-            state_labels_reduced.append(''.join(tmplabel))
+            state_labels_reduced.append("".join(tmplabel))
 
         for sub_lab_ind, _ in enumerate(new_state_labels):
             q_q_mapping.append([])
@@ -168,12 +169,11 @@ class CompleteMeasFitter:
                 if label == new_state_labels[sub_lab_ind]:
                     q_q_mapping[-1].append(labelind)
 
-        new_fitter = CompleteMeasFitter(results=None,
-                                        state_labels=new_state_labels,
-                                        qubit_list=qubit_sublist)
+        new_fitter = CompleteMeasFitter(
+            results=None, state_labels=new_state_labels, qubit_list=qubit_sublist
+        )
 
-        new_cal_matrix = np.zeros([len(new_state_labels),
-                                   len(new_state_labels)])
+        new_cal_matrix = np.zeros([len(new_state_labels), len(new_state_labels)])
 
         # do a partial trace
         for i in range(len(new_state_labels)):
@@ -181,8 +181,7 @@ class CompleteMeasFitter:
 
                 for q_q_i_map in q_q_mapping[i]:
                     for q_q_j_map in q_q_mapping[j]:
-                        new_cal_matrix[i, j] += self.cal_matrix[q_q_i_map,
-                                                                q_q_j_map]
+                        new_cal_matrix[i, j] += self.cal_matrix[q_q_i_map, q_q_j_map]
 
                 new_cal_matrix[i, j] /= len(q_q_mapping[i])
 
@@ -221,19 +220,23 @@ class CompleteMeasFitter:
                 plot
         """
 
-        self._tens_fitt.plot_calibration(0, ax, show_plot)  # pylint: disable=invalid-name
+        self._tens_fitt.plot_calibration(
+            0, ax, show_plot
+        )  # pylint: disable=invalid-name
 
 
-class TensoredMeasFitter():
+class TensoredMeasFitter:
     """
     Measurement correction fitter for a tensored calibration.
     """
 
-    def __init__(self,
-                 results: Union[Result, List[Result]],
-                 mit_pattern: List[List[int]],
-                 substate_labels_list: List[List[str]] = None,
-                 circlabel: str = ''):
+    def __init__(
+        self,
+        results: Union[Result, List[Result]],
+        mit_pattern: List[List[int]],
+        substate_labels_list: List[List[str]] = None,
+        circlabel: str = "",
+    ):
         """
         Initialize a measurement calibration matrix from the results of running
         the circuits returned by `measurement_calibration_circuits`.
@@ -262,8 +265,7 @@ class TensoredMeasFitter():
         self._cal_matrices = None
         self._circlabel = circlabel
 
-        self._qubit_list_sizes = \
-            [len(qubit_list) for qubit_list in mit_pattern]
+        self._qubit_list_sizes = [len(qubit_list) for qubit_list in mit_pattern]
 
         self._indices_list = []
         if substate_labels_list is None:
@@ -273,13 +275,14 @@ class TensoredMeasFitter():
         else:
             self._substate_labels_list = substate_labels_list
             if len(self._qubit_list_sizes) != len(substate_labels_list):
-                raise ValueError("mit_pattern does not match \
-                    substate_labels_list")
+                raise ValueError(
+                    "mit_pattern does not match \
+                    substate_labels_list"
+                )
 
         self._indices_list = []
         for _, sub_labels in enumerate(self._substate_labels_list):
-            self._indices_list.append(
-                {lab: ind for ind, lab in enumerate(sub_labels)})
+            self._indices_list.append({lab: ind for ind, lab in enumerate(sub_labels)})
 
         self.add_data(results)
 
@@ -354,8 +357,7 @@ class TensoredMeasFitter():
             raise QiskitError("Cal matrix has not been set")
 
         if label_list is None:
-            label_list = [[label] for label in
-                          self._substate_labels_list[cal_index]]
+            label_list = [[label] for label in self._substate_labels_list[cal_index]]
 
         state_labels = self._substate_labels_list[cal_index]
         fidelity_label_list = []
@@ -379,8 +381,9 @@ class TensoredMeasFitter():
             assign_fid_list.append(0)
             for state_idx_i in fid_label_sublist:
                 for state_idx_j in fid_label_sublist:
-                    assign_fid_list[-1] += \
-                        self._cal_matrices[cal_index][state_idx_i][state_idx_j]
+                    assign_fid_list[-1] += self._cal_matrices[cal_index][state_idx_i][
+                        state_idx_j
+                    ]
             assign_fid_list[-1] /= len(fid_label_sublist)
 
         return np.mean(assign_fid_list)
@@ -394,8 +397,9 @@ class TensoredMeasFitter():
         # initialize the set of empty calibration matrices
         self._cal_matrices = []
         for list_size in self._qubit_list_sizes:
-            self._cal_matrices.append(np.zeros([2 ** list_size, 2 ** list_size],
-                                               dtype=float))
+            self._cal_matrices.append(
+                np.zeros([2**list_size, 2**list_size], dtype=float)
+            )
 
         # go through for each calibration experiment
         for result in self._result_list:
@@ -403,8 +407,9 @@ class TensoredMeasFitter():
                 circ_name = experiment.header.name
                 # extract the state from the circuit name
                 # this was the prepared state
-                circ_search = re.search('(?<=' + self._circlabel + 'cal_)\\w+',
-                                        circ_name)
+                circ_search = re.search(
+                    "(?<=" + self._circlabel + "cal_)\\w+", circ_name
+                )
 
                 # this experiment is not one of the calcs so skip
                 if circ_search is None:
@@ -417,26 +422,27 @@ class TensoredMeasFitter():
                 for measured_state, counts in state_cnts.items():
                     end_index = self.nqubits
                     for cal_ind, cal_mat in enumerate(self._cal_matrices):
-                        start_index = end_index - \
-                                      self._qubit_list_sizes[cal_ind]
+                        start_index = end_index - self._qubit_list_sizes[cal_ind]
 
                         substate_index = self._indices_list[cal_ind][
-                            state[start_index:end_index]]
-                        measured_substate_index = \
-                            self._indices_list[cal_ind][
-                                measured_state[start_index:end_index]]
+                            state[start_index:end_index]
+                        ]
+                        measured_substate_index = self._indices_list[cal_ind][
+                            measured_state[start_index:end_index]
+                        ]
                         end_index = start_index
 
-                        cal_mat[measured_substate_index][substate_index] += \
-                            counts
+                        cal_mat[measured_substate_index][substate_index] += counts
 
         for mat_index, _ in enumerate(self._cal_matrices):
             sums_of_columns = np.sum(self._cal_matrices[mat_index], axis=0)
             # pylint: disable=assignment-from-no-return
             self._cal_matrices[mat_index] = np.divide(
-                self._cal_matrices[mat_index], sums_of_columns,
+                self._cal_matrices[mat_index],
+                sums_of_columns,
                 out=np.zeros_like(self._cal_matrices[mat_index]),
-                where=sums_of_columns != 0)
+                where=sums_of_columns != 0,
+            )
 
     def plot_calibration(self, cal_index=0, axes=None, show_plot=True):
         """
@@ -458,20 +464,24 @@ class TensoredMeasFitter():
             raise QiskitError("Cal matrix has not been set")
 
         if not HAS_MATPLOTLIB:
-            raise ImportError('The function plot_rb_data needs matplotlib. '
-                              'Run "pip install matplotlib" before.')
+            raise ImportError(
+                "The function plot_rb_data needs matplotlib. "
+                'Run "pip install matplotlib" before.'
+            )
 
         if axes is None:
             plt.figure()
             axes = plt.gca()
 
-        axim = axes.matshow(self.cal_matrices[cal_index],
-                            cmap=plt.cm.binary,  # pylint: disable=no-member
-                            clim=[0, 1])
+        axim = axes.matshow(
+            self.cal_matrices[cal_index],
+            cmap=plt.cm.binary,  # pylint: disable=no-member
+            clim=[0, 1],
+        )
         axes.figure.colorbar(axim)
-        axes.set_xlabel('Prepared State')
-        axes.xaxis.set_label_position('top')
-        axes.set_ylabel('Measured State')
+        axes.set_xlabel("Prepared State")
+        axes.xaxis.set_label_position("top")
+        axes.set_ylabel("Measured State")
         axes.set_xticks(np.arange(len(self._substate_labels_list[cal_index])))
         axes.set_yticks(np.arange(len(self._substate_labels_list[cal_index])))
         axes.set_xticklabels(self._substate_labels_list[cal_index])

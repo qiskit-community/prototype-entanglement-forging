@@ -18,13 +18,16 @@ from qiskit_nature.drivers import QMolecule, FermionicDriver
 
 class EntanglementForgedDriver(FermionicDriver):
     """EntanglementForgedDriver."""
-    def __init__(self,
-                 hcore: np.ndarray,
-                 mo_coeff: np.ndarray,
-                 eri: np.ndarray,
-                 num_alpha: int,
-                 num_beta: int,
-                 nuclear_repulsion_energy: float):
+
+    def __init__(
+        self,
+        hcore: np.ndarray,
+        mo_coeff: np.ndarray,
+        eri: np.ndarray,
+        num_alpha: int,
+        num_beta: int,
+        nuclear_repulsion_energy: float,
+    ):
         """Entanglement forging driver
 
         Args:

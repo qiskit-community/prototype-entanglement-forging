@@ -106,10 +106,14 @@ def covariance(data, pauli_1, pauli_2, avg_1, avg_2):
     for key, value in data.items():
         bitstr = np.asarray(list(key))[::-1].astype(int).astype(bool)
         # pylint: disable=no-member
-        sign_1 = -1.0 if np.logical_xor.reduce(np.logical_and(bitstr, p1_z_or_x)) else 1.0
-        sign_2 = -1.0 if np.logical_xor.reduce(np.logical_and(bitstr, p2_z_or_x)) else 1.0
+        sign_1 = (
+            -1.0 if np.logical_xor.reduce(np.logical_and(bitstr, p1_z_or_x)) else 1.0
+        )
+        sign_2 = (
+            -1.0 if np.logical_xor.reduce(np.logical_and(bitstr, p2_z_or_x)) else 1.0
+        )
         cov += (sign_1 - avg_1) * (sign_2 - avg_2) * value
-    cov /= (num_shots - 1)
+    cov /= num_shots - 1
     return cov
 
 
@@ -135,15 +139,11 @@ def suzuki_expansion_slice_pauli_list(pauli_list, lam_coef, expansion_order):
     else:
         p_k = (4 - 4 ** (1 / (2 * expansion_order - 1))) ** -1
         side_base = suzuki_expansion_slice_pauli_list(
-            pauli_list,
-            lam_coef * p_k,
-            expansion_order - 1
+            pauli_list, lam_coef * p_k, expansion_order - 1
         )
         side = side_base * 2
         middle = suzuki_expansion_slice_pauli_list(
-            pauli_list,
-            lam_coef * (1 - 4 * p_k),
-            expansion_order - 1
+            pauli_list, lam_coef * (1 - 4 * p_k), expansion_order - 1
         )
         res = side + middle + side
     return res
@@ -166,10 +166,16 @@ def check_commutativity(op_1, op_2, anti=False):
     return bool(com.is_empty())
 
 
-def evolution_instruction(pauli_list, evo_time, num_time_slices, # pylint: disable=too-many-statements
-                          controlled=False, power=1,
-                          use_basis_gates=True, shallow_slicing=False,
-                          barrier=False):
+def evolution_instruction(
+    pauli_list,
+    evo_time,
+    num_time_slices,  # pylint: disable=too-many-statements
+    controlled=False,
+    power=1,
+    use_basis_gates=True,
+    shallow_slicing=False,
+    barrier=False,
+):
     """
     Construct the evolution circuit according to the supplied specification.
 
@@ -199,11 +205,11 @@ def evolution_instruction(pauli_list, evo_time, num_time_slices, # pylint: disab
 
     state_registers = QuantumRegister(pauli_list[0][1].num_qubits)
     if controlled:
-        inst_name = 'Controlled-Evolution^{}'.format(power)
+        inst_name = "Controlled-Evolution^{}".format(power)
         ancillary_registers = QuantumRegister(1)
         qc_slice = QuantumCircuit(state_registers, ancillary_registers, name=inst_name)
     else:
-        inst_name = 'Evolution^{}'.format(power)
+        inst_name = "Evolution^{}".format(power)
         qc_slice = QuantumCircuit(state_registers, name=inst_name)
 
     # for each pauli [IXYZ]+, record the list of qubit pairs needing CX's
@@ -240,17 +246,19 @@ def evolution_instruction(pauli_list, evo_time, num_time_slices, # pylint: disab
             elif pauli[1].z[qubit_idx] and not pauli[1].x[qubit_idx]:
                 pass
             else:
-                raise ValueError('Unrecognized pauli: {}'.format(pauli[1]))
+                raise ValueError("Unrecognized pauli: {}".format(pauli[1]))
 
         if nontrivial_pauli_indices:
             top_xyz_pauli_indices[pauli_idx] = nontrivial_pauli_indices[-1]
 
         # insert lhs cnot gates
         if cnot_qubit_pairs[pauli_idx] is None:
-            cnot_qubit_pairs[pauli_idx] = list(zip(
-                sorted(nontrivial_pauli_indices)[:-1],
-                sorted(nontrivial_pauli_indices)[1:]
-            ))
+            cnot_qubit_pairs[pauli_idx] = list(
+                zip(
+                    sorted(nontrivial_pauli_indices)[:-1],
+                    sorted(nontrivial_pauli_indices)[1:],
+                )
+            )
 
         for pair in cnot_qubit_pairs[pauli_idx]:
             qc_slice.cx(state_registers[pair[0]], state_registers[pair[1]])
@@ -276,15 +284,26 @@ def evolution_instruction(pauli_list, evo_time, num_time_slices, # pylint: disab
                     qc_slice.rz(lam, state_registers[top_xyz_pauli_indices[pauli_idx]])
             else:
                 if use_basis_gates:
-                    qc_slice.p(lam / 2, state_registers[top_xyz_pauli_indices[pauli_idx]])
-                    qc_slice.cx(ancillary_registers[0],
-                                state_registers[top_xyz_pauli_indices[pauli_idx]])
-                    qc_slice.p(-lam / 2, state_registers[top_xyz_pauli_indices[pauli_idx]])
-                    qc_slice.cx(ancillary_registers[0],
-                                state_registers[top_xyz_pauli_indices[pauli_idx]])
+                    qc_slice.p(
+                        lam / 2, state_registers[top_xyz_pauli_indices[pauli_idx]]
+                    )
+                    qc_slice.cx(
+                        ancillary_registers[0],
+                        state_registers[top_xyz_pauli_indices[pauli_idx]],
+                    )
+                    qc_slice.p(
+                        -lam / 2, state_registers[top_xyz_pauli_indices[pauli_idx]]
+                    )
+                    qc_slice.cx(
+                        ancillary_registers[0],
+                        state_registers[top_xyz_pauli_indices[pauli_idx]],
+                    )
                 else:
-                    qc_slice.crz(lam, ancillary_registers[0],
-                                 state_registers[top_xyz_pauli_indices[pauli_idx]])
+                    qc_slice.crz(
+                        lam,
+                        ancillary_registers[0],
+                        state_registers[top_xyz_pauli_indices[pauli_idx]],
+                    )
 
         # insert rhs cnot gates
         for pair in reversed(cnot_qubit_pairs[pauli_idx]):
@@ -307,12 +326,14 @@ def evolution_instruction(pauli_list, evo_time, num_time_slices, # pylint: disab
                         qc_slice.rx(-pi / 2, state_registers[qubit_idx])
     # repeat the slice
     if shallow_slicing:
-        logger.info('Under shallow slicing mode, the qc.data reference is repeated shallowly. '
-                    'Thus, changing gates of one slice of the output circuit might affect '
-                    'other slices.')
+        logger.info(
+            "Under shallow slicing mode, the qc.data reference is repeated shallowly. "
+            "Thus, changing gates of one slice of the output circuit might affect "
+            "other slices."
+        )
         if barrier:
             qc_slice.barrier(state_registers)
-        qc_slice.data *= (num_time_slices * power)
+        qc_slice.data *= num_time_slices * power
         qc = qc_slice
     else:
         qc = QuantumCircuit(*qc_slice.qregs, name=inst_name)

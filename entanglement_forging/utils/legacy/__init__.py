@@ -35,6 +35,4 @@ Legacy Operators
 
 from .tpb_grouped_weighted_pauli_operator import TPBGroupedWeightedPauliOperator
 
-__all__ = [
-    'TPBGroupedWeightedPauliOperator'
-]
+__all__ = ["TPBGroupedWeightedPauliOperator"]

@@ -39,8 +39,16 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
     TPB Grouped Weighted Pauli Operator
     """
 
-    def __init__(self, paulis, basis, z2_symmetries=None, atol=1e-12, # pylint: disable=too-many-arguments
-                 name=None, grouping_func=None, kwargs=None):
+    def __init__(
+        self,
+        paulis,
+        basis,
+        z2_symmetries=None,
+        atol=1e-12,  # pylint: disable=too-many-arguments
+        name=None,
+        grouping_func=None,
+        kwargs=None,
+    ):
         """
         Args:
             paulis (list[[complex, Pauli]]): the list of weighted Paulis, where a weighted pauli is
@@ -66,17 +74,17 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
 
     @property
     def num_groups(self):
-        """ returns number of groups """
+        """returns number of groups"""
         return len(self._basis)
 
     @property
     def grouping_func(self):
-        """ returns grouping function """
+        """returns grouping function"""
         return self._grouping_func
 
     @property
     def kwargs(self):
-        """ returns kwargs """
+        """returns kwargs"""
         return self._kwargs
 
     @classmethod
@@ -94,13 +102,21 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
         """
         p_g = PauliGraph(weighted_pauli_operator.paulis, method)
         basis, paulis = _post_format_conversion(p_g.grouped_paulis)
-        kwargs = {'method': method}
-        return cls(paulis, basis, weighted_pauli_operator.z2_symmetries,
-                   weighted_pauli_operator.atol,
-                   weighted_pauli_operator.name, cls.sorted_grouping, kwargs)
+        kwargs = {"method": method}
+        return cls(
+            paulis,
+            basis,
+            weighted_pauli_operator.z2_symmetries,
+            weighted_pauli_operator.atol,
+            weighted_pauli_operator.name,
+            cls.sorted_grouping,
+            kwargs,
+        )
 
     @classmethod
-    def unsorted_grouping(cls, weighted_pauli_operator):  # pylint: disable=too-many-locals
+    def unsorted_grouping(
+        cls, weighted_pauli_operator
+    ):  # pylint: disable=too-many-locals
         """
         Greedy and unsorted grouping paulis.
 
@@ -142,10 +158,14 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
                         j = 0
                         for __i in range(n_qubits):
                             # p_2 is identity, p_1 is identity, p_1 and p_2 has same basis
-                            if not ((not p_2[1].z[__i] and not p_2[1].x[__i])
-                                    or (not p_1[1].z[__i] and not p_1[1].x[__i])
-                                    or (p_2[1].z[__i] == p_1[1].z[__i]
-                                        and p_2[1].x[__i] == p_1[1].x[__i])):
+                            if not (
+                                (not p_2[1].z[__i] and not p_2[1].x[__i])
+                                or (not p_1[1].z[__i] and not p_1[1].x[__i])
+                                or (
+                                    p_2[1].z[__i] == p_1[1].z[__i]
+                                    and p_2[1].x[__i] == p_1[1].x[__i]
+                                )
+                            ):
                                 break
 
                             # update master, if p_2 is not identity
@@ -160,12 +180,17 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
         # pylint: enable=too-many-nested-blocks
         basis, new_paulis = _post_format_conversion(grouped_paulis)
 
-        return cls(new_paulis, basis, weighted_pauli_operator.z2_symmetries,
-                   weighted_pauli_operator.atol,
-                   weighted_pauli_operator.name, cls.unsorted_grouping)
+        return cls(
+            new_paulis,
+            basis,
+            weighted_pauli_operator.z2_symmetries,
+            weighted_pauli_operator.atol,
+            weighted_pauli_operator.name,
+            cls.unsorted_grouping,
+        )
 
     def __eq__(self, other):
-        """ Overload == operation """
+        """Overload == operation"""
         if not super().__eq__(other):
             return False
         # check basis
@@ -184,14 +209,13 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
         return True
 
     def __str__(self):
-        """ Overload str() """
-        curr_repr = 'tpb grouped paulis'
+        """Overload str()"""
+        curr_repr = "tpb grouped paulis"
         length = len(self._paulis)
         name = "" if self._name is None else "{}: ".format(self._name)
-        ret = \
-            "{}Representation: {}, qubits: {}, size: {}, group: {}".format(name, curr_repr,
-                                                                           self.num_qubits,
-                                                                           length, len(self._basis))
+        ret = "{}Representation: {}, qubits: {}, size: {}, group: {}".format(
+            name, curr_repr, self.num_qubits, length, len(self._basis)
+        )
         return ret
 
     # pylint: disable=duplicate-code
@@ -206,12 +230,15 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
             return "Operator is empty."
         ret = ""
         for basis, indices in self._basis:
-            ret = ''.join([ret, "TPB: {} ({})\n".format(basis.to_label(), len(indices))])
+            ret = "".join(
+                [ret, "TPB: {} ({})\n".format(basis.to_label(), len(indices))]
+            )
             for idx in indices:
                 weight, pauli = self._paulis[idx]
-                ret = ''.join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
+                ret = "".join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
 
         return ret
+
     # pylint: enable=duplicate-code
 
     # pylint: disable=redefined-outer-name
