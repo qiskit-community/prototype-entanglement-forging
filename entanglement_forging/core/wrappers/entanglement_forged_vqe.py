@@ -98,6 +98,13 @@ class EntanglementForgedVQE(VQE):
         self._shots_multiplier=1
         self._bootstrap_trials=0
 
+        statevector_sims = ['aer_simulator_statevector', 'statevector_simulator']
+        if self._backend.name() in statevector_sims:
+            self._is_sv_sim = True
+        else:
+            self._is_sv_sim = False
+
+
         if self.ansatz.num_qubits != len(self.bitstrings[0]):
             raise ValueError('The number of qubits in ansatz does '
                              'not match the number of bits in reduced_bitstrings.')
@@ -124,7 +131,7 @@ class EntanglementForgedVQE(VQE):
             return_expectation: bool = False
         ) -> Callable[[np.ndarray], Union[float, List[float]]]:
 
-        if self._backend.name() == 'statevector_simulator':
+        if self._is_sv_sim:
             self._shots_multiplier = 1
 
         ansatz_params = self.ansatz.parameters
@@ -251,11 +258,11 @@ class EntanglementForgedVQE(VQE):
             Log.log('Constructing the circuits for parameter set', params, '...')
             tensor_circuits_to_execute = prepare_circuits_to_execute(
                 params, self._tensor_prep_circuits, op_for_generating_tensor_circuits,
-                self._ansatz, self._backend.name() == 'statevector_simulator')
+                self._ansatz, self._is_sv_sim)
             if pauli_names_for_superpos_states:
                 superpos_circuits_to_execute = prepare_circuits_to_execute(
                     params, self._superpos_prep_circuits, op_for_generating_superpos_circuits,
-                    self._ansatz, self._backend.name() == 'statevector_simulator')
+                    self._ansatz, self._is_sv_sim)
             else:
                 superpos_circuits_to_execute = []
             if params_idx == 0:
@@ -366,7 +373,7 @@ class EntanglementForgedVQE(VQE):
                     op_for_generating_superpos_circuits,
                     self._zero_noise_extrap,
                     hf_value=hf_value,
-                    statevector_mode=self._backend.name() == 'statevector_simulator',
+                    statevector_mode=self._is_sv_sim,
                     add_this_to_mean_values_displayed=add_this_to_mean_values_displayed,
                     no_bs0_circuits=self._no_bs0_circuits,
                 )
