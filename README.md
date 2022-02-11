@@ -81,7 +81,7 @@ from entanglement_forging import (EntanglementForgedConfig,
 molecule = Molecule(geometry=[('H', [0., 0., 0.]),
                               ('H', [0., 0., 0.735])],
                      charge=0, multiplicity=1)
-driver = PySCFDriver.from_molecule(molecule = molecule)
+driver = PySCFDriver.from_molecule(molecule = molecule, basis='sto3g')
 problem = ElectronicStructureProblem(driver)
 problem.second_q_ops()
 
