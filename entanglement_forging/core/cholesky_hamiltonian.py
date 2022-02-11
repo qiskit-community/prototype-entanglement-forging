@@ -15,15 +15,21 @@
 import numpy as np
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.problems.second_quantization.electronic.builders.fermionic_op_builder import \
-    build_ferm_op_from_ints
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    IntegralProperty,
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
+)
+from qiskit_nature.properties.second_quantization.electronic.bases import (
+    ElectronicBasis,
+)
 
 from ..utils.log import Log
 
 
 # pylint: disable=invalid-name
 def modified_cholesky(two_body_overlap_integrals, eps):
-    """ Performs modified Cholesky decomposition ("mcd") on array
+    """Performs modified Cholesky decomposition ("mcd") on array
     two_body_overlap_integrals with threshold eps.
 
     H= H_1 \\otimes I + I \\otimes H_1 + \\sum_\\gamma L_\\gamma \\otimes L_\\gamma
@@ -42,8 +48,8 @@ def modified_cholesky(two_body_overlap_integrals, eps):
     # max number of Cholesky vectors, and current number of Cholesky vectors
     # (n_gammas = "number of gammas")
     chmax, n_gammas = 10 * n_basis_states, 0
-    W = two_body_overlap_integrals.reshape(n_basis_states ** 2, n_basis_states ** 2)
-    L = np.zeros((n_basis_states ** 2, chmax))
+    W = two_body_overlap_integrals.reshape(n_basis_states**2, n_basis_states**2)
+    L = np.zeros((n_basis_states**2, chmax))
     Dmax = np.diagonal(W).copy()
     nu_max = np.argmax(Dmax)
     vmax = Dmax[nu_max]
@@ -52,7 +58,7 @@ def modified_cholesky(two_body_overlap_integrals, eps):
         if n_gammas > 0:
             L[:, n_gammas] -= np.dot(L[:, 0:n_gammas], L.T[0:n_gammas, nu_max])
         L[:, n_gammas] /= np.sqrt(vmax)
-        Dmax[:n_basis_states ** 2] -= L[:n_basis_states ** 2, n_gammas] ** 2
+        Dmax[: n_basis_states**2] -= L[: n_basis_states**2, n_gammas] ** 2
         n_gammas += 1
         nu_max = np.argmax(Dmax)
         vmax = Dmax[nu_max]
@@ -61,17 +67,18 @@ def modified_cholesky(two_body_overlap_integrals, eps):
 
 
 def get_fermionic_ops_with_cholesky(
-        # pylint: disable=too-many-arguments disable-msg=too-many-locals disable=too-many-branches disable=too-many-statements
-        mo_coeff,
-        h1,
-        h2,
-        opname,
-        halve_transformed_h2=False,
-        occupied_orbitals_to_reduce=None,
-        virtual_orbitals_to_reduce=None,
-        epsilon_cholesky=1e-10,
-        verbose=False):
-    """ Decomposes the Hamiltonian operators into a form appropriate for entanglement forging.
+    # pylint: disable=too-many-arguments disable-msg=too-many-locals disable=too-many-branches disable=too-many-statements
+    mo_coeff,
+    h1,
+    h2,
+    opname,
+    halve_transformed_h2=False,
+    occupied_orbitals_to_reduce=None,
+    virtual_orbitals_to_reduce=None,
+    epsilon_cholesky=1e-10,
+    verbose=False,
+):
+    """Decomposes the Hamiltonian operators into a form appropriate for entanglement forging.
 
     Parameters:
     mo_coeff (np.ndarray): 2D array representing coefficients for converting from AO to MO basis.
@@ -102,25 +109,23 @@ def get_fermionic_ops_with_cholesky(
         occupied_orbitals_to_reduce = []
     C = mo_coeff
     del mo_coeff
-    h1 = np.einsum('pi,pr->ir', C, h1)
-    h1 = np.einsum('rj,ir->ij', C, h1)  # h_{pq} in MO basis
+    h1 = np.einsum("pi,pr->ir", C, h1)
+    h1 = np.einsum("rj,ir->ij", C, h1)  # h_{pq} in MO basis
 
     # do the Cholesky decomposition:
     if h2 is not None:
         ng, L = modified_cholesky(h2, epsilon_cholesky)
         if verbose:
-            h2_mcd = np.einsum('prg,qsg->prqs', L, L)
+            h2_mcd = np.einsum("prg,qsg->prqs", L, L)
             Log.log("mcd threshold =", epsilon_cholesky)
             Log.log(
-                "deviation between mcd and original eri =",
-                np.abs(
-                    h2_mcd -
-                    h2).max())
+                "deviation between mcd and original eri =", np.abs(h2_mcd - h2).max()
+            )
             Log.log("number of Cholesky vectors =", ng)
             Log.log("L.shape = ", L.shape)
             del h2_mcd
         # obtain the L_{pr,g} in the MO basis
-        L = np.einsum('prg,pi,rj->ijg', L, C, C)
+        L = np.einsum("prg,pi,rj->ijg", L, C, C)
     else:
         size = len(h1)
         ng, L = 0, np.zeros(shape=(size, size, 0))
@@ -133,53 +138,80 @@ def get_fermionic_ops_with_cholesky(
 
     if len(occupied_orbitals_to_reduce) > 0:
         if verbose:
-            Log.log('Reducing occupied orbitals:', occupied_orbitals_to_reduce)
+            Log.log("Reducing occupied orbitals:", occupied_orbitals_to_reduce)
         orbitals_not_to_reduce = list(
-            sorted(set(range(len(h1))) - set(occupied_orbitals_to_reduce)))
+            sorted(set(range(len(h1))) - set(occupied_orbitals_to_reduce))
+        )
 
-        h1_frozenpart = h1[np.ix_(
-            occupied_orbitals_to_reduce, occupied_orbitals_to_reduce)]
-        h1_activepart = h1[np.ix_(
-            orbitals_not_to_reduce, orbitals_not_to_reduce)]
-        L_frozenpart = L[np.ix_(
-            occupied_orbitals_to_reduce, occupied_orbitals_to_reduce)]
-        L_activepart = L[np.ix_(orbitals_not_to_reduce,
-                                orbitals_not_to_reduce)]
+        h1_frozenpart = h1[
+            np.ix_(occupied_orbitals_to_reduce, occupied_orbitals_to_reduce)
+        ]
+        h1_activepart = h1[np.ix_(orbitals_not_to_reduce, orbitals_not_to_reduce)]
+        L_frozenpart = L[
+            np.ix_(occupied_orbitals_to_reduce, occupied_orbitals_to_reduce)
+        ]
+        L_activepart = L[np.ix_(orbitals_not_to_reduce, orbitals_not_to_reduce)]
 
-        freeze_shift = 2 * np.einsum('pp', h1_frozenpart) \
-                       + 2 * np.einsum('ppg,qqg', L_frozenpart, L_frozenpart) \
-                       - np.einsum('pqg,qpg', L_frozenpart, L_frozenpart)
-        h1 = h1_activepart + 2 * np.einsum('ppg,qsg->qs', L_frozenpart, L_activepart) \
-             - np.einsum('psg,qpg->qs',
-                         L[np.ix_(occupied_orbitals_to_reduce, orbitals_not_to_reduce)],
-                         L[np.ix_(orbitals_not_to_reduce, occupied_orbitals_to_reduce)])
+        freeze_shift = (
+            2 * np.einsum("pp", h1_frozenpart)
+            + 2 * np.einsum("ppg,qqg", L_frozenpart, L_frozenpart)
+            - np.einsum("pqg,qpg", L_frozenpart, L_frozenpart)
+        )
+        h1 = (
+            h1_activepart
+            + 2 * np.einsum("ppg,qsg->qs", L_frozenpart, L_activepart)
+            - np.einsum(
+                "psg,qpg->qs",
+                L[np.ix_(occupied_orbitals_to_reduce, orbitals_not_to_reduce)],
+                L[np.ix_(orbitals_not_to_reduce, occupied_orbitals_to_reduce)],
+            )
+        )
         L = L_activepart
     else:
         freeze_shift = 0
 
     if len(virtual_orbitals_to_reduce) > 0:
         if verbose:
-            Log.log('Reducing virtual orbitals:', virtual_orbitals_to_reduce)
+            Log.log("Reducing virtual orbitals:", virtual_orbitals_to_reduce)
         virtual_orbitals_to_reduce = np.asarray(virtual_orbitals_to_reduce)
         virtual_orbitals_to_reduce -= len(occupied_orbitals_to_reduce)
         orbitals_not_to_reduce = list(
-            sorted(set(range(len(h1))) - set(virtual_orbitals_to_reduce)))
+            sorted(set(range(len(h1))) - set(virtual_orbitals_to_reduce))
+        )
         h1 = h1[np.ix_(orbitals_not_to_reduce, orbitals_not_to_reduce)]
         L = L[np.ix_(orbitals_not_to_reduce, orbitals_not_to_reduce)]
     else:
         pass
 
-    h2 = np.einsum('prg,qsg->prqs', L, L)
+    h2 = np.einsum("prg,qsg->prqs", L, L)
     if halve_transformed_h2:
         h2 /= 2
+    h1_int = OneBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=h1)
+    h2_int = TwoBodyElectronicIntegrals(basis=ElectronicBasis.SO, matrices=h2)
+    int_property = IntegralProperty("fer_op", [h1_int, h2_int])
 
-    fer_op = build_ferm_op_from_ints(h1, h2)
+    if isinstance(int_property.second_q_ops(), dict):
+        fer_op = int_property.second_q_ops()["fer_op"]
+    else:
+        fer_op = int_property.second_q_ops()[0]
+
     converter = QubitConverter(JordanWignerMapper())
     qubit_op = converter.convert(fer_op)
-    qubit_op._name = opname + '_onebodyop'  # pylint: disable=protected-access
+    #pylint: disable=protected-access
+    qubit_op._name = opname + "_onebodyop"
     cholesky_ops = []
     for g in range(L.shape[2]):
-        cholesky_op = converter.convert(build_ferm_op_from_ints(L[:, :, g]))
-        cholesky_op._name = opname + '_chol' + str(g)  # pylint: disable=protected-access
+        cholesky_int = OneBodyElectronicIntegrals(
+            basis=ElectronicBasis.SO, matrices=L[:, :, g]
+        )
+        cholesky_property = IntegralProperty("cholesky_op", [cholesky_int])
+        if isinstance(cholesky_property.second_q_ops(), dict):
+            cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
+        else:
+            cholesky_op = converter.convert(cholesky_property.second_q_ops()[0])
+        #pylint: disable=protected-access
+        cholesky_op._name = (
+            opname + "_chol" + str(g)
+        )
         cholesky_ops.append(cholesky_op)
     return qubit_op, cholesky_ops, freeze_shift, h1, h2

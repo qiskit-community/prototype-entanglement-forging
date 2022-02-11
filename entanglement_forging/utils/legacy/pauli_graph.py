@@ -58,13 +58,11 @@ class PauliGraph:  # pylint: disable=too-few-public-methods
                     list of neighbor as values
         """
         # pylint: disable=invalid-name
-        conv = {
-            'I': 0,
-            'X': 1,
-            'Y': 2,
-            'Z': 3
-        }
-        a = np.array([[conv[e] for e in reversed(n.to_label())] for n in self.nodes], dtype=np.int8)
+        conv = {"I": 0, "X": 1, "Y": 2, "Z": 3}
+        a = np.array(
+            [[conv[e] for e in reversed(n.to_label())] for n in self.nodes],
+            dtype=np.int8,
+        )
         b = a[:, None]
         # i and j are commutable with TPB if c[i, j] is True
         c = (((a * b) * (a - b)) == 0).all(axis=2)
@@ -75,7 +73,9 @@ class PauliGraph:  # pylint: disable=too-few-public-methods
     def _coloring(self, mode="largest-degree"):  # pylint: disable=too-many-locals
         # pylint: disable=invalid-name
         if mode == "largest-degree":  # pylint: disable=no-else-return
-            nodes = sorted(self.edges.keys(), key=lambda x: len(self.edges[x]), reverse=True)
+            nodes = sorted(
+                self.edges.keys(), key=lambda x: len(self.edges[x]), reverse=True
+            )
             # -1 means not colored; 0 ... len(self.nodes)-1 is valid colored
             max_node = max(nodes)
             color = np.array([-1] * (max_node + 1))
@@ -90,7 +90,9 @@ class PauliGraph:  # pylint: disable=too-few-public-methods
             assert np.min(color[nodes]) >= 0, "Uncolored node exists!"
 
             # post-processing to grouped_paulis
-            max_color = np.max(color[nodes])  # the color used is 0, 1, 2, ..., max_color
+            max_color = np.max(
+                color[nodes]
+            )  # the color used is 0, 1, 2, ..., max_color
             temp_gp = []  # list of indices of grouped paulis
             for c in range(max_color + 1):  # max_color is included
                 temp_gp.append([i for i, icolor in enumerate(color) if icolor == c])
@@ -112,7 +114,9 @@ class PauliGraph:  # pylint: disable=too-few-public-methods
                 gp[i].insert(0, header)
             return gp
         else:
-            return self._coloring("largest-degree")  # this is the default implementation
+            return self._coloring(
+                "largest-degree"
+            )  # this is the default implementation
 
     @property
     def grouped_paulis(self):

@@ -28,20 +28,25 @@ class AuxiliaryResults:
     def __str__(self) -> str:
         result = OrderedDict()
         for name, value in inspect.getmembers(self):
-            if not name.startswith('_') and \
-                    not inspect.ismethod(value) and not inspect.isfunction(value) and \
-                    hasattr(self, name):
+            if (
+                not name.startswith("_")
+                and not inspect.ismethod(value)
+                and not inspect.isfunction(value)
+                and hasattr(self, name)
+            ):
                 result[name] = value
 
         return pprint.pformat(result, indent=4)
 
     def __repr__(self):
-        key_value_pairs = [f"{name}: {value}"
-                           for name, value in inspect.getmembers(self)
-                           if not name.startswith('_')
-                           and not inspect.ismethod(value)
-                           and not inspect.isfunction(value)
-                           and hasattr(self, name)]
+        key_value_pairs = [
+            f"{name}: {value}"
+            for name, value in inspect.getmembers(self)
+            if not name.startswith("_")
+            and not inspect.ismethod(value)
+            and not inspect.isfunction(value)
+            and hasattr(self, name)
+        ]
         return f"{self.__class__.__name__}({key_value_pairs})"
 
 
@@ -62,11 +67,7 @@ class OptimalParams(AuxiliaryResults):
 class Bootstrap(AuxiliaryResults):
     """Bootstrap results."""
 
-    def __init__(self,
-                 eval_count: int,
-                 eval_timestamp,
-                 parameters,
-                 bootstrap_values):
+    def __init__(self, eval_count: int, eval_timestamp, parameters, bootstrap_values):
         """Bootstrap parameters.
 
         Args:
@@ -84,13 +85,15 @@ class Bootstrap(AuxiliaryResults):
 class DataResults(AuxiliaryResults):
     """Data results."""
 
-    def __init__(self,
-                 eval_count,
-                 eval_timestamp,
-                 energy_hartree,
-                 energy_std,
-                 parameters,
-                 schmidts):
+    def __init__(
+        self,
+        eval_count,
+        eval_timestamp,
+        energy_hartree,
+        energy_std,
+        parameters,
+        schmidts,
+    ):
         """Data results.
 
         Args:
@@ -110,16 +113,18 @@ class DataResults(AuxiliaryResults):
 
 
 class EntanglementForgedVQEResult(VQEResult):
-    """Entanglement-forged VQE Result. """
+    """Entanglement-forged VQE Result."""
 
-    def __init__(self,
-                 parameters_history: Optional[List[List[np.ndarray]]] = None,
-                 energies_history: Optional[List[List[np.ndarray]]] = None,
-                 schmidts_history: Optional[List[List[np.ndarray]]] = None,
-                 energy_std_each_parameter_set: Optional[List[Union[float, int]]] = None,
-                 energy_offset: Optional[float] = None,
-                 eval_count: Optional[int] = None,
-                 auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None) -> None:
+    def __init__(
+        self,
+        parameters_history: Optional[List[List[np.ndarray]]] = None,
+        energies_history: Optional[List[List[np.ndarray]]] = None,
+        schmidts_history: Optional[List[List[np.ndarray]]] = None,
+        energy_std_each_parameter_set: Optional[List[Union[float, int]]] = None,
+        energy_offset: Optional[float] = None,
+        eval_count: Optional[int] = None,
+        auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None,
+    ) -> None:
         """Results for EntanglementForgedGroundStateSolver.
 
         Args:
@@ -143,11 +148,15 @@ class EntanglementForgedVQEResult(VQEResult):
         self.auxiliary_results = auxiliary_results
 
     def __repr__(self):
-        return 'Ground state energy (Hartree): {gse}\n' \
-               'Schmidt values: {sv}\n' \
-               'Optimizer parameters: {op}'.format(gse=self.ground_state_energy,
-                                                   sv=self.schmidts_value,
-                                                   op=self.optimizer_parameters)
+        return (
+            "Ground state energy (Hartree): {gse}\n"
+            "Schmidt values: {sv}\n"
+            "Optimizer parameters: {op}".format(
+                gse=self.ground_state_energy,
+                sv=self.schmidts_value,
+                op=self.optimizer_parameters,
+            )
+        )
 
     def get_parameters_history(self):
         """Returns a list of the optimizer parameters at each iteration."""

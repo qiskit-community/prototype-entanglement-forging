@@ -168,7 +168,7 @@ This list is not exhaustive.
 
 ### Getting poor results on the hardware
 
-Try using `fix_first_bitstring=True` in `EntanglementgForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with HF energy. This setting requires an ansatz that leaves the HF state unchanged under `var_form`.
+Try using `fix_first_bitstring=True` in `EntanglementgForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with the HF energy. This setting requires an ansatz that leaves the HF state unchanged under `var_form`.
 
 ⚠️ There is a known bug for the setting `fix_first_bitstring=True`. It does not produce expected results. 
 

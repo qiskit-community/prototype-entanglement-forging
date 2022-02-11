@@ -1,5 +1,3 @@
-:exclamation: _This software is not compatible with the latest version of qiskit-terra. To avoid dependency conflicts, it is **highly recommended** that the dependencies for this software be installed within a fresh Python package management environment (e.g. [conda](https://docs.conda.io/en/latest/))._
-
 # Entanglement forging module
 This directory contains artefacts related to the entanglement forging module.
 

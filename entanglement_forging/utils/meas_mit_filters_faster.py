@@ -40,9 +40,7 @@ class MeasurementFilter:
 
     """
 
-    def __init__(self,
-                 cal_matrix: np.matrix,
-                 state_labels: list):
+    def __init__(self, cal_matrix: np.matrix, state_labels: list):
         """
         Initialize a measurement error mitigation filter using the cal_matrix
         from a measurement calibration fitter.
@@ -75,9 +73,7 @@ class MeasurementFilter:
         """Set cal_matrix."""
         self._cal_matrix = new_cal_matrix
 
-    def apply(self,
-              raw_data,
-              method='least_squares'):
+    def apply(self, raw_data, method="least_squares"):
         """Apply the calibration matrix to results.
 
         Args:
@@ -113,61 +109,80 @@ class MeasurementFilter:
         output_type = None
         if isinstance(raw_data, qiskit.result.result.Result):
             output_Result = deepcopy(raw_data)
-            output_type = 'result'
+            output_type = "result"
             raw_data = raw_data.get_counts()
             if isinstance(raw_data, dict):
                 raw_data = [raw_data]
 
         elif isinstance(raw_data, list):
-            output_type = 'list'
+            output_type = "list"
 
         elif isinstance(raw_data, dict):
             raw_data = [raw_data]
-            output_type = 'dict'
+            output_type = "dict"
 
         assert output_type
 
         unique_data_labels = {key for data_row in raw_data for key in data_row.keys()}
         if not unique_data_labels.issubset(set(self._state_labels)):
             raise QiskitError(
-                "Unexpected state label '" + unique_data_labels +
-                "', verify the fitter's state labels correpsond to the input data")
+                "Unexpected state label '"
+                + unique_data_labels
+                + "', verify the fitter's state labels correpsond to the input data"
+            )
 
         raw_data_array = np.zeros((len(raw_data), len(self._state_labels)), dtype=float)
-        corrected_data_array = np.zeros((len(raw_data), len(self._state_labels)), dtype=float)
+        corrected_data_array = np.zeros(
+            (len(raw_data), len(self._state_labels)), dtype=float
+        )
 
         for expt_idx, data_row in enumerate(raw_data):
             for stateidx, state in enumerate(self._state_labels):
                 raw_data_array[expt_idx][stateidx] = data_row.get(state, 0)
 
-        if method == 'pseudo_inverse':
+        if method == "pseudo_inverse":
             pinv_cal_mat = la.pinv(self._cal_matrix)
 
-            corrected_data = np.einsum('ij,xj->xi', pinv_cal_mat, raw_data_array)  # pylint: disable=unused-variable
+            # pylint: disable=unused-variable
+            corrected_data = np.einsum(
+                "ij,xj->xi", pinv_cal_mat, raw_data_array
+            )
 
-        elif method == 'least_squares':
+        elif method == "least_squares":
 
             nshots_each_expt = np.sum(raw_data_array, axis=1)
 
-            for expt_idx, (nshots, raw_data_row) in enumerate(zip(nshots_each_expt,
-                                                                  raw_data_array)):
+            for expt_idx, (nshots, raw_data_row) in enumerate(
+                zip(nshots_each_expt, raw_data_array)
+            ):
                 cal_mat = self._cal_matrix
                 nlabels = len(raw_data_row)  # pylint: disable=unused-variable
 
                 def fun(estimated_corrected_data):
-                    return np.sum((raw_data_row - cal_mat.dot(estimated_corrected_data)) ** 2)
+                    return np.sum(
+                        (raw_data_row - cal_mat.dot(estimated_corrected_data)) ** 2
+                    )
 
                 def gradient(estimated_corrected_data):
-                    return 2 * (cal_mat.dot(estimated_corrected_data)
-                                - raw_data_row).dot(cal_mat)
+                    return 2 * (
+                        cal_mat.dot(estimated_corrected_data) - raw_data_row
+                    ).dot(cal_mat)
 
-                cons = ({'type': 'eq',
-                         'fun': lambda x: nshots - np.sum(x),
-                         'jac': lambda x: -1 * np.ones_like(x)})
+                cons = {
+                    "type": "eq",
+                    "fun": lambda x: nshots - np.sum(x),
+                    "jac": lambda x: -1 * np.ones_like(x),
+                }
                 bnds = tuple((0, nshots) for x in raw_data_row)
-                res = minimize(fun, raw_data_row,
-                               method='SLSQP', constraints=cons,
-                               bounds=bnds, tol=1e-6, jac=gradient)
+                res = minimize(
+                    fun,
+                    raw_data_row,
+                    method="SLSQP",
+                    constraints=cons,
+                    bounds=bnds,
+                    tol=1e-6,
+                    jac=gradient,
+                )
 
                 # def fun(angles):
                 #     # for bounding between 0 and 1
@@ -206,13 +221,13 @@ class MeasurementFilter:
 
             corrected_dicts.append(new_count_dict)
 
-        if output_type == 'dict':
+        if output_type == "dict":
             assert len(corrected_dicts) == 1
             # converting back to a single counts dict, to match input provided by user
             output = corrected_dicts[0]
-        elif output_type == 'list':
+        elif output_type == "list":
             output = corrected_dicts
-        elif output_type == 'result':
+        elif output_type == "result":
             for resultidx, new_counts in enumerate(corrected_dicts):
                 output_Result.results[resultidx].data.counts = new_counts
             output = output_Result
@@ -222,7 +237,7 @@ class MeasurementFilter:
         return output
 
 
-class TensoredFilter():
+class TensoredFilter:
     """
     Tensored measurement error mitigation filter.
 
@@ -230,9 +245,7 @@ class TensoredFilter():
     to data.
     """
 
-    def __init__(self,
-                 cal_matrices: np.matrix,
-                 substate_labels_list: list):
+    def __init__(self, cal_matrices: np.matrix, substate_labels_list: list):
         """
         Initialize a tensored measurement error mitigation filter using
         the cal_matrices from a tensored measurement calibration fitter.
@@ -272,14 +285,12 @@ class TensoredFilter():
         # get the number of qubits in each subspace
         self._qubit_list_sizes = []
         for _, substate_label_list in enumerate(self._substate_labels_list):
-            self._qubit_list_sizes.append(
-                int(np.log2(len(substate_label_list))))
+            self._qubit_list_sizes.append(int(np.log2(len(substate_label_list))))
 
         # get the indices in the calibration matrix
         self._indices_list = []
         for _, sub_labels in enumerate(self._substate_labels_list):
-            self._indices_list.append(
-                {lab: ind for ind, lab in enumerate(sub_labels)})
+            self._indices_list.append({lab: ind for ind, lab in enumerate(sub_labels)})
 
     @property
     def qubit_list_sizes(self):
@@ -288,10 +299,10 @@ class TensoredFilter():
 
     @property
     def nqubits(self):
-        """Return the number of qubits. See also MeasurementFilter.apply() """
+        """Return the number of qubits. See also MeasurementFilter.apply()"""
         return sum(self._qubit_list_sizes)
 
-    def apply(self, raw_data, method='least_squares'):
+    def apply(self, raw_data, method="least_squares"):
         """
         Apply the calibration matrices to results.
 
@@ -318,7 +329,7 @@ class TensoredFilter():
         """
 
         all_states = count_keys(self.nqubits)
-        num_of_states = 2 ** self.nqubits
+        num_of_states = 2**self.nqubits
 
         # check forms of raw_data
         if isinstance(raw_data, dict):
@@ -338,7 +349,8 @@ class TensoredFilter():
             new_counts_list = parallel_map(
                 self._apply_correction,
                 [resultidx for resultidx, _ in enumerate(raw_data.results)],
-                task_args=(raw_data, method))
+                task_args=(raw_data, method),
+            )
 
             for resultidx, new_counts in new_counts_list:
                 new_result.results[resultidx].data.counts = new_counts
@@ -348,7 +360,7 @@ class TensoredFilter():
         else:
             raise QiskitError("Unrecognized type for raw_data.")
 
-        if method == 'pseudo_inverse':
+        if method == "pseudo_inverse":
             pinv_cal_matrices = []
             for cal_mat in self._cal_matrices:
                 pinv_cal_matrices.append(la.pinv(cal_mat))
@@ -356,78 +368,75 @@ class TensoredFilter():
         # Apply the correction
         for data_idx, _ in enumerate(raw_data2):
 
-            if method == 'pseudo_inverse':
+            if method == "pseudo_inverse":
                 inv_mat_dot_raw = np.zeros([num_of_states], dtype=float)
                 for state1_idx, state1 in enumerate(all_states):
                     for state2_idx, state2 in enumerate(all_states):
                         if raw_data2[data_idx][state2_idx] == 0:
                             continue
 
-                        product = 1.
+                        product = 1.0
                         end_index = self.nqubits
                         for p_ind, pinv_mat in enumerate(pinv_cal_matrices):
 
-                            start_index = end_index - \
-                                          self._qubit_list_sizes[p_ind]
+                            start_index = end_index - self._qubit_list_sizes[p_ind]
 
-                            state1_as_int = \
-                                self._indices_list[p_ind][
-                                    state1[start_index:end_index]]
+                            state1_as_int = self._indices_list[p_ind][
+                                state1[start_index:end_index]
+                            ]
 
-                            state2_as_int = \
-                                self._indices_list[p_ind][
-                                    state2[start_index:end_index]]
+                            state2_as_int = self._indices_list[p_ind][
+                                state2[start_index:end_index]
+                            ]
 
                             end_index = start_index
-                            product *= \
-                                pinv_mat[state1_as_int][state2_as_int]
+                            product *= pinv_mat[state1_as_int][state2_as_int]
                             if product == 0:
                                 break
-                        inv_mat_dot_raw[state1_idx] += \
-                            (product * raw_data2[data_idx][state2_idx])
+                        inv_mat_dot_raw[state1_idx] += (
+                            product * raw_data2[data_idx][state2_idx]
+                        )
                 raw_data2[data_idx] = inv_mat_dot_raw
 
-            elif method == 'least_squares':
+            elif method == "least_squares":
 
                 def fun(x):
                     mat_dot_x = np.zeros([num_of_states], dtype=float)
                     for state1_idx, state1 in enumerate(all_states):
-                        mat_dot_x[state1_idx] = 0.
+                        mat_dot_x[state1_idx] = 0.0
                         for state2_idx, state2 in enumerate(all_states):
                             if x[state2_idx] != 0:
-                                product = 1.
+                                product = 1.0
                                 end_index = self.nqubits
-                                for c_ind, cal_mat in \
-                                        enumerate(self._cal_matrices):
+                                for c_ind, cal_mat in enumerate(self._cal_matrices):
 
-                                    start_index = end_index - \
-                                                  self._qubit_list_sizes[c_ind]
+                                    start_index = (
+                                        end_index - self._qubit_list_sizes[c_ind]
+                                    )
 
-                                    state1_as_int = \
-                                        self._indices_list[c_ind][
-                                            state1[start_index:end_index]]
+                                    state1_as_int = self._indices_list[c_ind][
+                                        state1[start_index:end_index]
+                                    ]
 
-                                    state2_as_int = \
-                                        self._indices_list[c_ind][
-                                            state2[start_index:end_index]]
+                                    state2_as_int = self._indices_list[c_ind][
+                                        state2[start_index:end_index]
+                                    ]
 
                                     end_index = start_index
-                                    product *= \
-                                        cal_mat[state1_as_int][state2_as_int]
+                                    product *= cal_mat[state1_as_int][state2_as_int]
                                     if product == 0:
                                         break
-                                mat_dot_x[state1_idx] += \
-                                    (product * x[state2_idx])
-                    return sum(
-                        (raw_data2[data_idx] - mat_dot_x) ** 2)
+                                mat_dot_x[state1_idx] += product * x[state2_idx]
+                    return sum((raw_data2[data_idx] - mat_dot_x) ** 2)
 
                 x0 = np.random.rand(num_of_states)
                 x0 = x0 / sum(x0)
                 nshots = sum(raw_data2[data_idx])
-                cons = ({'type': 'eq', 'fun': lambda x: nshots - sum(x)})
+                cons = {"type": "eq", "fun": lambda x: nshots - sum(x)}
                 bnds = tuple((0, nshots) for x in x0)
-                res = minimize(fun, x0, method='SLSQP',
-                               constraints=cons, bounds=bnds, tol=1e-6)
+                res = minimize(
+                    fun, x0, method="SLSQP", constraints=cons, bounds=bnds, tol=1e-6
+                )
                 raw_data2[data_idx] = res.x
 
             else:
@@ -443,6 +452,5 @@ class TensoredFilter():
 
     def _apply_correction(self, resultidx, raw_data, method):
         """Wrapper to call apply with a counts dictionary."""
-        new_counts = self.apply(
-            raw_data.get_counts(resultidx), method=method)
+        new_counts = self.apply(raw_data.get_counts(resultidx), method=method)
         return resultidx, new_counts

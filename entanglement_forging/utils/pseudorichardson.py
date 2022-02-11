@@ -26,16 +26,19 @@ def make_pseudorichardson_circuits(transpiled_circuits, simple_richardson_orders
     """
     if simple_richardson_orders is None:
         simple_richardson_orders = [0]
-    basic_insts = ['measure', 'reset', 'barrier', 'snapshot']
+    basic_insts = ["measure", "reset", "barrier", "snapshot"]
     final_circuits = []
     for qcirc in transpiled_circuits:
         for order in simple_richardson_orders:
             stretch_factor = 2 * (order) + 1
-            name_parts = qcirc.name.split('_')
+            name_parts = qcirc.name.split("_")
             new_qc = qcirc.copy(
-                name='_'.join(name_parts[:-1] +
-                              ['richardson{:.2f}'.format(stretch_factor), name_parts[-1]]))
-            new_qc._data = []   # pylint: disable=protected-access
+                name="_".join(
+                    name_parts[:-1]
+                    + ["richardson{:.2f}".format(stretch_factor), name_parts[-1]]
+                )
+            )
+            new_qc._data = []  # pylint: disable=protected-access
             # already handled in qcirc.copy()?
             new_qc._layout = qcirc._layout  # pylint: disable=protected-access
             for instr in qcirc.data:
@@ -43,14 +46,14 @@ def make_pseudorichardson_circuits(transpiled_circuits, simple_richardson_orders
                 new_qc.append(operator, qargs=qargs, cargs=cargs)
                 if order == 0 or operator.name in basic_insts:
                     continue
-                if operator.name in ['delay']:
+                if operator.name in ["delay"]:
                     op_inv = operator
                 else:
                     op_inv = operator.inverse()
                 for _ in range(order):
                     new_qc.barrier(qargs)
                     # pylint: disable=expression-not-assigned
-                    if operator.name == 'sx':
+                    if operator.name == "sx":
                         [new_qc.rz(np.pi, q) for q in qargs]
                         [new_qc.sx(q) for q in qargs]
                         [new_qc.rz(np.pi, q) for q in qargs]
@@ -88,7 +91,6 @@ def richardson_extrapolate(ydata, stretch_factors, axis, max_polyfit_degree=None
         ydata_corrected: an array with shape like ydata but with the axis 'axis' eliminated.
     """
 
-
     polyfit_degree = len(stretch_factors) - 1
     if max_polyfit_degree:
         polyfit_degree = min(polyfit_degree, max_polyfit_degree)
@@ -112,12 +114,15 @@ def richardson_extrapolate(ydata, stretch_factors, axis, max_polyfit_degree=None
         var1 = ydata[tuple(indexing_each_axis)]
         indexing_each_axis[axis] = 1
         var2 = ydata[tuple(indexing_each_axis)]
-        y_extrap = (y1 * stretch2 - y2 * stretch1) / denom   # pylint: disable=invalid-name
+        y_extrap = (
+            y1 * stretch2 - y2 * stretch1
+        ) / denom  # pylint: disable=invalid-name
         var_extrap = var1 * (stretch2 / denom) ** 2 + var2 * (stretch1 / denom) ** 2
         ydata_corrected = np.stack([y_extrap, var_extrap], axis=-1)
     else:
         raise NotImplementedError(
-            'TODO: implement general Richardson extrapolation using numpy Polynomial.fit() '
-            'inside loop, or else (maybe better?) vectorized general matrix equation')
+            "TODO: implement general Richardson extrapolation using numpy Polynomial.fit() "
+            "inside loop, or else (maybe better?) vectorized general matrix equation"
+        )
 
     return ydata_corrected
