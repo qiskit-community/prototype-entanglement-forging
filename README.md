@@ -68,7 +68,8 @@ import numpy as np
 from qiskit import Aer
 from qiskit.circuit.library import TwoLocal
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.drivers import PySCFDriver, Molecule
+from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
@@ -77,12 +78,12 @@ from entanglement_forging import (EntanglementForgedConfig,
 ...
 
 # specify problem
-problem = ElectronicStructureProblem(
-  PySCFDriver(molecule=Molecule(geometry=[('H', [0., 0., 0.]),
-                                          ('H', [0., 0., 0.735])],
-                                charge=0, multiplicity=1),
-              basis='sto3g')
-)
+molecule = Molecule(geometry=[('H', [0., 0., 0.]),
+                              ('H', [0., 0., 0.735])],
+                     charge=0, multiplicity=1)
+driver = PySCFDriver.from_molecule(molecule = molecule)
+problem = ElectronicStructureProblem(driver)
+problem.second_q_ops()
 
 # specify parameters
 bitstrings = [[1, 0], [0, 1]]
