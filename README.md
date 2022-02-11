@@ -91,7 +91,7 @@ ansatz = TwoLocal(2, [], 'cry', [[0, 1], [1, 0]], reps=1)
 
 # specify configuration for forgnig
 config = EntanglementForgedConfig(backend=Aer.get_backend('statevector_simulator'),
-                                  maxiter=30,
+                                  maxiter=1,
                                   initial_params=[0, 0.5 * np.pi])
 # specify converter
 converter = QubitConverter(JordanWignerMapper())
