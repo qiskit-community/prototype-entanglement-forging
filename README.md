@@ -45,7 +45,7 @@ After [installing the module](./README.md#installation-instructions), we recomme
 Before using the module for new work, users should read through the [reference guide](./documentation/2-reference_guide/reference_guide.md) and the [explanatory material](./documentation/3-explanatory_material/explanatory_material.md), specifically the [current limitations](./documentation/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
 
 ### Installation instructions
-We suggest working inside a new conda environment with `python=3.10`.
+We suggest working inside a new conda environment with `python=3.9`.
 
 Clone the repo and install the package as follows:
 ```bash
