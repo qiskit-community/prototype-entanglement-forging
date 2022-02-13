@@ -29,7 +29,7 @@ This guide is for those who want to extend the module or documentation. If you j
 
     1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.10 (recommended). Within terminal:
     ```
-    conda create -n my_forging_env python=3.10
+    conda create -n my_forging_env python=3.9
     ```
     then
     ```
@@ -116,7 +116,7 @@ git push
 
     1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.10 (recommended). Within terminal:
     ```
-    conda create -n my_forging_env python=3.10
+    conda create -n my_forging_env python=3.9
     ```
     then
     ```
