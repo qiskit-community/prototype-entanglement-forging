@@ -23,8 +23,8 @@ The module contents can be found in the [entanglement_forging](./entanglement_fo
 ## Documentation
 The documentation for this module is structured around four functions:
 - [Tutorials](./documentation/1-tutorials/): to teach a beginner user how the module works
-- [A reference guide](./documentation/2-reference_guide/): technical description of the machinery of the module
-- [Explanatory material](./documentation/3-explanatory_material/): discussion of concepts and further reading
+- [A reference guide](./documentation-update/documentation/2-reference_guide/reference_guide.md): technical description of the machinery of the module
+- [Explanatory material](./documentation-update/documentation/3-explanatory_material/explanatory_material.md): discussion of concepts and further reading
 
 The documentation can be found in the [documentation](./documentation/) directory.
 
