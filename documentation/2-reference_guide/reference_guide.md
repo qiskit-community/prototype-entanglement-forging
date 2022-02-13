@@ -27,9 +27,9 @@ This guide is for those who want to extend the module or documentation. If you j
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
 1. Open terminal.
 
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.8 (recommended). Within terminal:
+    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.10 (recommended). Within terminal:
     ```
-    conda create -n my_forging_env python=3.8
+    conda create -n my_forging_env python=3.10
     ```
     then
     ```
@@ -113,9 +113,10 @@ git push
 ### Installation instructions
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
 1. Open terminal.
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.8 (recommended). Within terminal:
+
+    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.10 (recommended). Within terminal:
     ```
-    conda create -n my_forging_env python=3.8
+    conda create -n my_forging_env python=3.10
     ```
     then
     ```
@@ -264,7 +265,7 @@ The options are:
 - `max_evals_grouped` (int): Maximum number of evaluations performed simultaneously.
 - `rep_delay` (float): Delay between programs in seconds.
 - `shots` (int): The total number of shots for the simulation (overwritten for the statevector backend).
-- `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form. ⚠️ There is a known bug for this setting. It does not produce expected results.
+- `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form.
 - `bootstrap_trials` (int): A setting for generating error bars (not used for the statevector backend).
 - `copysample_job_size` (int or NoneType): A setting to approximately realize weighted sampling of circuits according to their relative significance
         (Schmidt coefficients). This number should be bigger than the number of unique circuits running (not used for the statevector backend).
