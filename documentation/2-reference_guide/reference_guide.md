@@ -27,9 +27,9 @@ This guide is for those who want to extend the module or documentation. If you j
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
 1. Open terminal.
 
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.8 (recommended). Within terminal:
+    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.10 (recommended). Within terminal:
     ```
-    conda create -n my_forging_env python=3.8
+    conda create -n my_forging_env python=3.10
     ```
     then
     ```
