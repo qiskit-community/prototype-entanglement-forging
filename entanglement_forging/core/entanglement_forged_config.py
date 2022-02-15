@@ -12,8 +12,6 @@
 
 """Class for configuration settings."""
 
-import warnings
-
 import numpy as np
 
 from entanglement_forging.utils.log import Log
