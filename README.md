@@ -73,31 +73,38 @@ from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
-from entanglement_forging import (EntanglementForgedConfig,
-                                  EntanglementForgedGroundStateSolver)
+from entanglement_forging import (
+    EntanglementForgedConfig,
+    EntanglementForgedGroundStateSolver,
+)
 
 # specify problem
-molecule = Molecule(geometry=[('H', [0., 0., 0.]),
-                              ('H', [0., 0., 0.735])],
-                     charge=0, multiplicity=1)
-driver = PySCFDriver.from_molecule(molecule = molecule, basis='sto3g')
+molecule = Molecule(
+    geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.735])],
+    charge=0,
+    multiplicity=1,
+)
+driver = PySCFDriver.from_molecule(molecule=molecule, basis="sto3g")
 problem = ElectronicStructureProblem(driver)
 problem.second_q_ops()
 
 # specify parameters
 bitstrings = [[1, 0], [0, 1]]
-ansatz = TwoLocal(2, [], 'cry', [[0, 1], [1, 0]], reps=1)
+ansatz = TwoLocal(2, [], "cry", [[0, 1], [1, 0]], reps=1)
 
 # specify configuration for forging
-config = EntanglementForgedConfig(backend=Aer.get_backend('statevector_simulator'),
-                                  maxiter=1,
-                                  initial_params=[0, 0.5 * np.pi])
+config = EntanglementForgedConfig(
+    backend=Aer.get_backend("statevector_simulator"),
+    maxiter=1,
+    initial_params=[0, 0.5 * np.pi],
+)
 # specify converter
 converter = QubitConverter(JordanWignerMapper())
 
 # create solver
 forged_ground_state_solver = EntanglementForgedGroundStateSolver(
-  converter, ansatz, bitstrings, config)
+    converter, ansatz, bitstrings, config
+)
 
 # run solver
 forged_result = forged_ground_state_solver.solve(problem)
