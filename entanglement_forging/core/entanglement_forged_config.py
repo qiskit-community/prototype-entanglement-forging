@@ -78,7 +78,7 @@ class EntanglementForgedConfig:
         spsa_c0=2 * 2 * np.pi,
         spsa_c1=0.1,
         max_evals_grouped=99,
-        rep_delay=100e-6,
+        rep_delay=None,
         shots=1024,
         fix_first_bitstring=False,
         copysample_job_size=None,
@@ -103,7 +103,16 @@ class EntanglementForgedConfig:
         self.spsa_c0 = spsa_c0
         self.spsa_c1 = spsa_c1
         self.max_evals_grouped = max_evals_grouped
-        self.rep_delay = rep_delay
+
+        self.rep_delay = None
+        dynamic_reprate_enabled = getattr(
+            self.backend.configuration(), "dynamic_reprate_enabled", False
+        )
+        if dynamic_reprate_enabled:
+            self.rep_delay = rep_delay if rep_delay else 100e-6
+        else:
+            self.rep_delay = None
+
         self.shots = shots if self.backend_name not in statevector_sims else 1
         self.fix_first_bitstring = fix_first_bitstring
         self.bootstrap_trials = bootstrap_trials
