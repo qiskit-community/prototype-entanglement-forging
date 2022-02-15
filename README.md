@@ -75,7 +75,6 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 
 from entanglement_forging import (EntanglementForgedConfig,
                                   EntanglementForgedGroundStateSolver)
-...
 
 # specify problem
 molecule = Molecule(geometry=[('H', [0., 0., 0.]),
@@ -89,7 +88,7 @@ problem.second_q_ops()
 bitstrings = [[1, 0], [0, 1]]
 ansatz = TwoLocal(2, [], 'cry', [[0, 1], [1, 0]], reps=1)
 
-# specify configuration for forgnig
+# specify configuration for forging
 config = EntanglementForgedConfig(backend=Aer.get_backend('statevector_simulator'),
                                   maxiter=1,
                                   initial_params=[0, 0.5 * np.pi])
