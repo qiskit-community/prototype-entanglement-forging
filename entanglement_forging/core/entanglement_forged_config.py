@@ -12,8 +12,6 @@
 
 """Class for configuration settings."""
 
-import warnings
-
 import numpy as np
 
 from entanglement_forging.utils.log import Log
@@ -141,41 +139,6 @@ class EntanglementForgedConfig:
             raise ValueError(
                 "If you would like to use measurement error mitigation, "
                 "you must specify a qubit_layout."
-            )
-
-        if self.backend_name == "statevector_simulator" and self.shots != 1:
-            warnings.warn(
-                "Ignoring setting for 'shots' as it is not used for the statevector simulator."
-            )
-
-        if (
-            self.backend_name not in statevector_sims
-            and self.copysample_job_size is not None
-        ):
-            warnings.warn(
-                "Ignoring setting for 'copysample_job_size' as it is "
-                "not used for the statevector simulator."
-            )
-
-        if self.backend_name in statevector_sims and self.meas_error_mit is True:
-            warnings.warn(
-                "Ignoring setting for 'meas_error_mit' as it is "
-                "not used for the statevector simulator."
-            )
-
-        if (
-            self.backend_name in statevector_sims
-            and self.meas_error_refresh_period_minutes is not None
-        ):
-            warnings.warn(
-                "Ignoring setting for 'meas_error_refresh_period_minutes' "
-                "as it is not used for the statevector simulator."
-            )
-
-        if self.backend_name in statevector_sims and self.zero_noise_extrap != [1]:
-            warnings.warn(
-                "Ignoring setting for 'zero_noise_extrap' as it is "
-                "not used for the statevector simulator."
             )
 
         Log.log("Configuration settings are valid.")

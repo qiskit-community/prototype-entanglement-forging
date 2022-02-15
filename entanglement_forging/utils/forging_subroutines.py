@@ -306,15 +306,10 @@ def get_optimizer_instance(config):
     if config.initial_spsa_iteration_idx:
         if 'int_iter' in optimizer_arg_names:
             optimizer_config['int_iter'] = config.initial_spsa_iteration_idx
-        else:
-            warnings.warn(
-                'Non-zero initial_spsa_iteration_idx given, but optimizer '
-                'does not accept corresponding keyword argument (int_iter). Ignoring it.')
+
     if 'bootstrap_trials' in optimizer_arg_names:
         optimizer_config['bootstrap_trials'] = config.bootstrap_trials
-    else:
-        warnings.warn("'bootstrap_trials' setting ignored, "
-                      "as optimizer does not support that kwarg.")
+
     Log.log(optimizer_config)
     optimizer_instance = optimizer(**optimizer_config)
     return optimizer_instance
