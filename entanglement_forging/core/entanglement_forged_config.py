@@ -105,7 +105,9 @@ class EntanglementForgedConfig:
         self.max_evals_grouped = max_evals_grouped
 
         self.rep_delay = None
-        dynamic_reprate_enabled = getattr(self.backend.configuration(), "dynamic_reprate_enabled", False)
+        dynamic_reprate_enabled = getattr(
+            self.backend.configuration(), "dynamic_reprate_enabled", False
+        )
         if dynamic_reprate_enabled:
             self.rep_delay = rep_delay if rep_delay else 100e-6
         else:
