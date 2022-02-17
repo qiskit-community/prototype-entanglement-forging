@@ -96,7 +96,7 @@ The leading electronic excitations can be represented in standard bitstrings (e.
 - the number of bits in each bitstring should be equal the number of spatial orbitals
 - the number of 1s in each bitstring should equal the number of α or β particles.
 
-Further reduction in computational resources can be achieved by [freezing some orbitals](./documentation/4-explanatory_material/explanatory_material.md#freezing-orbitals) that do not participate in electronic excitations (i.e. core orbitals or those that lie out of symmetry) by removing the bits that correspond to them.
+Further reduction in computational resources can be achieved by [freezing some orbitals](./docs/4-explanatory_material/explanatory_material.md#freezing-orbitals) that do not participate in electronic excitations (i.e. core orbitals or those that lie out of symmetry) by removing the bits that correspond to them.
 
 #### Fixing the Hartree-Fock bitstring
 
