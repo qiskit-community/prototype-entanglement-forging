@@ -6,7 +6,7 @@
   <a href="entanglement-forging">
     <img src="docs/images/ef_image.png" alt="Logo" width="600">
   <p align="center">
-   <a href="docs/1-tutorials/tutorial_1_H2_molecule_statevector_simulator.ipynb">View Demo</a>
+   <a href="https://mybinder.org/v2/gh/IBM-Quantum-Prototypes/entanglement-forging/HEAD?labpath=docs%2F1-tutorials%2Ftutorial_2_H2O_molecule_statevector_simulator.ipynb">View Demo</a>
   </p>
 </p>
 
@@ -49,8 +49,8 @@ https://qiskit.org/documentation/partners/
 <!-- HOW TO GIVE FEEDBACK -->
 ### How to Give Feedback
 We encourage your feedback! You can share your thoughts with us by:
-- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/quantum-kernel-training/issues) in the repository
-- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/quantum-kernel-training/discussions)
+- [Opening an issue](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/issues) in the repository
+- [Starting a conversation on GitHub Discussions](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/discussions)
 - Filling out our [survey](https://airtable.com/shrFxJXYzjxf5tFvx)
 
 
@@ -66,6 +66,10 @@ For information on how to contribute to this project, please take a look at our 
 <!-- ACKNOWLEDGEMENTS -->
 ### Acknowledgements
 This module is based on the theory and experiment described in [[1]](#references).
+
+The initial code on which this module is based was written by Andrew Eddins, Mario Motta, Tanvi Gujarati, and Charles Hadfield. The module was developed by Aggie Branczyk, Iskandar Sitdikov, and Luciano Bello, with help from Caleb Johnson, Mario Motta, Andrew Eddins, Tanvi Gujarati, Stefan Wörner, Max Rossmannek, Ikko Hamamura, and Takashi Imamichi. The documentation was written by Aggie Branczyk, with help from Ieva Liepuoniute, Mario Motta and Travis Scholten.
+
+We also thank Lev Bishop, Sarah Sheldon, and John Lapeyre for useful discussions.
 
 
 ----------------------------------------------------------------------------------------------------
