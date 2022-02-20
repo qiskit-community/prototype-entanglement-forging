@@ -20,6 +20,8 @@ This module allows a user to simulate chemical and physical systems using a Vari
 Before using the module for new work, users should read through the [reference guide](./docs/2-reference_guide/reference_guide.md) and the [explanatory material](docs/3-explanatory_material/explanatory_material.md), specifically the [current limitations](docs/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
 
 
+----------------------------------------------------------------------------------------------------
+
 <!-- TABLE OF CONTENTS -->
 ### Table of Contents
 * [Installation](docs/2-reference_guide/reference_guide.md#installation-instructions)
