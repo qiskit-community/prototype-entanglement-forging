@@ -2,6 +2,7 @@
 <br />
 <p align="center">
   <a href="entanglement-forging">
+    <img src="docs/images/ef_image.png" alt="Logo" width="600">
   </a>
   <h2 align="center">Entanglement Forging Toolkit</h2>
 
