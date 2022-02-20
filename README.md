@@ -1,7 +1,6 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <h2 align="center">Entanglement Forging Toolkit</h2>
   <a href="entanglement-forging">
     <img src="docs/images/ef_image.png" alt="Logo" width="600">
   <p align="center">
