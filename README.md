@@ -1,11 +1,8 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="entanglement-forging">
-    <img src="docs/images/ef_image.png" alt="Logo" width="600">
-  </a>
   <h2 align="center">Entanglement Forging Toolkit</h2>
-
+  <img src="docs/images/ef_image.png" alt="Logo" width="600">
   <p align="center">
    <a href="docs/1-tutorials/tutorial_1_H2_molecule_statevector_simulator.ipynb">View Demo</a>
   </p>
