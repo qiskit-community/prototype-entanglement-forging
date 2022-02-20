@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 
 import setuptools
+from pathlib import Path
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 with open('requirements.txt') as fp:
     install_requires = fp.read()
@@ -24,5 +25,5 @@ setuptools.setup(
     long_description=long_description,
     packages=setuptools.find_packages(),
     install_requires=install_requires,
-    python_requires='>=3.6'
+    python_requires='>=3.7'
 )
