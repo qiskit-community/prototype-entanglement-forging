@@ -41,7 +41,7 @@ git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 ```
 3. Change directory to the freshly cloned forging module:
 ```bash
-cd forging
+cd entanglement-forging
 ```
 4. Install the dependencies needed:
 ```
@@ -128,7 +128,7 @@ git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
 ```
 3. Change directory to the freshly cloned forging module:
 ```bash
-cd forging
+cd entanglement-forging
 ```
 4. Install the package (this step gives you access to the module _outside_ of the cloned directory):
 ```bash
