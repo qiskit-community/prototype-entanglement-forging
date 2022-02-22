@@ -111,6 +111,9 @@ git push
 ## Using the module
 
 ### Installation instructions
+
+:exclamation: _This prototype depends on the PySCF package, which does not support Windows; therefore, Windows users will not be able to install and use this software. Advanced Windows users may wish to attempt to install PySCF using Ubuntu via the Windows Subsystem for Linux.  We are exploring the possibility of providing Docker support for this prototype so it can be used within Docker Desktop, including on Windows._
+
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
 1. Open terminal.
 
