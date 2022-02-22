@@ -20,94 +20,6 @@
     - <a href="#running-tests">Running tests</a>
     - <a href="#making-a-pull-request">Making a pull request</a>
 
-## Contribution guide
-
-This guide is for those who want to extend the module or documentation. If you just want to use the package, skip to [this section](./reference_guide.md#using-the-module).
-
-### Initial set-up and installing dependencies
-0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
-1. Open terminal.
-
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). Within terminal:
-    ```
-    conda create -n my_forging_env python=3.9
-    ```
-    then
-    ```
-    conda activate my_forging_env
-    ```
-2. Within terminal, clone repository:
-```bash
-git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
-```
-3. Change directory to the freshly cloned forging module:
-```bash
-cd entanglement-forging
-```
-4. Install the dependencies needed:
-```
-pip install -r requirements.txt
-```
-
-### Running tests
-First install required packages:
-```
-pip install -r requirements-dev.txt
-```
-To run tests:
-```
-tox -e{env}
-```
-where you replace `{env}` with `py36`, `py37`, `py38` or `py39` depending on which version of python you have (to check python version, type `python --version` in the terminal).
-
-To run all the tests:
-```
-python -m unittest discover -v tests
-```
-
-To run linting tests (checks formatting/syntax):
-```
-tox -elint
-```
-
-To run notebook tests (for more info, see [here](https://github.com/treebeardtech/nbmake)):
-```
-pip install pytest nbmake
-pytest --nbmake **/*ipynb
-```
-Note: notebook tests check for execution and time-out errors, not correctness.
-
-### Making a pull request
-
-1. To make a contribution, first set up a remote branch (here called `my-contribution`) that is tracked:
-```
-git checkout main
-git pull
-git checkout -b my-contribution
-```
-... make your contribution now (edit some code, add some files) ...
-```
-git add .
-git commit -m 'initial working version of my contribution'
-git push -u origin my-contribution
-```
-2. Before making a Pull Request always get the latest changes from main:
-```
-git checkout main
-git pull
-git checkout my-contribution
-git merge main
-```
-... fix any merge conflicts here ...
-```
-git add .
-git commit -m 'merged updates from main'
-git push
-```
-3. Go back to the `/forging` repo on _GitHub_, switch to your contribution branch (same name: `my-contribution`), and click "Pull Request". Write a clear explanation of the feature.
-4. Under Reviewer, select Iskandar Sitdikov or Aggie Branczyk.
-5. Click "Create Pull Request".
-6. Your Pull Request will be reviewed and, if everything is ok, it will be merged.
 
 ## Using the module
 
@@ -319,3 +231,93 @@ To activate verbose output
 from entanglement_forging import Log
 Log.VERBOSE = True
 ```
+
+
+## Contribution guide
+
+This guide is for those who want to extend the module or documentation. If you just want to use the package, skip to [this section](./reference_guide.md#using-the-module).
+
+### Initial set-up and installing dependencies
+0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
+1. Open terminal.
+
+    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). Within terminal:
+    ```
+    conda create -n my_forging_env python=3.9
+    ```
+    then
+    ```
+    conda activate my_forging_env
+    ```
+2. Within terminal, clone repository:
+```bash
+git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
+```
+3. Change directory to the freshly cloned forging module:
+```bash
+cd entanglement-forging
+```
+4. Install the dependencies needed:
+```
+pip install -r requirements.txt
+```
+
+### Running tests
+First install required packages:
+```
+pip install -r requirements-dev.txt
+```
+To run tests:
+```
+tox -e{env}
+```
+where you replace `{env}` with `py36`, `py37`, `py38` or `py39` depending on which version of python you have (to check python version, type `python --version` in the terminal).
+
+To run all the tests:
+```
+python -m unittest discover -v tests
+```
+
+To run linting tests (checks formatting/syntax):
+```
+tox -elint
+```
+
+To run notebook tests (for more info, see [here](https://github.com/treebeardtech/nbmake)):
+```
+pip install pytest nbmake
+pytest --nbmake **/*ipynb
+```
+Note: notebook tests check for execution and time-out errors, not correctness.
+
+### Making a pull request
+
+1. To make a contribution, first set up a remote branch (here called `my-contribution`) that is tracked:
+```
+git checkout main
+git pull
+git checkout -b my-contribution
+```
+... make your contribution now (edit some code, add some files) ...
+```
+git add .
+git commit -m 'initial working version of my contribution'
+git push -u origin my-contribution
+```
+2. Before making a Pull Request always get the latest changes from main:
+```
+git checkout main
+git pull
+git checkout my-contribution
+git merge main
+```
+... fix any merge conflicts here ...
+```
+git add .
+git commit -m 'merged updates from main'
+git push
+```
+3. Go back to the `/forging` repo on _GitHub_, switch to your contribution branch (same name: `my-contribution`), and click "Pull Request". Write a clear explanation of the feature.
+4. Under Reviewer, select Iskandar Sitdikov or Aggie Branczyk.
+5. Click "Create Pull Request".
+6. Your Pull Request will be reviewed and, if everything is ok, it will be merged.
