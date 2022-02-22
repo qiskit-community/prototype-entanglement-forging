@@ -177,5 +177,7 @@ class ForgedOperator:
                         pname_2
                     ]  # pylint: disable=invalid-name
                     w_ij[i, j] += np.real(w_1 * w_2)
-                    w_ab[superpos_ordering1, superpos_ordering2] += np.real(w_1 * w_2)  # pylint: disable=invalid-name
+                    w_ab[superpos_ordering1, superpos_ordering2] += np.real(
+                        w_1 * w_2
+                    )  # pylint: disable=invalid-name
         return tensor_paulis, superpos_paulis, w_ij, w_ab

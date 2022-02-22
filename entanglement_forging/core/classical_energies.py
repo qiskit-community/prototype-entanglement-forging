@@ -41,7 +41,7 @@ class ClassicalEnergies:  # pylint: disable=too-many-instance-attributes disable
     """
 
     def __init__(self, problem: ElectronicStructureProblem, all_orbitals_to_reduce):
-        """ Initialize the classical energies.
+        """Initialize the classical energies.
         Args:
             qmolecule (ElectronicStructureProblem): Problem class containing molecule driver
             all_to_reduce (entanglement_forging.core.orbitals_to_reduce.OrbitalsToReduce):

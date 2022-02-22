@@ -206,11 +206,11 @@ def evolution_instruction(
 
     state_registers = QuantumRegister(pauli_list[0][1].num_qubits)
     if controlled:
-        inst_name = "Controlled-Evolution^{}".format(power)
+        inst_name = f"Controlled-Evolution^{power}"
         ancillary_registers = QuantumRegister(1)
         qc_slice = QuantumCircuit(state_registers, ancillary_registers, name=inst_name)
     else:
-        inst_name = "Evolution^{}".format(power)
+        inst_name = f"Evolution^{power}"
         qc_slice = QuantumCircuit(state_registers, name=inst_name)
 
     # for each pauli [IXYZ]+, record the list of qubit pairs needing CX's
@@ -247,7 +247,7 @@ def evolution_instruction(
             elif pauli[1].z[qubit_idx] and not pauli[1].x[qubit_idx]:
                 pass
             else:
-                raise ValueError("Unrecognized pauli: {}".format(pauli[1]))
+                raise ValueError(f"Unrecognized pauli: {pauli[1]}")
 
         if nontrivial_pauli_indices:
             top_xyz_pauli_indices[pauli_idx] = nontrivial_pauli_indices[-1]

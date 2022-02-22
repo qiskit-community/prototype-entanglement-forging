@@ -25,11 +25,11 @@ from .weighted_pauli_operator import WeightedPauliOperator
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=invalid-name,no-else-return
+# pylint: disable=invalid-name,no-else-return,no-member
 def to_tpb_grouped_weighted_pauli_operator(
     operator: Union[WeightedPauliOperator, TPBGroupedWeightedPauliOperator],
     grouping_func: Callable,
-    **kwargs: int
+    **kwargs: int,
 ) -> TPBGroupedWeightedPauliOperator:
     """
 
@@ -56,5 +56,5 @@ def to_tpb_grouped_weighted_pauli_operator(
     else:
         raise AlgorithmError(
             "Unsupported type to convert to TPBGroupedWeightedPauliOperator: "
-            "{}".format(operator.__class__)
+            f"{operator.__class__}"
         )

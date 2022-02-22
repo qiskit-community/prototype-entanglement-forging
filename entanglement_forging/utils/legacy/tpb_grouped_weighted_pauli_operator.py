@@ -38,6 +38,7 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
     """
     TPB Grouped Weighted Pauli Operator
     """
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
@@ -212,10 +213,9 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
         """Overload str()"""
         curr_repr = "tpb grouped paulis"
         length = len(self._paulis)
-        name = "" if self._name is None else "{}: ".format(self._name)
-        ret = "{}Representation: {}, qubits: {}, size: {}, group: {}".format(
-            name, curr_repr, self.num_qubits, length, len(self._basis)
-        )
+        name = "" if self._name is None else f"{self._name}: "
+        ret = f"{name}Representation: {curr_repr}, qubits: {self.num_qubits}, size: {length}, group: {len(self._basis)}"
+
         return ret
 
     # pylint: disable=duplicate-code
@@ -230,12 +230,10 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
             return "Operator is empty."
         ret = ""
         for basis, indices in self._basis:
-            ret = "".join(
-                [ret, "TPB: {} ({})\n".format(basis.to_label(), len(indices))]
-            )
+            ret = "".join([ret, f"TPB: {basis.to_label()} ({len(indices)})\n"])
             for idx in indices:
                 weight, pauli = self._paulis[idx]
-                ret = "".join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
+                ret = "".join([ret, f"{pauli.to_label()}\t{weight}\n"])
 
         return ret
 

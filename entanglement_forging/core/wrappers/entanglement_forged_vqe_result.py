@@ -149,13 +149,9 @@ class EntanglementForgedVQEResult(VQEResult):
 
     def __repr__(self):
         return (
-            "Ground state energy (Hartree): {gse}\n"
-            "Schmidt values: {sv}\n"
-            "Optimizer parameters: {op}".format(
-                gse=self.ground_state_energy,
-                sv=self.schmidts_value,
-                op=self.optimizer_parameters,
-            )
+            f"Ground state energy (Hartree): {self.ground_state_energy}\n"
+            f"Schmidt values: {self.schmidts_value}\n"
+            f"Optimizer parameters: {self.optimizer_parameters}"
         )
 
     def get_parameters_history(self):

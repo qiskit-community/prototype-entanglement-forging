@@ -22,6 +22,7 @@ class OrbitalsToReduce:
         occupied (list): Only the occupied orbitals to be reduced.
         virtual (list): Only the virtual orbitals to be reduced.
     """
+
     def __init__(self, all_orbitals_to_reduce, problem):
         """Initialize the orbitals to reduce.
         Args:

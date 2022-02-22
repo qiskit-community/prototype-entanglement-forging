@@ -144,9 +144,7 @@ class MeasurementFilter:
             pinv_cal_mat = la.pinv(self._cal_matrix)
 
             # pylint: disable=unused-variable
-            corrected_data = np.einsum(
-                "ij,xj->xi", pinv_cal_mat, raw_data_array
-            )
+            corrected_data = np.einsum("ij,xj->xi", pinv_cal_mat, raw_data_array)
 
         elif method == "least_squares":
 

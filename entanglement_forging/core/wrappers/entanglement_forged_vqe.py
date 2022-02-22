@@ -165,8 +165,8 @@ class EntanglementForgedVQE(VQE):
 
         def energy_evaluation(parameters):
             Log.log("------ new iteration energy evaluation -----")
-            #num_parameter_sets = len(parameters) // self.ansatz.num_parameters
-            #parameter_sets = np.split(parameters, num_parameter_sets)
+            # num_parameter_sets = len(parameters) // self.ansatz.num_parameters
+            # parameter_sets = np.split(parameters, num_parameter_sets)
             parameter_sets = np.reshape(parameters, (-1, self.ansatz.num_parameters))
             new_iteration_start_time = time.time()
 
@@ -495,7 +495,7 @@ class EntanglementForgedVQE(VQE):
         if self.copysample_job_size:
             result = combine_copysampled_results(result)
         if bootstrap_trials:
-            Log.log("Bootstrap: resampling result {} times...".format(bootstrap_trials))
+            Log.log(f"Bootstrap: resampling result {bootstrap_trials} times...")
             bootstrap_results = [
                 resample_result(result) for _ in range(bootstrap_trials)
             ]
