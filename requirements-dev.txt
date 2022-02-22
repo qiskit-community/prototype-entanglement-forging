@@ -2,6 +2,5 @@ tox==3.24.0
 nbmake==0.8
 pytest==6.2.5
 treon==0.1.3
-stestr>=3.2.1
 pylint
 pycodestyle
