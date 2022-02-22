@@ -27,21 +27,11 @@ Before using the module for new work, users should read through the [reference g
 * [Installation](docs/2-reference_guide/reference_guide.md#installation-instructions)
 * [Tutorials](docs/1-tutorials/)
 * [Background](docs/3-explanatory_material/)
-* [Using Quantum Services](#using-quantum-services)
 * [How to Give Feedback](#how-to-give-feedback)
 * [Contribution Guidelines](#contribution-guidelines)
 * [Acknowledgements](#acknowledgements)
 * [References](#references)
 * [License](#license)
-
-
-----------------------------------------------------------------------------------------------------
-
-<!-- USING QUANTUM SERVICES -->
-### Using Quantum Services
-If you are interested in using quantum services (i.e. using a real quantum computer, not a simulator) you can look at the Qiskit Partners program for partner organizations that have provider packages available for their offerings:
-
-https://qiskit.org/documentation/partners/
 
 
 ----------------------------------------------------------------------------------------------------
