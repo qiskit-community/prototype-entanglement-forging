@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
         os: ["ubuntu-latest"]
     env:
       AER_THRUST_BACKEND: OMP
@@ -54,7 +54,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
         os: ["macOS-latest"]
     env:
       AER_THRUST_BACKEND: OMP
