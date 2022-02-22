@@ -1,6 +1,3 @@
-:exclamation: _This prototype depends on the PySCF package, which does not support Windows; therefore, Windows users will not be able to install and use this software. Advanced Windows users may wish to attempt to install PySCF using Ubuntu via the Windows Subsystem for Linux.  We are exploring the possibility of providing Docker support for this prototype so it can be used within Docker Desktop, including on Windows._
-
-
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
