@@ -24,6 +24,7 @@ from qiskit.algorithms.optimizers.spsa import powerseries
 from qiskit_nature import QiskitNatureError
 
 from .generic_execution_subroutines import compute_pauli_means_and_cov_for_one_basis
+from ..core import variational_forms
 from .log import Log
 from .prepare_bitstring import prepare_bitstring
 from .pseudorichardson import richardson_extrapolate
@@ -84,9 +85,7 @@ def prepare_circuits_to_execute(
     circuits_to_execute = []
     # Generate the requisite circuits:
     # pylint: disable=unidiomatic-typecheck
-    if not isinstance(
-        var_form, entanglement_forging.core.variational_forms.VarFormHopgateForged
-    ):
+    if not isinstance(var_form, variational_forms.VarFormHopgateForged):
         param_bindings = dict(zip(var_form.parameters, params))
         u_circuit = var_form.bind_parameters(param_bindings)
     else:
