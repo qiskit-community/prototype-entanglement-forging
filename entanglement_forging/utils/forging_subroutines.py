@@ -85,11 +85,8 @@ def prepare_circuits_to_execute(
     circuits_to_execute = []
     # Generate the requisite circuits:
     # pylint: disable=unidiomatic-typecheck
-    if not isinstance(var_form, variational_forms.VarFormHopgateForged):
-        param_bindings = dict(zip(var_form.parameters, params))
-        u_circuit = var_form.bind_parameters(param_bindings)
-    else:
-        u_circuit = var_form.construct_circuit(params)
+    param_bindings = dict(zip(var_form.parameters, params))
+    u_circuit = var_form.bind_parameters(param_bindings)
     for prep_circ in [qc.copy() for qc in stateprep_circuits]:
         circuit_name_prefix = str(params) + "_" + str(prep_circ.name) + "_"
         wavefn_circuit = prep_circ.compose(u_circuit)
