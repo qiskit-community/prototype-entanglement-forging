@@ -48,7 +48,7 @@ We encourage your feedback! You can share your thoughts with us by:
 
 <!-- CONTRIBUTION GUIDELINES -->
 ### Contribution Guidelines
-For information on how to contribute to this project, please take a look at our [contribution guidelines](CONTRIBUTING.md).
+For information on how to contribute to this project, please take a look at our [CONTRIBUTING.MD](CONTRIBUTING.md) and the [Contribution Guide](https://github.com/IBM-Quantum-Prototypes/docs/2-reference-guide/reference_guide.md#contribution-guide) section of the reference guide.
 
 
 ----------------------------------------------------------------------------------------------------
