@@ -10,11 +10,11 @@ concurrency:
 jobs:
   tests_linux:
     runs-on: ${{ matrix.os }}
-    needs: [sdist]
+    needs: []
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: [3.10]
         os: ["ubuntu-latest"]
     env:
       AER_THRUST_BACKEND: OMP
@@ -50,11 +50,11 @@ jobs:
         shell: bash
   tests_macos:
     runs-on: ${{ matrix.os }}
-    needs: [sdist]
+    needs: []
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: [3.10]
         os: ["macOS-latest"]
     env:
       AER_THRUST_BACKEND: OMP
