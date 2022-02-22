@@ -2,11 +2,7 @@
 
 ## Table of Contents
 
-1. <a href="#contribution-guide">Contribution guide</a>
-    - <a href="#initial-set-up-and-installing-dependencies">Initial set-up and installing dependencies</a>
-    - <a href="#running-tests">Running tests</a>
-    - <a href="#making-a-pull-request">Making a pull request</a>
-2. <a href="#using-the-module">Using the module</a>
+1. <a href="#using-the-module">Using the module</a>
     - <a href="#installation-instructions">Installation instructions</a>
     - <a href="#specifying-the-problem">Specifying the problem</a>
     - <a href="#specifying-the-bitstrings">Specifying the bitstrings</a>
@@ -18,6 +14,11 @@
     - <a href="#running-the-algorithm">Running the algorithm</a>
     - <a href="#viewing-the-results">Viewing the results</a>
     - <a href="#verbose">Verbose</a>
+
+2. <a href="#contribution-guide">Contribution guide</a>
+    - <a href="#initial-set-up-and-installing-dependencies">Initial set-up and installing dependencies</a>
+    - <a href="#running-tests">Running tests</a>
+    - <a href="#making-a-pull-request">Making a pull request</a>
 
 ## Contribution guide
 
