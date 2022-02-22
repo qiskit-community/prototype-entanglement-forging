@@ -8,42 +8,13 @@ concurrency:
   group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
   cancel-in-progress: true
 jobs:
-  sdist:
-    runs-on: ${{ matrix.platform.os }}
-    needs: []
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
-        platform: [
-          { os: "ubuntu-latest", python-architecture: "x64" },
-        ]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Pip cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version}}-pip-sdist-${{ hashFiles('setup.py','requirements.txt','requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version}}-pip-sdist-
-            ${{ runner.os }}-${{ matrix.python-version}}-pip-
-            ${{ runner.os }}-${{ matrix.python-version}}-
-      - name: Install Deps
-        run: python -m pip install -U setuptools wheel virtualenv
-        shell: bash
-      - name: Build Sdist
-        run: python setup.py sdist
   tests_linux:
     runs-on: ${{ matrix.os }}
     needs: [sdist]
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.10]
         os: ["ubuntu-latest"]
     env:
       AER_THRUST_BACKEND: OMP
@@ -64,7 +35,10 @@ jobs:
             ${{ runner.os }}-${{ matrix.python-version}}-pip-
             ${{ runner.os }}-${{ matrix.python-version}}-
       - name: Install Deps
-        run: python -m pip install -U -r requirements.txt -r requirements-dev.txt wheel
+        run: |
+            set -e
+            python -m ensurepip
+            python -m pip install -U -r requirements.txt -r requirements-dev.txt
       - name: Install Entanglement Forging
         run: 
           python -m pip install -U .
@@ -80,7 +54,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.10]
         os: ["macOS-latest"]
     env:
       AER_THRUST_BACKEND: OMP
@@ -103,6 +77,7 @@ jobs:
       - name: Install Deps
         run: |
           set -e
+          python -m ensurepip
           pip install -U -r requirements.txt -r requirements-dev.txt
       - name: Install Entanglement Forging
         run: python -m pip install -U .
