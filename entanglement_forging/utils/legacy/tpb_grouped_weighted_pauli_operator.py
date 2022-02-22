@@ -214,7 +214,11 @@ class TPBGroupedWeightedPauliOperator(WeightedPauliOperator):
         curr_repr = "tpb grouped paulis"
         length = len(self._paulis)
         name = "" if self._name is None else f"{self._name}: "
-        ret = f"{name}Representation: {curr_repr}, qubits: {self.num_qubits}, size: {length}, group: {len(self._basis)}"
+        ret = (
+            f"{name}Representation: {curr_repr}, qubits: "
+            f"{self.num_qubits}, size: {length}, group: "
+            f"{len(self._basis)}"
+        )
 
         return ret
 

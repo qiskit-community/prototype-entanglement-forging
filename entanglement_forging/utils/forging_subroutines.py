@@ -83,10 +83,10 @@ def prepare_circuits_to_execute(
     """
     circuits_to_execute = []
     # Generate the requisite circuits:
-    if (
-        type(var_form)
-        != "entanglement_forging.core.variational_forms.VarFormHopgateForged"
-    ):  # pylint: disable=unidiomatic-typecheck
+    # pylint: disable=unidiomatic-typecheck
+    if not isinstance(
+        var_form, entanglement_forging.core.variational_forms.VarFormHopgateForged
+    ):
         param_bindings = dict(zip(var_form.parameters, params))
         u_circuit = var_form.bind_parameters(param_bindings)
     else:
@@ -111,6 +111,7 @@ def prepare_circuits_to_execute(
     return circuits_to_execute
 
 
+# pylint: disable=unbalanced-tuple-unpacking
 def eval_forged_op_with_result(
     result,
     w_ij_tensor_states,
@@ -285,6 +286,7 @@ def _get_pauli_expectations_from_result(
     return pauli_vals
 
 
+# pylint: disable=protected-access
 def _eval_each_pauli_with_result(
     tpbgwpo,
     result,
@@ -297,14 +299,12 @@ def _eval_each_pauli_with_result(
         raise QiskitNatureError("Operator is empty, check the operator.")
     if statevector_mode or use_simulator_snapshot_mode:
         raise NotImplementedError()
-    num_paulis = len(tpbgwpo._paulis)  # pylint: disable=protected-access
+    num_paulis = len(tpbgwpo._paulis)
     means = np.zeros(num_paulis)
     cov = np.zeros((num_paulis, num_paulis))
-    for basis, p_indices in tpbgwpo._basis:  # pylint: disable=protected-access
+    for basis, p_indices in tpbgwpo._basis:
         counts = result.get_counts(circuit_name_prefix + basis.to_label())
-        paulis = [
-            tpbgwpo._paulis[idx] for idx in p_indices
-        ]  # pylint: disable=protected-access
+        paulis = [tpbgwpo._paulis[idx] for idx in p_indices]
         paulis = [p[1] for p in paulis]  ## DISCARDING THE WEIGHTS
         means_this_basis, cov_this_basis = compute_pauli_means_and_cov_for_one_basis(
             paulis, counts
