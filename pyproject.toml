@@ -1,0 +1,16 @@
+[project]
+name = "entanglement_forging"
+version = "0.1.0"
+description = "Create a pyproject.toml file for entanglement forging."
+authors = [
+    "Caleb Johnson <caleb.johnson@ibm.com>"
+    "Iskandar Sitdikov <iskandar.sitdikov@ibm.com>"
+]
+readme = "README.md"
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
