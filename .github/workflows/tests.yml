@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9]
         os: ["ubuntu-latest"]
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
             set -e
             python -m pip install build wheel
             python -m build
-            cd dist && pip install -U entanglement_forging-0.0.0-py3-none-any.whl 
+            cd dist && pip install -U entanglement_forging*.whl 
       - name: Run Tests
         run: |
           set -e
@@ -42,7 +42,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9]
         os: ["macOS-latest"]
     steps:
       - uses: actions/checkout@v2
@@ -55,7 +55,7 @@ jobs:
             set -e
             python -m pip install build wheel
             python -m build
-            cd dist && pip install -U entanglement_forging-0.0.0-py3-none-any.whl 
+            cd dist && pip install -U entanglement_forging*.whl 
       - name: Run Tests
         run: |
           set -e
