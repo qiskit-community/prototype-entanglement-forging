@@ -25,9 +25,9 @@ jobs:
       - name: Install Deps
         run: |
             set -e
-            python -m pip3 install -U pip
-            python -m pip3 install -U setuptools
-            python -m pip3 install -U -r requirements.txt -r requirements-dev.txt
+            python -m pip install -U pip
+            python -m pip install -U setuptools
+            python -m pip install -U -r requirements.txt -r requirements-dev.txt
       - name: Run Tests
         run: |
           set -e
