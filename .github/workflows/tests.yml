@@ -50,11 +50,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Deps
+      - name: Install Entanglement Forging
         run: |
-          set -e
-          python -m pip install wheel setuptools
-          pip install -U -r requirements.txt -r requirements-dev.txt
+            set -e
+            python -m pip install build
+            python -m build
+            cd dist && pip install -U entanglement_forging-0.0.0-py3-none-any.whl 
       - name: Run Tests
         run: |
           set -e
