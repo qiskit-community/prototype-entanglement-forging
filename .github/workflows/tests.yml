@@ -25,7 +25,7 @@ jobs:
       - name: Install Entanglement Forging
         run: |
             set -e
-            python -m pip install build
+            python -m pip install build wheel
             python -m build
             cd dist && pip install -U entanglement_forging-0.0.0-py3-none-any.whl 
       - name: Run Tests
@@ -53,7 +53,7 @@ jobs:
       - name: Install Entanglement Forging
         run: |
             set -e
-            python -m pip install build
+            python -m pip install build wheel
             python -m build
             cd dist && pip install -U entanglement_forging-0.0.0-py3-none-any.whl 
       - name: Run Tests
