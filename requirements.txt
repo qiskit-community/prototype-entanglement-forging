@@ -3,7 +3,7 @@ qiskit_terra>=0.19.1
 qiskit_ignis>=0.7.0
 qiskit-aer>=0.10.2
 qiskit_ibmq_provider>=0.18.3
-pyscf>=2.0.1
+pyscf
 h5py>=3.6.0
 matplotlib>=3.5.1
 ipywidgets>=7.6.5
