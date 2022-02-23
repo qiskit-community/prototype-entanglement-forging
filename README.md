@@ -13,15 +13,6 @@
 
 ----------------------------------------------------------------------------------------------------
 
-<!-- ABOUT THIS PROJECT -->
-### About This Project
-This module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging [[1]](#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
-
-Before using the module for new work, users should read through the [reference guide](./docs/2-reference_guide/reference_guide.md) and the [explanatory material](docs/3-explanatory_material/explanatory_material.md), specifically the [current limitations](docs/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
-
-
-----------------------------------------------------------------------------------------------------
-
 <!-- TABLE OF CONTENTS -->
 ### Table of Contents
 * [Installation](docs/2-reference_guide/reference_guide.md#installation-instructions)
@@ -32,6 +23,14 @@ Before using the module for new work, users should read through the [reference g
 * [Acknowledgements](#acknowledgements)
 * [References](#references)
 * [License](#license)
+----------------------------------------------------------------------------------------------------
+
+
+<!-- ABOUT THIS PROJECT -->
+### About This Project
+This module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging [[1]](#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
+
+Before using the module for new work, users should read through the [reference guide](./docs/2-reference_guide/reference_guide.md) and the [explanatory material](docs/3-explanatory_material/explanatory_material.md), specifically the [current limitations](docs/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
 
 
 ----------------------------------------------------------------------------------------------------
