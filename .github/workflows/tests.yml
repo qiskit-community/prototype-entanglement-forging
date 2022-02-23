@@ -31,7 +31,7 @@ jobs:
       - name: Run Tests
         run: |
           set -e
-          pip check
+          python -m pip install -r requirements-dev.txt
           pylint -rn entanglement_forging/
           python -m unittest -v
           treon docs/ --threads 5
@@ -59,7 +59,7 @@ jobs:
       - name: Run Tests
         run: |
           set -e
-          pip check
+          python -m pip install -r requirements-dev.txt
           pylint -rn entanglement_forging/
           python -m unittest -v
           treon docs/ --threads 5
