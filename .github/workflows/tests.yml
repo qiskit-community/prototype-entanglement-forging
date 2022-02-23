@@ -27,9 +27,6 @@ jobs:
             set -e
             python -m pip install wheel setuptools
             python -m pip install -U -r requirements.txt -r requirements-dev.txt
-      - name: Install Entanglement Forging
-        run: 
-          python -m pip install -U .
       - name: Run Tests
         run: |
           set -e
@@ -57,8 +54,6 @@ jobs:
           set -e
           python -m pip install wheel setuptools
           pip install -U -r requirements.txt -r requirements-dev.txt
-      - name: Install Entanglement Forging
-        run: python -m pip install -U .
       - name: Run Tests
         run: |
           set -e
