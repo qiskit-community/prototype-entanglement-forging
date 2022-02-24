@@ -2,7 +2,6 @@
 ![Platform](https://img.shields.io/pypi/pyversions/pyscf)
 ![Platform](https://img.shields.io/conda/pn/conda-forge/pyscf)
 
-
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
