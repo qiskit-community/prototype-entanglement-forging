@@ -1,6 +1,6 @@
 <!-- SHIELDS -->
-![Conda](https://img.shields.io/conda/pn/conda-forge/pyscf)
-[![Python](https://img.shields.io/pypi/pyversions/pyscf)](https://www.python.org/)
+![Conda](https://img.shields.io/badge/platform-linux-lightgrey)
+![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-4B8BBE)
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
