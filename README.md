@@ -1,3 +1,7 @@
+<!-- SHIELDS -->
+![Platform](https://img.shields.io/pypi/pyversions/pyscf)
+
+
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
