@@ -270,10 +270,10 @@ To run linting tests (checks formatting/syntax):
 tox -elint
 ```
 
-To run notebook tests (for more info, see [here](https://github.com/treebeardtech/nbmake)):
+To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon):
 ```
 pip install pytest nbmake
-pytest --nbmake **/*ipynb
+treon docs/
 ```
 Note: notebook tests check for execution and time-out errors, not correctness.
 
