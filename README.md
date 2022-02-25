@@ -12,7 +12,7 @@
 </div>
 <!-- PROJECT LOGO -->
 <p align="center">
-  <a href="https://github.com/IBM-Quantum-Prototypes/quantum-kernel-training#readme"> <h2 align="center">Entanglement Forging</h2>
+  <a href="https://github.com/IBM-Quantum-Prototypes/quantum-kernel-training#readme">
     <img src="docs/images/ef_image.png" alt="Logo" width="600">
   </a>
   <h2 align="center">Entanglement Forging</h2>
