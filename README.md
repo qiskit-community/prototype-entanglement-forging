@@ -1,13 +1,10 @@
 <!-- SHIELDS -->
-<div align="center">
+<div align="left">
 
   ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-informational)
   [![Python](https://img.shields.io/badge/Python-3.7%20%7C%203.8%20%7C%203.9-informational)](https://www.python.org/)
-<br />
-  [![Qiskit-Terra](https://img.shields.io/badge/Qiskit--Terra->=0.19.1-6133BD)](https://github.com/Qiskit/qiskit-terra)
-  [![Qiskit-Aer](https://img.shields.io/badge/Qiskit--Aer->=0.10.2-6133BD)](https://github.com/Qiskit/qiskit-aer)
-  [![Qiskit-Ignis](https://img.shields.io/badge/Qiskit--Ignis->=0.7.0-6133BD)](https://github.com/Qiskit/qiskit-ignis)
-  [![Qiskit-Nature](https://img.shields.io/badge/Qiskit--Nature->=0.3.0-6133BD)](https://github.com/Qiskit/qiskit-nature)
+  [![Qiskit](https://img.shields.io/badge/Qiskit-%E2%89%A50.34.1-6133BD)](https://github.com/Qiskit/qiskit)
+  [![Qiskit-Nature](https://img.shields.io/badge/Qiskit--Nature-%E2%89%A50.3.0-6133BD)](https://github.com/Qiskit/qiskit-nature)
 <br />
   [![License](https://img.shields.io/github/license/IBM-Quantum-Prototypes/entanglement-forging?color=black&label=License)](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/blob/main/LICENSE.txt)
   [![Tests](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/actions/workflows/makefile.yml/badge.svg)](https://github.com/IBM-Quantum-Prototypes/entanglement-forging/actions/workflows/makefile.yml)
