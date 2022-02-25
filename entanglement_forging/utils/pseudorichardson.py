@@ -35,7 +35,7 @@ def make_pseudorichardson_circuits(transpiled_circuits, simple_richardson_orders
             new_qc = qcirc.copy(
                 name="_".join(
                     name_parts[:-1]
-                    + ["richardson{:.2f}".format(stretch_factor), name_parts[-1]]
+                    + [f"richardson{stretch_factor:.2f}", name_parts[-1]]
                 )
             )
             new_qc._data = []  # pylint: disable=protected-access

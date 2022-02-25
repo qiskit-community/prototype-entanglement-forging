@@ -1,5 +1,5 @@
-pylint==2.8.3
-tox==3.24.0
-nbmake==0.8
-pytest==6.2.5
-treon==0.1.3
+tox
+pytest
+treon
+pylint
+pycodestyle

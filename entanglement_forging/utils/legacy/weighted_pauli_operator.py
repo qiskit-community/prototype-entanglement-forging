@@ -284,9 +284,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         """
         if not isinstance(scaling_factor, (int, float, complex)):
             raise ValueError(
-                "Type of scaling factor is a valid type. {} if given.".format(
-                    scaling_factor.__class__
-                )
+                f"Type of scaling factor is a valid type. {scaling_factor.__class__} if given."
             )
         ret = self.copy() if copy else self
         for idx in range(len(ret._paulis)):  # pylint: disable=consider-using-enumerate
@@ -338,10 +336,9 @@ class WeightedPauliOperator(LegacyBaseOperator):
         """Overload str()"""
         curr_repr = "paulis"
         length = len(self._paulis)
-        name = "" if self._name == "" else "{}: ".format(self._name)
-        ret = "{}Representation: {}, qubits: {}, size: {}".format(
-            name, curr_repr, self.num_qubits, length
-        )
+        name = "" if self._name == "" else f"{self._name}: "
+        ret = f"{name}Representation: {curr_repr}, qubits: {self.num_qubits}, size: {length}"
+
         return ret
 
     def print_details(self):
@@ -355,7 +352,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
             return "Operator is empty."
         ret = ""
         for weight, pauli in self._paulis:
-            ret = "".join([ret, "{}\t{}\n".format(pauli.to_label(), weight)])
+            ret = "".join([ret, f"{pauli.to_label()}\t{weight}\n"])
 
         return ret
 
@@ -540,7 +537,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         Returns:
             WeightedPauliOperator: the loaded operator.
         """
-        with open(file_name, "r") as file:
+        with open(file_name, "r", encoding="UTF-8") as file:
             return cls.from_dict(json.load(file), before_04=before_04)
 
     def to_file(self, file_name):
@@ -551,7 +548,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
             file_name (str): path to the file
 
         """
-        with open(file_name, "w") as file:
+        with open(file_name, "w", encoding="UTF-8") as file:
             json.dump(self.to_dict(), file)
 
     @classmethod
@@ -993,9 +990,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         if num_time_slices <= 0 or not isinstance(num_time_slices, int):
             raise ValueError("Number of time slices should be a non-negative integer.")
         if expansion_mode not in ["trotter", "suzuki"]:
-            raise NotImplementedError(
-                "Expansion mode {} not supported.".format(expansion_mode)
-            )
+            raise NotImplementedError(f"Expansion mode {expansion_mode} not supported.")
 
         pauli_list = self.reorder_paulis()
 

@@ -197,7 +197,7 @@ def get_fermionic_ops_with_cholesky(
 
     converter = QubitConverter(JordanWignerMapper())
     qubit_op = converter.convert(fer_op)
-    #pylint: disable=protected-access
+    # pylint: disable=protected-access
     qubit_op._name = opname + "_onebodyop"
     cholesky_ops = []
     for g in range(L.shape[2]):
@@ -206,12 +206,12 @@ def get_fermionic_ops_with_cholesky(
         )
         cholesky_property = IntegralProperty("cholesky_op", [cholesky_int])
         if isinstance(cholesky_property.second_q_ops(), dict):
-            cholesky_op = converter.convert(cholesky_property.second_q_ops()["cholesky_op"])
+            cholesky_op = converter.convert(
+                cholesky_property.second_q_ops()["cholesky_op"]
+            )
         else:
             cholesky_op = converter.convert(cholesky_property.second_q_ops()[0])
-        #pylint: disable=protected-access
-        cholesky_op._name = (
-            opname + "_chol" + str(g)
-        )
+        # pylint: disable=protected-access
+        cholesky_op._name = opname + "_chol" + str(g)
         cholesky_ops.append(cholesky_op)
     return qubit_op, cholesky_ops, freeze_shift, h1, h2

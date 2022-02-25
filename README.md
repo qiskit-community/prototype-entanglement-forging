@@ -31,35 +31,24 @@
 
 ----------------------------------------------------------------------------------------------------
 
-<!-- ABOUT THIS PROJECT -->
-### About This Project
-This module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging [[1]](#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
-
-Before using the module for new work, users should read through the [reference guide](./docs/2-reference_guide/reference_guide.md) and the [explanatory material](docs/3-explanatory_material/explanatory_material.md), specifically the [current limitations](docs/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
-
-
-----------------------------------------------------------------------------------------------------
-
 <!-- TABLE OF CONTENTS -->
 ### Table of Contents
 * [Installation](docs/2-reference_guide/reference_guide.md#installation-instructions)
 * [Tutorials](docs/1-tutorials/)
 * [Background](docs/3-explanatory_material/)
-* [Using Quantum Services](#using-quantum-services)
 * [How to Give Feedback](#how-to-give-feedback)
 * [Contribution Guidelines](#contribution-guidelines)
 * [Acknowledgements](#acknowledgements)
 * [References](#references)
 * [License](#license)
-
-
 ----------------------------------------------------------------------------------------------------
 
-<!-- USING QUANTUM SERVICES -->
-### Using Quantum Services
-If you are interested in using quantum services (i.e. using a real quantum computer, not a simulator) you can look at the Qiskit Partners program for partner organizations that have provider packages available for their offerings:
 
-https://qiskit.org/documentation/partners/
+<!-- ABOUT THIS PROJECT -->
+### About This Project
+This module allows a user to simulate chemical and physical systems using a Variational Quantum Eigensolver (VQE) enhanced by Entanglement Forging [[1]](#references). Entanglement Forging doubles the size of the system that can be *exactly* simulated on a fixed set of quantum bits.
+
+Before using the module for new work, users should read through the [reference guide](./docs/2-reference_guide/reference_guide.md) and the [explanatory material](docs/3-explanatory_material/explanatory_material.md), specifically the [current limitations](docs/3-explanatory_material/explanatory_material.md#%EF%B8%8F-current-limitations) of the module.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -76,7 +65,7 @@ We encourage your feedback! You can share your thoughts with us by:
 
 <!-- CONTRIBUTION GUIDELINES -->
 ### Contribution Guidelines
-For information on how to contribute to this project, please take a look at our [contribution guidelines](CONTRIBUTING.md).
+For information on how to contribute to this project, please take a look at our [CONTRIBUTING.MD](CONTRIBUTING.md) and the [Contribution Guide](https://github.com/IBM-Quantum-Prototypes/docs/2-reference-guide/reference_guide.md#contribution-guide) section of the reference guide.
 
 
 ----------------------------------------------------------------------------------------------------

@@ -64,8 +64,8 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
 
     # pylint: disable=arguments-differ
     def solve(
-            self,
-            problem: ElectronicStructureProblem,
+        self,
+        problem: ElectronicStructureProblem,
     ) -> EntanglementForgedVQEResult:
         """Compute Ground State properties of chemical problem.
 

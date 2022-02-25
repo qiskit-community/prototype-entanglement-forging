@@ -27,30 +27,17 @@
 
 :exclamation: _This prototype depends on the PySCF package, which does not support Windows; therefore, Windows users will not be able to install and use this software. Advanced Windows users may wish to attempt to install PySCF using Ubuntu via the Windows Subsystem for Linux.  We are exploring the possibility of providing Docker support for this prototype so it can be used within Docker Desktop, including on Windows._
 
-0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
-1. Open terminal.
-
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). Within terminal:
-    ```
-    conda create -n my_forging_env python=3.9
-    ```
-    then
-    ```
-    conda activate my_forging_env
-    ```
-2. Within terminal,  clone repository:
-```bash
-git clone https://github.com/IBM-Quantum-Prototypes/entanglement-forging.git
-```
-3. Change directory to the freshly cloned forging module:
-```bash
-cd entanglement-forging
-```
-4. Install the package (this step gives you access to the module _outside_ of the cloned directory):
-```bash
-pip install -e .
-```
-5. You can now use the package.
+0. Ensure your local environment is compatible with the entanglement-forging package.
+   - Ensure you are on a supported operating system (macOS or Linux)
+   - Ensure you are running a supported version of Python (py37,py38,py39)
+   ```
+   conda create -n forging python=3.9
+   ```
+1. Use pip to install the entanglement-forging package
+   ```
+   pip install entanglement-forging
+   ```
+2. Users may now run the entanglement forging demo notebooks on their local machine or use the entanglement-forging package in their own software.
 
 ### Specifying the problem
 
@@ -271,7 +258,7 @@ To run tests:
 ```
 tox -e{env}
 ```
-where you replace `{env}` with `py36`, `py37`, `py38` or `py39` depending on which version of python you have (to check python version, type `python --version` in the terminal).
+where you replace `{env}` with `py37`, `py38` or `py39` depending on which version of python you have (to check python version, type `python --version` in the terminal).
 
 To run all the tests:
 ```
@@ -283,10 +270,10 @@ To run linting tests (checks formatting/syntax):
 tox -elint
 ```
 
-To run notebook tests (for more info, see [here](https://github.com/treebeardtech/nbmake)):
+To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon):
 ```
 pip install pytest nbmake
-pytest --nbmake **/*ipynb
+treon docs/
 ```
 Note: notebook tests check for execution and time-out errors, not correctness.
 
