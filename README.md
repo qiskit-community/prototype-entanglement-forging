@@ -6,7 +6,7 @@
   [![Qiskit](https://img.shields.io/badge/Qiskit-%E2%89%A5%200.34.1-6133BD)](https://github.com/Qiskit/qiskit)
   [![Qiskit-Nature](https://img.shields.io/badge/Qiskit--Nature-%E2%89%A5%200.3.0-6133BD)](https://github.com/Qiskit/qiskit-nature)
 <br />
-  [![License](https://img.shields.io/github/license/IBM-Quantum-prototypes/entanglement-forging?color=black&label=License)](https://github.com/IBM-Quantum-prototypes/entanglement-forging/blob/main/LICENSE.txt)
+  [![License](https://img.shields.io/github/license/IBM-Quantum-prototypes/entanglement-forging?label=License)](https://github.com/IBM-Quantum-prototypes/entanglement-forging/blob/main/LICENSE.txt)
   [![Tests](https://github.com/IBM-Quantum-prototypes/entanglement-forging/actions/workflows/tests.yml/badge.svg)](https://github.com/IBM-Quantum-prototypes/entanglement-forging/actions/workflows/tests.yml)
 
 </div>
