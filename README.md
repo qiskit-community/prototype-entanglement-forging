@@ -37,6 +37,7 @@
 * [How to Give Feedback](#how-to-give-feedback)
 * [Contribution Guidelines](#contribution-guidelines)
 * [Acknowledgements](#acknowledgements)
+* [About Prototypes](#about-prototypes)
 * [References](#references)
 * [License](#license)
 ----------------------------------------------------------------------------------------------------
@@ -75,6 +76,16 @@ This module is based on the theory and experiment described in [[1]](#references
 The initial code on which this module is based was written by Andrew Eddins, Mario Motta, Tanvi Gujarati, and Charles Hadfield. The module was developed by Aggie Branczyk, Iskandar Sitdikov, and Luciano Bello, with help from Caleb Johnson, Mario Motta, Andrew Eddins, Tanvi Gujarati, Stefan Wörner, Max Rossmannek, Ikko Hamamura, and Takashi Imamichi. The documentation was written by Aggie Branczyk, with help from Ieva Liepuoniute, Mario Motta and Travis Scholten.
 
 We also thank Lev Bishop, Sarah Sheldon, and John Lapeyre for useful discussions.
+
+
+----------------------------------------------------------------------------------------------------
+
+<!-- ABOUT PROTOTYPES -->
+### About Prototypes
+
+Prototypes is a collaboration between developers and researchers that will give users access to prototypes from cutting-edge research in areas like quantum simulation and machine learning. These software packages are built on top of, and may eventually be integrated into the Qiskit SDK. They are a contribution as part of the Qiskit community.
+
+Check out our [blog post](https://medium.com/qiskit/try-out-the-latest-advances-in-quantum-computing-with-ibm-quantum-prototypes-11f51124cb61) for more information!
 
 
 ----------------------------------------------------------------------------------------------------
