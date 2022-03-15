@@ -102,9 +102,9 @@ Example 2: Seven qubits with three bitstrings.
 bitstrings = bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
 ```
 
-For information on picking bitstrings, refer to [this section](./docs/3-explanatory_material/explanatory_material.md#picking-the-bitstrings) of the Explanatory Material.
+For information on picking bitstrings, refer to [this section](/docs/3-explanatory_material/explanatory_material.md#picking-the-bitstrings) of the Explanatory Material.
 
-For current limitations on specifying bitstrings, refer to [this section](./docs/3-explanatory_material/explanatory_material.md#ansatz--bitstrings) of the Explanatory Material.
+For current limitations on specifying bitstrings, refer to [this section](/docs/3-explanatory_material/explanatory_material.md#ansatz--bitstrings) of the Explanatory Material.
 
 ### Freezing orbitals
 
@@ -122,7 +122,7 @@ Output:
 [1,1,1,0,0],[0,1,1,0,1],[0,1,1,1,0]]
 ```
 
-For discussion of scaling and orbital freezing, refer to the [this section](./docs/3-explanatory_material/explanatory_material.md#freezing-orbitals) of the Explanatory Material.
+For discussion of scaling and orbital freezing, refer to the [this section](/docs/3-explanatory_material/explanatory_material.md#freezing-orbitals) of the Explanatory Material.
 
 ### Specifying the Ansatz
 
