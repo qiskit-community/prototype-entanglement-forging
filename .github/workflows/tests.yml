@@ -30,7 +30,7 @@ jobs:
       - name: Test with tox 
         env:
           TOXENV: ${{ matrix.TOXENV }}
-        run: python -m tox
+        run: tox
 
   test_macOS:
     runs-on: macOS-latest
@@ -57,4 +57,4 @@ jobs:
       - name: Test with tox
         env:
           TOXENV: ${{ matrix.TOXENV }}
-        run: python -m tox
+        run: tox
