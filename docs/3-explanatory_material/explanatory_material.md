@@ -57,7 +57,7 @@ The execution time scales differently with various properties of the simulations
 
 ### Freezing orbitals
 
-Since the execution time scales with the 5th power in the number of orbitals, it's a good idea to simplify the problem (if possible) by eliminating some of the orbitals. Some knowledge of chemistry is useful when picking orbitals to freeze. One good rule of thumb is to freeze the core orbital (for the case of water, this is the core oxygen 1s orbital). Furthermore, in the case of water, it turns out that orbital 3 (corresponding to the out-of-plane oxygen 2p orbitals) has different symmetry to the other orbitals, so excitations to orbital 3 are supressed. For water, we thus freeze orbitals 0 and 3.
+Since the execution time scales with the 5th power in the number of orbitals, it's a good idea to simplify the problem (if possible) by eliminating some of the orbitals. Some knowledge of chemistry is useful when picking orbitals to freeze. One good rule of thumb is to freeze the core orbital (for the case of water, this is the core oxygen 1s orbital). Furthermore, in the case of water, it turns out that orbital 3 (corresponding to the out-of-plane oxygen 2p orbitals) has different symmetry to the other orbitals, so excitations to orbital 3 are suppressed. For water, we thus freeze orbitals 0 and 3.
 
 The core orbitals can be found with the following code:
 ```
@@ -100,11 +100,11 @@ Further reduction in computational resources can be achieved by [freezing some o
 
 #### Fixing the Hartree-Fock bitstring
 
-In some cases, it is possible to increase the accuracy of simulations and speed up the execution by setting `fix_first_bitstring=True` in `EntanglementgForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with HF energy.
+In some cases, it is possible to increase the accuracy of simulations and speed up the execution by setting `fix_first_bitstring=True` in `EntanglementForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with HF energy.
 
 This setting requires an ansatz that leaves the Hartree-Fock (HF) state unchanged under `var_form`. As a rule of thumb, this can be achieved by restricting entanglement between the qubits representing occupied orbitals (bits = 1) in the HF state and the qubits representing unoccupied orbitals (bits = 0) in the HF state.
 
-For example, this figure from [1] shows the A, B, and C qubits entangled with the hop cates, D & E qubits entangled with hop gates, while the partition between (A,B,C) and (D,E) are only entangled with a CZ gate.
+For example, this figure from [1] shows the A, B, and C qubits entangled with the hop gates, D & E qubits entangled with hop gates, while the partition between (A,B,C) and (D,E) are only entangled with a CZ gate.
 
 <img src="figs/Fig_5_c.png" width="250">
 
@@ -124,7 +124,7 @@ For a chemistry simulation problem, the number of qubits in the circuit must equ
   - There are plans in the future to break the ansatz and bitstring symmetry. This will be made possible after a new expectation values class is merged in Terra.
 - In the current implementation of the module, the ansatz must be real. 
   - For molecular calculations, one can usually force the ansatz to be real. On the other hand, in crystalline solids (away from the gamma point and without inversion symmetry), the Hamiltonian is defined by the complex numbers.
-  - There are plans in the future to implement complex ansaetze. 
+  - There are plans in the future to implement complex ansatze. 
 
 ### Orbitals
 - The current implementation of Forged VQE also requires that the number of alpha particles equals the number of beta particles. The relevant parameters can be found with the following code:
@@ -151,8 +151,8 @@ print(f"Number of beta particles: {qmolecule.num_beta}")
 
 
 ### Running on quantum hardware
-- Results on hardware will not be as good as on the QASM simulator. Getting good results will require using a quantum backend with good properties (qubit fidely, gate fidelity etc.), as well as a lot of fine-tuning of parameters.
-- Queue times are long, which makes execution on a quantum backend difficult. This issue will be mitigated once the module can be uploaded as a qiskit runtime (not currently suppored). This will be made possible when either:
+- Results on hardware will not be as good as on the QASM simulator. Getting good results will require using a quantum backend with good properties (qubit fidelity, gate fidelity etc.), as well as a lot of fine-tuning of parameters.
+- Queue times are long, which makes execution on a quantum backend difficult. This issue will be mitigated once the module can be uploaded as a qiskit runtime (not currently supported). This will be made possible when either:
   - The module has been simplified to fit into a single program, or
   - Qiskit runtime provides support for multi-file programs
 
