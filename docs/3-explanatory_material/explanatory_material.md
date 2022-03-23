@@ -8,6 +8,7 @@
     - <a href="#freezing-orbitals">Freezing orbitals</a> 
     - <a href="#picking-the-bitstrings">Picking the bitstrings</a>
     - <a href="#designing-the-ansatz-used-in-entanglement-forging">Designing the ansatz used in Entanglement Forging</a>
+    - <a href="#picking-the-backend">Picking the backend</a>
 4. <a href="#%EF%B8%8F-current-limitations">⚠️ Current limitations</a>    
     - <a href="#ansatz--bitstrings">Ansatz & bitstrings</a>
     - <a href="#orbitals">Orbitals</a>    
@@ -113,6 +114,24 @@ For example, this figure from [1] shows the A, B, and C qubits entangled with th
 Because entanglement forging leverages a near-term, heuristic algorithm (namely, VQE), a judicious choice for the VQE ansatz can improve performance. Note that one way to design the ansatz is by endowing the unitaries *U* and *V* in the Schmidt decomposition with parameters. An open question is how to choose the best unitaries for a given problem.
 
 For a chemistry simulation problem, the number of qubits in the circuit must equal the number of orbitals (minus the number of frozen orbitals, if applicable).
+
+### Picking the backend
+
+`backend` is an option in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can choose between Statevector simulation, QASM simulation, or real quantum hardware. 
+
+Statevector simulation is useful when we want to:
+1. get the exact values of energies (e.g. for chemistry problems) without any error bars (assuming there are no other sources of randomness)
+2. test the performance of an algorithm in the absence of shot noise (for VQE, there could be a difference between the trajectory of the parameters in the presence and absence of shot noise; in this case the statevector simulator can concretely provide an answer regarding the expressivity of a given ansatz without any uncertainty coming from shot noise)
+
+QASM simulation is useful when:
+1. the system sizes are larger because the statevector simulator scales exponentially in system size and will not be useful beyond small systems
+2. simulating circuits with noise to mimic a real noisy quantum computer
+
+When running the entanglement forging module either on the QASM simulator or on real quantum hardware, several additional options are available: `shots`, `bootstrap_trials`, `copysample_job_size`, `meas_error_mit`, `meas_error_shots`, `meas_error_refresh_period_minutes`, `zero_noise_extrap`. These options can be specified in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can use the QASM simulator to test out these options before running them on real quantum hardware. 
+
+Notes:
+- In the limit of infinite shots, the mean value of the QASM simulator will be equal to the value of the statevector simulator.
+- The QASM simulator also has a method that [mimics the statevector simulator](https://qiskit.org/documentation/tutorials/simulators/1_aer_provider.html) without shot noise as an alternative to statevector simulator.
 
 ## ⚠️ Current limitations
 
