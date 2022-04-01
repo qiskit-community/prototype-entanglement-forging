@@ -165,7 +165,7 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             eval_count=solver._eval_count,
             num_particles=num_particles,
             s_sq=s_sq,
-            s_z=s_z
+            s_z=s_z,
         )
         res.combine(result)
         return res
