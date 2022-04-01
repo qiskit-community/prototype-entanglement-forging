@@ -9,57 +9,65 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tests_linux:
-    runs-on: ${{ matrix.os }}
-    needs: []
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        os: ["ubuntu-latest"]
+          include:
+            - python-version: 3.7
+              TOXENV: "py37"
+            - python-version: 3.8
+              TOXENV: "py38"
+            - python-version: 3.9
+              TOXENV: "py39"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Build Wheel
+        run: |
+            pip install --upgrade pip 
+            pip install build wheel
+            python -m build
       - name: Install Entanglement Forging
         run: |
-            set -e
-            pip install -U build wheel
-            python -m build
             cd dist && pip install -U entanglement_forging*.whl 
-      - name: Run Tests
+      - name: Install Test Dependencies
         run: |
-          set -e
-          pip install -U -r requirements-dev.txt
+          pip install .[dev]
           black --check entanglement_forging/ tests/
           python -m unittest -v
           treon docs/ --threads 5
         shell: bash
-  tests_macos:
-    runs-on: ${{ matrix.os }}
-    needs: []
-    timeout-minutes: 60
+  tests_macOS:
+    runs-on: macOS-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        os: ["macOS-latest"]
+          include:
+            - python-version: 3.7
+              TOXENV: "py37"
+            - python-version: 3.8
+              TOXENV: "py38"
+            - python-version: 3.9
+              TOXENV: "py39"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Build Wheel
+        run: |
+            pip install --upgrade pip 
+            pip install build wheel
+            python -m build
       - name: Install Entanglement Forging
         run: |
-            set -e
-            pip install -U build wheel
-            python -m build
             cd dist && pip install -U entanglement_forging*.whl 
-      - name: Run Tests
+      - name: Install Test Dependencies
         run: |
-          set -e
-          pip install -U -r requirements-dev.txt
+          pip install .[dev]
           black --check entanglement_forging/ tests/
           python -m unittest -v
           treon docs/ --threads 5
