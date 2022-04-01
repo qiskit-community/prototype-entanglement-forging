@@ -244,15 +244,15 @@ git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
 ```bash
 cd entanglement-forging
 ```
-4. Install the dependencies needed:
+4. Install the package:
 ```
-pip install -r requirements.txt
+pip install .
 ```
 
 ### Running tests
 First install required packages:
 ```
-pip install -r requirements-dev.txt
+pip install .[test]
 ```
 To run tests:
 ```

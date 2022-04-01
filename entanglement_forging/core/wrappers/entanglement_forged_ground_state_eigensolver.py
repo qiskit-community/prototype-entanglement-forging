@@ -114,17 +114,6 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             energy_std_each_parameter_set=solver.energy_std_each_parameter_set,
             energy_offset=solver._add_this_to_energies_displayed,
             eval_count=solver._eval_count,
-            auxiliary_results=solver.aux_results
-            + [
-                (
-                    "optimal_params",
-                    OptimalParams(
-                        energy=solver._ret.eigenvalue
-                        + solver._add_this_to_energies_displayed,
-                        optimal_params=solver.optimal_params,
-                    ),
-                )
-            ],
         )
         res.combine(result)
         return res
