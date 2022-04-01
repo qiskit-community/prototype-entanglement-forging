@@ -38,9 +38,6 @@ jobs:
       - name: Install Test Dependencies
         run: |
             pip install .[dev]
-            black --check entanglement_forging/ tests/
-            python -m unittest -v
-            treon docs/ --threads 5
         shell: bash
       - name: Run Tests
         run: |
