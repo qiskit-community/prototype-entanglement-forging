@@ -30,15 +30,23 @@ jobs:
             pip install --upgrade pip 
             pip install build wheel
             python -m build
+        shell: bash
       - name: Install Entanglement Forging
         run: |
-            cd dist && pip install -U entanglement_forging*.whl 
+            cd dist && pip install -U entanglement_forging*.whl
+        shell: bash
       - name: Install Test Dependencies
         run: |
-          pip install .[dev]
-          black --check entanglement_forging/ tests/
-          python -m unittest -v
-          treon docs/ --threads 5
+            pip install .[dev]
+            black --check entanglement_forging/ tests/
+            python -m unittest -v
+            treon docs/ --threads 5
+        shell: bash
+      - name: Run Tests
+        run: |
+            black --check entanglement_forging/ tests/
+            python -m unittest -v
+            treon docs/ --threads 5
         shell: bash
   tests_macOS:
     runs-on: macOS-latest
@@ -62,13 +70,18 @@ jobs:
             pip install --upgrade pip 
             pip install build wheel
             python -m build
+        shell: bash
       - name: Install Entanglement Forging
         run: |
-            cd dist && pip install -U entanglement_forging*.whl 
+            cd dist && pip install -U entanglement_forging*.whl
+        shell: bash
       - name: Install Test Dependencies
         run: |
-          pip install .[dev]
-          black --check entanglement_forging/ tests/
-          python -m unittest -v
-          treon docs/ --threads 5
+            pip install .[dev]
+        shell: bash
+      - name: Run Tests
+        run: |
+            black --check entanglement_forging/ tests/
+            python -m unittest -v
+            treon docs/ --threads 5
         shell: bash

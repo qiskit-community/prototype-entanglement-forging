@@ -189,38 +189,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         forged_result = forged_ground_state_solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-    def test_aux_results(self):
-        """Test for aux results data.
-        NOTE: aux data was added only because of before this data was stored in file system,
-              possible it is not needed at all and can be removed
-        """
-        # setup problem
-        molecule = Molecule(
-            geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.735])],
-            charge=0,
-            multiplicity=1,
-        )
-        driver = PySCFDriver.from_molecule(molecule)
-        problem = ElectronicStructureProblem(driver)
-        problem.second_q_ops()
-
-        # solution
-        bitstrings = [[1, 0], [0, 1]]
-        ansatz = TwoLocal(2, [], "cry", [[0, 1], [1, 0]], reps=1)
-
-        config = EntanglementForgedConfig(
-            backend=self.backend, maxiter=0, initial_params=[0, 0.5 * np.pi]
-        )
-        converter = QubitConverter(JordanWignerMapper())
-        forged_ground_state_solver = EntanglementForgedGroundStateSolver(
-            converter, ansatz, bitstrings, config
-        )
-        forged_result = forged_ground_state_solver.solve(problem)
-
-        self.assertEqual(
-            [name for name, _ in forged_result.auxiliary_results],
-            ["bootstrap", "data", "data_noextrapolation", "optimal_params"],
-        )
 
     def test_ground_state_eigensolver_with_ef_driver(self):
         """Tests standard qiskit nature solver."""

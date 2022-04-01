@@ -246,13 +246,13 @@ cd entanglement-forging
 ```
 4. Install the dependencies needed:
 ```
-pip install -r requirements.txt
+pip install .
 ```
 
 ### Running tests
 First install required packages:
 ```
-pip install -r requirements-dev.txt
+pip install .[dev]
 ```
 To run tests:
 ```

@@ -192,7 +192,7 @@ Try using `fix_first_bitstring=True` in `EntanglementForgedConfig`. This bypasse
 ### For IBM Power users
 
 pip is not well-supported on IBM power, so everything should be installed with conda. To get the package to work on Power, one needs to:
-- remove `matplotlib>=2.1,<3.4` from `requirements.txt`
+- remove `matplotlib>=2.1,<3.4` from `setup.cfg`
 - install matplotlib with conda manually instead of pip
 
 ```

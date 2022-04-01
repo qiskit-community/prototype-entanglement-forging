@@ -123,7 +123,6 @@ class EntanglementForgedVQEResult(VQEResult):
         energy_std_each_parameter_set: Optional[List[Union[float, int]]] = None,
         energy_offset: Optional[float] = None,
         eval_count: Optional[int] = None,
-        auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None,
     ) -> None:
         """Results for EntanglementForgedGroundStateSolver.
 
@@ -134,7 +133,6 @@ class EntanglementForgedVQEResult(VQEResult):
             energy_std_each_parameter_set:
             energy_offset:
             eval_count:
-            auxiliary_results: additional results (on order to remove writing to filesystem)
         """
         super().__init__()
 
@@ -145,7 +143,6 @@ class EntanglementForgedVQEResult(VQEResult):
         self._energy_std_each_parameter_set = energy_std_each_parameter_set
         self._energy_offset = energy_offset
         self._eval_count = eval_count
-        self.auxiliary_results = auxiliary_results
 
     def __repr__(self):
         return (
