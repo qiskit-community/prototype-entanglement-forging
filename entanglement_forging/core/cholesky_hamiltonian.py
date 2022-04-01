@@ -48,8 +48,8 @@ def modified_cholesky(two_body_overlap_integrals, eps):
     # max number of Cholesky vectors, and current number of Cholesky vectors
     # (n_gammas = "number of gammas")
     chmax, n_gammas = 10 * n_basis_states, 0
-    W = two_body_overlap_integrals.reshape(n_basis_states ** 2, n_basis_states ** 2)
-    L = np.zeros((n_basis_states ** 2, chmax))
+    W = two_body_overlap_integrals.reshape(n_basis_states**2, n_basis_states**2)
+    L = np.zeros((n_basis_states**2, chmax))
     Dmax = np.diagonal(W).copy()
     nu_max = np.argmax(Dmax)
     vmax = Dmax[nu_max]
@@ -58,7 +58,7 @@ def modified_cholesky(two_body_overlap_integrals, eps):
         if n_gammas > 0:
             L[:, n_gammas] -= np.dot(L[:, 0:n_gammas], L.T[0:n_gammas, nu_max])
         L[:, n_gammas] /= np.sqrt(vmax)
-        Dmax[: n_basis_states ** 2] -= L[: n_basis_states ** 2, n_gammas] ** 2
+        Dmax[: n_basis_states**2] -= L[: n_basis_states**2, n_gammas] ** 2
         n_gammas += 1
         nu_max = np.argmax(Dmax)
         vmax = Dmax[nu_max]

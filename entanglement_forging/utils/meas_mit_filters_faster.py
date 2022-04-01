@@ -327,7 +327,7 @@ class TensoredFilter:
         """
 
         all_states = count_keys(self.nqubits)
-        num_of_states = 2 ** self.nqubits
+        num_of_states = 2**self.nqubits
 
         # check forms of raw_data
         if isinstance(raw_data, dict):
