@@ -123,6 +123,9 @@ class EntanglementForgedVQEResult(VQEResult):
         energy_std_each_parameter_set: Optional[List[Union[float, int]]] = None,
         energy_offset: Optional[float] = None,
         eval_count: Optional[int] = None,
+        num_particles: Optional[Tuple[complex, complex]] = None,
+        s_sq: Optional[Tuple[complex, complex]] = None,
+        s_z: Optional[Tuple[complex, complex]] = None,
         auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None,
     ) -> None:
         """Results for EntanglementForgedGroundStateSolver.
@@ -134,6 +137,9 @@ class EntanglementForgedVQEResult(VQEResult):
             energy_std_each_parameter_set:
             energy_offset:
             eval_count:
+            num_particles:
+            s_sq:
+            s_z:
             auxiliary_results: additional results (on order to remove writing to filesystem)
         """
         super().__init__()
@@ -145,13 +151,19 @@ class EntanglementForgedVQEResult(VQEResult):
         self._energy_std_each_parameter_set = energy_std_each_parameter_set
         self._energy_offset = energy_offset
         self._eval_count = eval_count
+        self._num_particles = num_particles
+        self._s_sq = s_sq
+        self._s_z = s_z
         self.auxiliary_results = auxiliary_results
 
     def __repr__(self):
         return (
             f"Ground state energy (Hartree): {self.ground_state_energy}\n"
             f"Schmidt values: {self.schmidts_value}\n"
-            f"Optimizer parameters: {self.optimizer_parameters}"
+            f"Optimizer parameters: {self.optimizer_parameters}\n"
+            f"Number of particles: {self.num_particles}\n"
+            f"Eigenstate S_sq: {self._s_sq}\n"
+            f"Eigenstate S_z: {self._s_z}"
         )
 
     def get_parameters_history(self):
@@ -195,3 +207,18 @@ class EntanglementForgedVQEResult(VQEResult):
     def eval_count(self) -> Optional[int]:
         """Returns evaluation count."""
         return self._eval_count
+
+    @property
+    def num_particles(self) -> Optional[Tuple[complex, complex]]:
+        """Returns number of particles."""
+        return self._eval_count
+
+    @property
+    def eigenstate_s_sq(self) -> Optional[Tuple[complex, complex]]:
+        """Returns eigenstate S^2."""
+        return self._s_sq
+
+    @property
+    def eigenstate_s_z(self) -> Optional[Tuple[complex, complex]]:
+        """Returns eigenstate S_z."""
+        return self._s_z

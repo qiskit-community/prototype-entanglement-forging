@@ -27,6 +27,11 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
+from qiskit_nature.properties.second_quantization.electronic import (
+    AngularMomentum,
+    Magnetization,
+    ParticleNumber,
+)
 
 from entanglement_forging.core.classical_energies import ClassicalEnergies
 from entanglement_forging.core.forged_operator import ForgedOperator
@@ -92,6 +97,39 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
 
         start_time = time.time()
 
+        # Get particle number information
+        num_spin_orbitals = problem.grouped_property_transformed.get_property(
+            "ParticleNumber"
+        ).num_spin_orbitals
+        num_particles = problem.grouped_property_transformed.get_property(
+            "ParticleNumber"
+        ).num_particles
+        particle_number = ParticleNumber(
+            num_spin_orbitals=num_spin_orbitals, num_particles=num_particles
+        )
+
+        # Get angular momentum and magnetization
+        angular_momentum = AngularMomentum(num_spin_orbitals=num_spin_orbitals)
+        magnetization = Magnetization(num_spin_orbitals=num_spin_orbitals)
+
+        # Get second quantized operators
+        num_particle_op = particle_number.second_q_ops()
+        angular_momentum_op = angular_momentum.second_q_ops()
+        magnetization_op = magnetization.second_q_ops()
+
+        # Group the operators
+        grouped_ops = num_particle_op
+        grouped_ops.extend(angular_momentum_op)
+        grouped_ops.extend(magnetization_op)
+
+        # Get auxiliary operators
+        grouped_ops_qubit = []
+        for i in range(len(grouped_ops)):
+            aux_op_q = self._qubit_converter.convert(
+                grouped_ops[i], num_particles=problem.num_particles
+            )
+            grouped_ops_qubit.extend(aux_op_q)
+
         problem.driver.run()
         forged_operator = ForgedOperator(problem, self.orbitals_to_reduce)
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
@@ -103,10 +141,19 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             forged_operator=forged_operator,
             classical_energies=classical_energies,
         )
-        result = solver.compute_minimum_eigenvalue(forged_operator.h_1_op)
+
+        # Compute ground state energy and extract auxiliary data
+        result = solver.compute_minimum_eigenvalue(
+            forged_operator.h_1_op, aux_operators=grouped_ops_qubit
+        )
+        num_particles = result.aux_operator_eigenvalues[0]
+        s_sq = result.aux_operator_eigenvalues[1]
+        s_z = result.aux_operator_eigenvalues[2]
 
         elapsed_time = time.time() - start_time
         Log.log(f"VQE for this problem took {elapsed_time} seconds")
+
+        # Create results object and return
         res = EntanglementForgedVQEResult(
             parameters_history=solver._paramsets_each_iteration,
             energies_history=solver._energy_each_iteration_each_paramset,
@@ -114,6 +161,9 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             energy_std_each_parameter_set=solver.energy_std_each_parameter_set,
             energy_offset=solver._add_this_to_energies_displayed,
             eval_count=solver._eval_count,
+            num_particles=num_particles,
+            s_sq=s_sq,
+            s_z=s_z,
             auxiliary_results=solver.aux_results
             + [
                 (
