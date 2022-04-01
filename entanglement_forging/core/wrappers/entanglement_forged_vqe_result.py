@@ -126,7 +126,6 @@ class EntanglementForgedVQEResult(VQEResult):
         num_particles: Optional[Tuple[complex, complex]] = None,
         s_sq: Optional[float] = None,
         s_z: Optional[float] = None,
-        auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None,
     ) -> None:
         """Results for EntanglementForgedGroundStateSolver.
 
@@ -154,7 +153,6 @@ class EntanglementForgedVQEResult(VQEResult):
         self._num_particles = num_particles
         self._s_sq = s_sq
         self._s_z = s_z
-        self.auxiliary_results = auxiliary_results
 
     def __repr__(self):
         return (
