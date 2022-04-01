@@ -1,5 +1,0 @@
-tox
-pytest
-treon
-black==22.1.0
-pycodestyle
