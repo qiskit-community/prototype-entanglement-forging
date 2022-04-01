@@ -8,6 +8,7 @@
     - <a href="#freezing-orbitals">Freezing orbitals</a> 
     - <a href="#picking-the-bitstrings">Picking the bitstrings</a>
     - <a href="#designing-the-ansatz-used-in-entanglement-forging">Designing the ansatz used in Entanglement Forging</a>
+    - <a href="#picking-the-backend">Picking the backend</a>
 4. <a href="#%EF%B8%8F-current-limitations">⚠️ Current limitations</a>    
     - <a href="#ansatz--bitstrings">Ansatz & bitstrings</a>
     - <a href="#orbitals">Orbitals</a>    
@@ -57,7 +58,7 @@ The execution time scales differently with various properties of the simulations
 
 ### Freezing orbitals
 
-Since the execution time scales with the 5th power in the number of orbitals, it's a good idea to simplify the problem (if possible) by eliminating some of the orbitals. Some knowledge of chemistry is useful when picking orbitals to freeze. One good rule of thumb is to freeze the core orbital (for the case of water, this is the core oxygen 1s orbital). Furthermore, in the case of water, it turns out that orbital 3 (corresponding to the out-of-plane oxygen 2p orbitals) has different symmetry to the other orbitals, so excitations to orbital 3 are supressed. For water, we thus freeze orbitals 0 and 3.
+Since the execution time scales with the 5th power in the number of orbitals, it's a good idea to simplify the problem (if possible) by eliminating some of the orbitals. Some knowledge of chemistry is useful when picking orbitals to freeze. One good rule of thumb is to freeze the core orbital (for the case of water, this is the core oxygen 1s orbital). Furthermore, in the case of water, it turns out that orbital 3 (corresponding to the out-of-plane oxygen 2p orbitals) has different symmetry to the other orbitals, so excitations to orbital 3 are suppressed. For water, we thus freeze orbitals 0 and 3.
 
 The core orbitals can be found with the following code:
 ```
@@ -100,11 +101,11 @@ Further reduction in computational resources can be achieved by [freezing some o
 
 #### Fixing the Hartree-Fock bitstring
 
-In some cases, it is possible to increase the accuracy of simulations and speed up the execution by setting `fix_first_bitstring=True` in `EntanglementgForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with HF energy.
+In some cases, it is possible to increase the accuracy of simulations and speed up the execution by setting `fix_first_bitstring=True` in `EntanglementForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with HF energy.
 
 This setting requires an ansatz that leaves the Hartree-Fock (HF) state unchanged under `var_form`. As a rule of thumb, this can be achieved by restricting entanglement between the qubits representing occupied orbitals (bits = 1) in the HF state and the qubits representing unoccupied orbitals (bits = 0) in the HF state.
 
-For example, this figure from [1] shows the A, B, and C qubits entangled with the hop cates, D & E qubits entangled with hop gates, while the partition between (A,B,C) and (D,E) are only entangled with a CZ gate.
+For example, this figure from [1] shows the A, B, and C qubits entangled with the hop gates, D & E qubits entangled with hop gates, while the partition between (A,B,C) and (D,E) are only entangled with a CZ gate.
 
 <img src="figs/Fig_5_c.png" width="250">
 
@@ -113,6 +114,24 @@ For example, this figure from [1] shows the A, B, and C qubits entangled with th
 Because entanglement forging leverages a near-term, heuristic algorithm (namely, VQE), a judicious choice for the VQE ansatz can improve performance. Note that one way to design the ansatz is by endowing the unitaries *U* and *V* in the Schmidt decomposition with parameters. An open question is how to choose the best unitaries for a given problem.
 
 For a chemistry simulation problem, the number of qubits in the circuit must equal the number of orbitals (minus the number of frozen orbitals, if applicable).
+
+### Picking the backend
+
+`backend` is an option in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can choose between Statevector simulation, QASM simulation, or real quantum hardware. 
+
+Statevector simulation is useful when we want to:
+1. get the exact values of energies (e.g. for chemistry problems) without any error bars (assuming there are no other sources of randomness)
+2. test the performance of an algorithm in the absence of shot noise (for VQE, there could be a difference between the trajectory of the parameters in the presence and absence of shot noise; in this case the statevector simulator can concretely provide an answer regarding the expressivity of a given ansatz without any uncertainty coming from shot noise)
+
+QASM simulation is useful when:
+1. the system sizes are larger because the statevector simulator scales exponentially in system size and will not be useful beyond small systems
+2. simulating circuits with noise to mimic a real noisy quantum computer
+
+When running the entanglement forging module either on the QASM simulator or on real quantum hardware, several additional options are available: `shots`, `bootstrap_trials`, `copysample_job_size`, `meas_error_mit`, `meas_error_shots`, `meas_error_refresh_period_minutes`, `zero_noise_extrap`. These options can be specified in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can use the QASM simulator to test out these options before running them on real quantum hardware. 
+
+Notes:
+- In the limit of infinite shots, the mean value of the QASM simulator will be equal to the value of the statevector simulator.
+- The QASM simulator also has a method that [mimics the statevector simulator](https://qiskit.org/documentation/tutorials/simulators/1_aer_provider.html) without shot noise as an alternative to statevector simulator.
 
 ## ⚠️ Current limitations
 
@@ -124,7 +143,7 @@ For a chemistry simulation problem, the number of qubits in the circuit must equ
   - There are plans in the future to break the ansatz and bitstring symmetry. This will be made possible after a new expectation values class is merged in Terra.
 - In the current implementation of the module, the ansatz must be real. 
   - For molecular calculations, one can usually force the ansatz to be real. On the other hand, in crystalline solids (away from the gamma point and without inversion symmetry), the Hamiltonian is defined by the complex numbers.
-  - There are plans in the future to implement complex ansaetze. 
+  - There are plans in the future to implement complex ansatze. 
 
 ### Orbitals
 - The current implementation of Forged VQE also requires that the number of alpha particles equals the number of beta particles. The relevant parameters can be found with the following code:
@@ -151,8 +170,8 @@ print(f"Number of beta particles: {qmolecule.num_beta}")
 
 
 ### Running on quantum hardware
-- Results on hardware will not be as good as on the QASM simulator. Getting good results will require using a quantum backend with good properties (qubit fidely, gate fidelity etc.), as well as a lot of fine-tuning of parameters.
-- Queue times are long, which makes execution on a quantum backend difficult. This issue will be mitigated once the module can be uploaded as a qiskit runtime (not currently suppored). This will be made possible when either:
+- Results on hardware will not be as good as on the QASM simulator. Getting good results will require using a quantum backend with good properties (qubit fidelity, gate fidelity etc.), as well as a lot of fine-tuning of parameters.
+- Queue times are long, which makes execution on a quantum backend difficult. This issue will be mitigated once the module can be uploaded as a qiskit runtime (not currently supported). This will be made possible when either:
   - The module has been simplified to fit into a single program, or
   - Qiskit runtime provides support for multi-file programs
 
@@ -168,7 +187,7 @@ This list is not exhaustive.
 
 ### Getting poor results on the hardware
 
-Try using `fix_first_bitstring=True` in `EntanglementgForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with the HF energy. This setting requires an ansatz that leaves the HF state unchanged under `var_form`.
+Try using `fix_first_bitstring=True` in `EntanglementForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with the HF energy. This setting requires an ansatz that leaves the HF state unchanged under `var_form`.
 
 ### For IBM Power users
 
