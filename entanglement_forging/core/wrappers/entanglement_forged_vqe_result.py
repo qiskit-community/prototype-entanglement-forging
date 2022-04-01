@@ -124,8 +124,8 @@ class EntanglementForgedVQEResult(VQEResult):
         energy_offset: Optional[float] = None,
         eval_count: Optional[int] = None,
         num_particles: Optional[Tuple[complex, complex]] = None,
-        s_sq: Optional[Tuple[complex, complex]] = None,
-        s_z: Optional[Tuple[complex, complex]] = None,
+        s_sq: Optional[float] = None,
+        s_z: Optional[float] = None,
         auxiliary_results: Optional[List[Tuple[str, AuxiliaryResults]]] = None,
     ) -> None:
         """Results for EntanglementForgedGroundStateSolver.
@@ -162,8 +162,8 @@ class EntanglementForgedVQEResult(VQEResult):
             f"Schmidt values: {self.schmidts_value}\n"
             f"Optimizer parameters: {self.optimizer_parameters}\n"
             f"Number of particles: {self.num_particles}\n"
-            f"Eigenstate S_sq: {self._s_sq}\n"
-            f"Eigenstate S_z: {self._s_z}"
+            f"S^2: {self._s_sq}\n"
+            f"S_z: {self._s_z}"
         )
 
     def get_parameters_history(self):
@@ -209,16 +209,16 @@ class EntanglementForgedVQEResult(VQEResult):
         return self._eval_count
 
     @property
-    def num_particles(self) -> Optional[Tuple[complex, complex]]:
+    def num_particles(self) -> Optional[int]:
         """Returns number of particles."""
-        return self._eval_count
+        return self._num_particles
 
     @property
-    def eigenstate_s_sq(self) -> Optional[Tuple[complex, complex]]:
-        """Returns eigenstate S^2."""
+    def s_sq(self) -> Optional[float]:
+        """Returns expectation value over S^2."""
         return self._s_sq
 
     @property
-    def eigenstate_s_z(self) -> Optional[Tuple[complex, complex]]:
-        """Returns eigenstate S_z."""
+    def s_z(self) -> Optional[float]:
+        """Returns expectation value over S_z."""
         return self._s_z

@@ -146,9 +146,11 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         result = solver.compute_minimum_eigenvalue(
             forged_operator.h_1_op, aux_operators=grouped_ops_qubit
         )
-        num_particles = result.aux_operator_eigenvalues[0]
-        s_sq = result.aux_operator_eigenvalues[1]
-        s_z = result.aux_operator_eigenvalues[2]
+
+        # Take only the zero index of each, since they are all real-valued
+        num_particles = result.aux_operator_eigenvalues[0][0]
+        s_sq = result.aux_operator_eigenvalues[1][0]
+        s_z = result.aux_operator_eigenvalues[2][0]
 
         elapsed_time = time.time() - start_time
         Log.log(f"VQE for this problem took {elapsed_time} seconds")
