@@ -189,7 +189,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         forged_result = forged_ground_state_solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-
     def test_ground_state_eigensolver_with_ef_driver(self):
         """Tests standard qiskit nature solver."""
         hcore = np.array([[-1.12421758, -0.9652574], [-0.9652574, -1.12421758]])
