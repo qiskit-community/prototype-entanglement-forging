@@ -97,13 +97,19 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
 
         start_time = time.time()
 
-        # Get particle number information
+        # TODO:
+        # The systems we are exploring will have exactly half the number of
+        # spin orbitals and particles as the full systems. This needs to be
+        # refactored to handle asymmetry as we extend this module.
         num_spin_orbitals = problem.grouped_property_transformed.get_property(
             "ParticleNumber"
         ).num_spin_orbitals
+        num_spin_orbitals = int(num_spin_orbitals / 2)
+
         num_particles = problem.grouped_property_transformed.get_property(
             "ParticleNumber"
-        ).num_particles
+        ).num_alpha
+
         particle_number = ParticleNumber(
             num_spin_orbitals=num_spin_orbitals, num_particles=num_particles
         )

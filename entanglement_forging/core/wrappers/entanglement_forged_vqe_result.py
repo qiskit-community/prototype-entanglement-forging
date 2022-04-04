@@ -159,7 +159,7 @@ class EntanglementForgedVQEResult(VQEResult):
             f"Ground state energy (Hartree): {self.ground_state_energy}\n"
             f"Schmidt values: {self.schmidts_value}\n"
             f"Optimizer parameters: {self.optimizer_parameters}\n"
-            f"Number of particles: {self.num_particles}\n"
+            f"Number of particles: {int(self.num_particles)}\n"
             f"S^2: {self._s_sq}\n"
             f"S_z: {self._s_z}"
         )
