@@ -2,20 +2,20 @@
 
 ## Table of Contents
 1. [Installation instructions](#installation-instructions)
-  - [Basic installation](#basic-installation)
-  - [Installation from source](#installation-from-source)
+    - [Basic installation](#basic-installation)
+    - [Installation from source](#installation-from-source)
 2. [Using the module](#using-the-module)
-  - [Installation instructions](#installation-instructions)
-  - [Specifying the problem](#specifying-the-problem)
-  - [Specifying the bitstrings](#specifying-the-bitstrings)
-  - [Freezing orbitals](#freezing-orbitals)
-  - [Specifying the Ansatz](#specifying-the-ansatz)
-  - [Options (`EntanglementForgedConfig`)](#options-entanglementforgedconfig)
-  - [Specifying the converter](#specifying-the-converter)
-  - [The solver](#the-solver)
-  - [Running the algorithm](#running-the-algorithm)
-  - [Viewing the results](#viewing-the-results)
-  - [Verbose](#verbose)
+    - [Installation instructions](#installation-instructions)
+    - [Specifying the problem](#specifying-the-problem)
+    - [Specifying the bitstrings](#specifying-the-bitstrings)
+    - [Freezing orbitals](#freezing-orbitals)
+    - [Specifying the Ansatz](#specifying-the-ansatz)
+    - [Options (`EntanglementForgedConfig`)](#options-entanglementforgedconfig)
+    - [Specifying the converter](#specifying-the-converter)
+    - [The solver](#the-solver)
+    - [Running the algorithm](#running-the-algorithm)
+    - [Viewing the results](#viewing-the-results)
+    - [Verbose](#verbose)
 
 This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
 
@@ -29,42 +29,39 @@ Ensure your local environment is compatible with the entanglement-forging packag
   - (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). There are several alternatives for this, using `conda` within the terminal:
     ```
     conda create -n my_forging_env python=3.9
-    ```
-    then
-    ```
     conda activate my_forging_env
     ```
 
 ### Basic installation
 1. From the terminal, use pip to install the entanglement-forging package:
-  ```
-  pip install entanglement-forging
-  ```
+    ```
+    pip install entanglement-forging
+    ```
 2. Users may now run the entanglement forging demo notebooks on their local machine or use the entanglement-forging package in their own software.
 
 ### Installation from source
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
 1. From the terminal, clone repository:
-  ```
-  git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
-  ```
-  Alternatively, instead of cloning the original repository, you may choose to clone your personal [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo). You can do so by using the appropriate URL and adding the original repo to the list of remotes (here under the name `upstream`). This will be requiered for contribution unless you are granted write permissions for the original repository.
-  ```
-  git clone <YOUR-FORK-URL>
-  git remote add upstream https://github.com/qiskit-community/prototype-entanglement-forging.git
-  ```
+    ```
+    git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
+    ```
+    Alternatively, instead of cloning the original repository, you may choose to clone your personal [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo). You can do so by using the appropriate URL and adding the original repo to the list of remotes (here under the name `upstream`). This will be requiered for contribution unless you are granted write permissions for the original repository.
+    ```
+    git clone <YOUR-FORK-URL>
+    git remote add upstream https://github.com/qiskit-community/prototype-entanglement-forging.git
+    ```
 2. Change directory to the freshly cloned forging module:
-  ```
-  cd prototype-entanglement-forging
-  ```
+    ```
+    cd prototype-entanglement-forging
+    ```
 3. Install the dependencies needed:
-  ```
-  pip install -r requirements.txt
-  ```
+    ```
+    pip install -r requirements.txt
+    ```
 4. (Optional) Install the developer dependencies:
-  ```
-  pip install -r dev-requirements.txt
-  ```
+    ```
+    pip install -r dev-requirements.txt
+    ```
 
 
 ## Using the module
@@ -115,8 +112,8 @@ _Option 2_: specifying the properties of the system directly to the `Entanglemen
   ```
 
 The second option is useful when:
-1. you don't want to study a molecule (situations where there is no driver, so you want to feed the Hamiltonian by by-passing pyscf driver
-2. you want to manipulate the electronic structure of the system in a way that is not supported by the driver (molecular, but not in standard tool kit)
+  1. you don't want to study a molecule (situations where there is no driver, so you want to feed the Hamiltonian by by-passing pyscf driver
+  2. you want to manipulate the electronic structure of the system in a way that is not supported by the driver (molecular, but not in standard tool kit)
 
 ### Specifying the bitstrings
 Bitstrings are specified as a list of lists.
@@ -179,29 +176,29 @@ config = EntanglementForgedConfig(backend=backend, maxiter = 200, initial_params
 ```
 
 The options are:
-- `backend`: Instance of selected backend.
-- `qubit_layout`: Initial position of virtual qubits on physical qubits. If this layout makes the circuit compatible with the coupling_map constraints, it will be used.
-- `initial_params` (NoneType or list of int): A list specifying the initial optimization parameters.
-- `maxiter` (int): Maximum number of optimizer iterations to perform.
-- `optimizer_name` (str): e.g. 'SPSA', 'ADAM', 'NELDER_MEAD', 'COBYLA', 'L_BFGS_B', 'SLSQP' ...
-- `optimizer_tol` (float): Optimizer tolerance, e.g. 1e-6.
-- `skip_any_optimizer_cal` (bool): Setting passed to any optimizer with a 'skip_calibration' argument.
-- `spsa_last_average` (int): Number of times to average over final SPSA evaluations to determine optimal parameters (only used for SPSA).
-- `initial_spsa_iteration_idx` (int): Iteration index to resume interrupted VQE run (only used for SPSA).
-- `spsa_c0` (float): The initial parameter 'a'. Determines step size to update parameters in SPSA (only used for SPSA).
-- `spsa_c1` (float): The initial parameter 'c'. The step size used to approximate gradient in SPSA (only used for SPSA).
-- `max_evals_grouped` (int): Maximum number of evaluations performed simultaneously.
-- `rep_delay` (float): Delay between programs in seconds.
-- `shots` (int): The total number of shots for the simulation (overwritten for the statevector backend).
-- `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form.
-- `bootstrap_trials` (int): A setting for generating error bars (not used for the statevector backend).
-- `copysample_job_size` (int or NoneType): A setting to approximately realize weighted sampling of circuits according to their relative significance
-        (Schmidt coefficients). This number should be bigger than the number of unique circuits running (not used for the statevector backend).
-- `meas_error_mit` (bool): Performs measurement error mitigation (not used for the statevector backend).
-- `meas_error_shots` (int): The number of shots for measurement error mitigation (not used for the statevector backend).
-- `meas_error_refresh_period_minutes` (float): How often to refresh the calibration
-        matrix in measurement error mitigation, in minutes (not used for the statevector backend).
-- `zero_noise_extrap` (bool): Linear extrapolation for gate error mitigation (ignored for the statevector backend)
+  - `backend`: Instance of selected backend.
+  - `qubit_layout`: Initial position of virtual qubits on physical qubits. If this layout makes the circuit compatible with the coupling_map constraints, it will be used.
+  - `initial_params` (NoneType or list of int): A list specifying the initial optimization parameters.
+  - `maxiter` (int): Maximum number of optimizer iterations to perform.
+  - `optimizer_name` (str): e.g. 'SPSA', 'ADAM', 'NELDER_MEAD', 'COBYLA', 'L_BFGS_B', 'SLSQP' ...
+  - `optimizer_tol` (float): Optimizer tolerance, e.g. 1e-6.
+  - `skip_any_optimizer_cal` (bool): Setting passed to any optimizer with a 'skip_calibration' argument.
+  - `spsa_last_average` (int): Number of times to average over final SPSA evaluations to determine optimal parameters (only used for SPSA).
+  - `initial_spsa_iteration_idx` (int): Iteration index to resume interrupted VQE run (only used for SPSA).
+  - `spsa_c0` (float): The initial parameter 'a'. Determines step size to update parameters in SPSA (only used for SPSA).
+  - `spsa_c1` (float): The initial parameter 'c'. The step size used to approximate gradient in SPSA (only used for SPSA).
+  - `max_evals_grouped` (int): Maximum number of evaluations performed simultaneously.
+  - `rep_delay` (float): Delay between programs in seconds.
+  - `shots` (int): The total number of shots for the simulation (overwritten for the statevector backend).
+  - `fix_first_bitstring` (bool): Bypasses computation of first bitstring and replaces result with HF energy. This setting assumes that the first bitstring is the HF state (e.g. [1,1,1,1,0,0,0]). Can speed up the computation, but requires ansatz that leaves the HF state unchanged under var_form.
+  - `bootstrap_trials` (int): A setting for generating error bars (not used for the statevector backend).
+  - `copysample_job_size` (int or NoneType): A setting to approximately realize weighted sampling of circuits according to their relative significance
+          (Schmidt coefficients). This number should be bigger than the number of unique circuits running (not used for the statevector backend).
+  - `meas_error_mit` (bool): Performs measurement error mitigation (not used for the statevector backend).
+  - `meas_error_shots` (int): The number of shots for measurement error mitigation (not used for the statevector backend).
+  - `meas_error_refresh_period_minutes` (float): How often to refresh the calibration
+          matrix in measurement error mitigation, in minutes (not used for the statevector backend).
+  - `zero_noise_extrap` (bool): Linear extrapolation for gate error mitigation (ignored for the statevector backend)
 
 ### Specifying the converter
 The qubit converter is specified as:
