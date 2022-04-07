@@ -6,7 +6,7 @@
   [![Qiskit](https://img.shields.io/badge/Qiskit-%E2%89%A5%200.34.1-6133BD)](https://github.com/Qiskit/qiskit)
   [![Qiskit Nature](https://img.shields.io/badge/Qiskit%20Nature-%E2%89%A5%200.3.0-6133BD)](https://github.com/Qiskit/qiskit-nature)
 <br />
-  [![License](https://img.shields.io/github/license/qiskit-community/prototype-entanglement-forging?label=License)](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/LICENSE.txt)
+  [![License](https://img.shields.io/github/license/qiskit-community/prototype-entanglement-forging?label=License)](LICENSE.txt)
   [![Tests](https://github.com/qiskit-community/prototype-entanglement-forging/actions/workflows/tests.yml/badge.svg)](https://github.com/qiskit-community/prototype-entanglement-forging/actions/workflows/tests.yml)
 
 </div>
