@@ -242,7 +242,7 @@ git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
 ```
 3. Change directory to the freshly cloned forging module:
 ```bash
-cd entanglement-forging
+cd prototype-entanglement-forging
 ```
 4. Install the dependencies needed:
 ```
@@ -304,7 +304,7 @@ git add .
 git commit -m 'merged updates from main'
 git push
 ```
-3. Go back to the `/forging` repo on _GitHub_, switch to your contribution branch (same name: `my-contribution`), and click "Pull Request". Write a clear explanation of the feature.
-4. Under Reviewer, select Iskandar Sitdikov or Aggie Branczyk.
+3. Go back to the `/prototype-entanglement-forging` repo on _GitHub_, switch to your contribution branch (same name: `my-contribution`), and click "Pull Request". Write a clear explanation of the feature.
+4. Under Reviewer, select Aggie Branczyk **and** Caleb Johnson.
 5. Click "Create Pull Request".
 6. Your Pull Request will be reviewed and, if everything is ok, it will be merged.
