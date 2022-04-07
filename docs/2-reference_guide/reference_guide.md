@@ -1,153 +1,178 @@
 # Reference guide for the entanglement forging module
 
 ## Table of Contents
+1. [Installation instructions](#installation-instructions)
+  - [Basic installation](#basic-installation)
+  - [Installation from source](#installation-from-source)
+2. [Using the module](#using-the-module)
+  - [Installation instructions](#installation-instructions)
+  - [Specifying the problem](#specifying-the-problem)
+  - [Specifying the bitstrings](#specifying-the-bitstrings)
+  - [Freezing orbitals](#freezing-orbitals)
+  - [Specifying the Ansatz](#specifying-the-ansatz)
+  - [Options (`EntanglementForgedConfig`)](#options-entanglementforgedconfig)
+  - [Specifying the converter](#specifying-the-converter)
+  - [The solver](#the-solver)
+  - [Running the algorithm](#running-the-algorithm)
+  - [Viewing the results](#viewing-the-results)
+  - [Verbose](#verbose)
 
-1. <a href="#using-the-module">Using the module</a>
-    - <a href="#installation-instructions">Installation instructions</a>
-    - <a href="#specifying-the-problem">Specifying the problem</a>
-    - <a href="#specifying-the-bitstrings">Specifying the bitstrings</a>
-    - <a href="#freezing-orbitals">Freezing orbitals</a>
-    - <a href="#specifying-the-ansatz">Specifying the Ansatz</a>
-    - <a href="#options-entanglementforgedconfig">Options (`EntanglementForgedConfig`)</a>
-    - <a href="#specifying-the-converter">Specifying the converter</a>
-    - <a href="#the-solver">The solver</a>
-    - <a href="#running-the-algorithm">Running the algorithm</a>
-    - <a href="#viewing-the-results">Viewing the results</a>
-    - <a href="#verbose">Verbose</a>
+This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
 
-2. <a href="#contribution-guide">Contribution guide</a>
-    - <a href="#initial-set-up-and-installing-dependencies">Initial set-up and installing dependencies</a>
-    - <a href="#running-tests">Running tests</a>
-    - <a href="#making-a-pull-request">Making a pull request</a>
+
+## Installation instructions
+:exclamation: _This prototype depends on the PySCF package, which does not support Windows; therefore, Windows users will not be able to install and use this software. Advanced Windows users may wish to attempt to install PySCF using Ubuntu via the Windows Subsystem for Linux.  We are exploring the possibility of providing Docker support for this prototype so it can be used within Docker Desktop, including on Windows._
+
+Ensure your local environment is compatible with the entanglement-forging package:
+  - Ensure you are on a supported operating system (macOS or Linux)
+  - Ensure you are running a supported version of Python (py37,py38,py39)
+  - (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). There are several alternatives for this, using `conda` within the terminal:
+    ```
+    conda create -n my_forging_env python=3.9
+    ```
+    then
+    ```
+    conda activate my_forging_env
+    ```
+
+### Basic installation
+1. From the terminal, use pip to install the entanglement-forging package:
+  ```
+  pip install entanglement-forging
+  ```
+2. Users may now run the entanglement forging demo notebooks on their local machine or use the entanglement-forging package in their own software.
+
+### Installation from source
+0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
+1. From the terminal, clone repository:
+  ```
+  git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
+  ```
+  Alternatively, instead of cloning the original repository, you may choose to clone your personal [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo). You can do so by using the appropriate URL and adding the original repo to the list of remotes (here under the name `upstream`). This will be requiered for contribution unless you are granted write permissions for the original repository.
+  ```
+  git clone <YOUR-FORK-URL>
+  git remote add upstream https://github.com/qiskit-community/prototype-entanglement-forging.git
+  ```
+2. Change directory to the freshly cloned forging module:
+  ```
+  cd prototype-entanglement-forging
+  ```
+3. Install the dependencies needed:
+  ```
+  pip install -r requirements.txt
+  ```
+4. (Optional) Install the developer dependencies:
+  ```
+  pip install -r dev-requirements.txt
+  ```
 
 
 ## Using the module
 
-### Installation instructions
-
-:exclamation: _This prototype depends on the PySCF package, which does not support Windows; therefore, Windows users will not be able to install and use this software. Advanced Windows users may wish to attempt to install PySCF using Ubuntu via the Windows Subsystem for Linux.  We are exploring the possibility of providing Docker support for this prototype so it can be used within Docker Desktop, including on Windows._
-
-0. Ensure your local environment is compatible with the entanglement-forging package.
-   - Ensure you are on a supported operating system (macOS or Linux)
-   - Ensure you are running a supported version of Python (py37,py38,py39)
-   ```
-   conda create -n forging python=3.9
-   ```
-1. Use pip to install the entanglement-forging package
-   ```
-   pip install entanglement-forging
-   ```
-2. Users may now run the entanglement forging demo notebooks on their local machine or use the entanglement-forging package in their own software.
-
 ### Specifying the problem
-
 The module supports two options to specify the problem.
 
-Option 1: with the `ElectronicStructureProblem` object from Qiskit.
-```python
-problem = ElectronicStructureProblem(
-  PySCFDriver(molecule=Molecule(geometry=[('H', [0., 0., 0.]),
-                                          ('H', [0., 0., 0.735])],
-                                charge=0, multiplicity=1),
-              basis='sto3g')
-)
-```
+_Option 1_: with the `ElectronicStructureProblem` object from Qiskit.
+  ```python
+  problem = ElectronicStructureProblem(
+    PySCFDriver(molecule=Molecule(geometry=[('H', [0., 0., 0.]),
+                                            ('H', [0., 0., 0.735])],
+                                  charge=0, multiplicity=1),
+                basis='sto3g')
+  )
+  ```
 
-Option 2: specifying the properties of the system directly to the `EntanglementForgedDriver` object.
-```python
-# Coefficients that define the one-body terms of the Hamiltonian
-hcore = np.array([
-    [-1.12421758, -0.9652574],
-    [-0.9652574,- 1.12421758]
-])
+_Option 2_: specifying the properties of the system directly to the `EntanglementForgedDriver` object.
+  ```python
+  # Coefficients that define the one-body terms of the Hamiltonian
+  hcore = np.array([
+      [-1.12421758, -0.9652574],
+      [-0.9652574,- 1.12421758]
+  ])
 
-# Coefficients that define the two-body terms of the Hamiltonian
-mo_coeff = np.array([
-    [0.54830202, 1.21832731],
-    [0.54830202, -1.21832731]
-])
+  # Coefficients that define the two-body terms of the Hamiltonian
+  mo_coeff = np.array([
+      [0.54830202, 1.21832731],
+      [0.54830202, -1.21832731]
+  ])
 
-# Coefficients for the molecular orbitals
+  # Coefficients for the molecular orbitals
+  eri = np.array([
+      [[[0.77460594, 0.44744572], [0.44744572, 0.57187698]],
+       [[0.44744572, 0.3009177], [0.3009177, 0.44744572]]],
+      [[[0.44744572, 0.3009177], [0.3009177, 0.44744572]],
+       [[0.57187698, 0.44744572], [0.44744572, 0.77460594]]]
+  ])
 
-eri = np.array([
-    [[[0.77460594, 0.44744572], [0.44744572, 0.57187698]],
-     [[0.44744572, 0.3009177], [0.3009177, 0.44744572]]],
-    [[[0.44744572, 0.3009177], [0.3009177, 0.44744572]],
-     [[0.57187698, 0.44744572], [0.44744572, 0.77460594]]]
-])
+  driver = EntanglementForgedDriver(hcore=hcore,
+                                    mo_coeff=mo_coeff,
+                                    eri=eri,
+                                    num_alpha=1,
+                                    num_beta=1,
+                                    nuclear_repulsion_energy=0.7199689944489797)
 
-driver = EntanglementForgedDriver(hcore=hcore,
-                                  mo_coeff=mo_coeff,
-                                  eri=eri,
-                                  num_alpha=1,
-                                  num_beta=1,
-                                  nuclear_repulsion_energy=0.7199689944489797)
+  problem = ElectronicStructureProblem(driver)
+  ```
 
-problem = ElectronicStructureProblem(driver)
-```
 The second option is useful when:
 1. you don't want to study a molecule (situations where there is no driver, so you want to feed the Hamiltonian by by-passing pyscf driver
 2. you want to manipulate the electronic structure of the system in a way that is not supported by the driver (molecular, but not in standard tool kit)
 
 ### Specifying the bitstrings
-
 Bitstrings are specified as a list of lists.
 
-Example 1: Two qubits with two bitstrings.
-```python
-bitstrings = [[1,0],[0,1]]
-```
-Example 2: Seven qubits with three bitstrings.
-```python
-bitstrings = bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
-```
+_Example 1_: Two qubits with two bitstrings.
+  ```python
+  bitstrings = [[1,0],[0,1]]
+  ```
+_Example 2_: Seven qubits with three bitstrings.
+  ```python
+  bitstrings = bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
+  ```
 
 For information on picking bitstrings, refer to [this section](/docs/3-explanatory_material/explanatory_material.md#picking-the-bitstrings) of the Explanatory Material.
 
 For current limitations on specifying bitstrings, refer to [this section](/docs/3-explanatory_material/explanatory_material.md#ansatz--bitstrings) of the Explanatory Material.
 
 ### Freezing orbitals
-
 Orbitals can be frozen by specifying them as a list, then using `reduce_bitstrings`.
 
-Example: freezing the zeroth orbital (ground state) and the third orbital.
-```python
-orbitals_to_reduce = [0,3]
-bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
-reduced_bitstrings = reduce_bitstrings(bitstrings, orbitals_to_reduce)
-```
-Output:
-```python
->>> reduced_bitstrings
-[1,1,1,0,0],[0,1,1,0,1],[0,1,1,1,0]]
-```
+_Example_: freezing the zeroth orbital (ground state) and the third orbital.
+  ```python
+  orbitals_to_reduce = [0,3]
+  bitstrings = [[1,1,1,1,1,0,0],[1,0,1,1,1,0,1],[1,0,1,1,1,1,0]]
+  reduced_bitstrings = reduce_bitstrings(bitstrings, orbitals_to_reduce)
+  ```
+_Output_:
+  ```python
+  >>> reduced_bitstrings
+  [1,1,1,0,0],[0,1,1,0,1],[0,1,1,1,0]]
+  ```
 
 For discussion of scaling and orbital freezing, refer to the [this section](/docs/3-explanatory_material/explanatory_material.md#freezing-orbitals) of the Explanatory Material.
 
 ### Specifying the Ansatz
-
 The module supports two options to specify the ansatz.
 
-Option 1: Using a parameterized circuit.
-```python
-from qiskit.circuit.library import TwoLocal
+_Option 1_: Using a parameterized circuit.
+  ```python
+  from qiskit.circuit.library import TwoLocal
 
-ansatz = TwoLocal(2, [], 'cry', [[0,1],[1,0]], reps=1)
-```
+  ansatz = TwoLocal(2, [], 'cry', [[0,1],[1,0]], reps=1)
+  ```
 
-Option 2: Using parametrized gates.
-```python
-from qiskit.circuit import Parameter, QuantumCircuit
+_Option 2_: Using parametrized gates.
+  ```python
+  from qiskit.circuit import Parameter, QuantumCircuit
 
-theta_0, theta_1 = Parameter('θ0'), Parameter('θ1')
+  theta_0, theta_1 = Parameter('θ0'), Parameter('θ1')
 
-ansatz = QuantumCircuit(2)
-ansatz.cry(theta_0, 0, 1)
-ansatz.cry(theta_1, 1, 0)
-```
+  ansatz = QuantumCircuit(2)
+  ansatz.cry(theta_0, 0, 1)
+  ansatz.cry(theta_1, 1, 0)
+  ```
 
 ### Options (`EntanglementForgedConfig`)
-
 `EntanglementForgedConfig` contains all of the options for running the algorithm. It can be defined as follows:
 ```
 config = EntanglementForgedConfig(backend=backend, maxiter = 200, initial_params=[0,0.5*np.pi])
@@ -178,30 +203,24 @@ The options are:
         matrix in measurement error mitigation, in minutes (not used for the statevector backend).
 - `zero_noise_extrap` (bool): Linear extrapolation for gate error mitigation (ignored for the statevector backend)
 
-
 ### Specifying the converter
-
 The qubit converter is specified as:
 ```
 converter = QubitConverter(JordanWignerMapper())
 ```
 
 ### The solver
-
 `EntanglementForgedGroundStateSolver` is the ground state calculation interface for entanglement forging. It is specified as follows:
-
 ```
 forged_ground_state_solver = EntanglementForgedGroundStateSolver(converter, ansatz, bitstrings, config)
 ```
 
 ### Running the algorithm
-
 ```
 forged_result = forged_ground_state_solver.solve(problem)
 ```
 
 ### Viewing the results
-
 The results can be viewed by calling `forged_result`:
 ```
 >>> forged_result
@@ -211,100 +230,8 @@ Optimizer parameters: [  6.2830331  -18.77969966]
 ```
 
 ### Verbose
-
 To activate verbose output
-
 ```
 from entanglement_forging import Log
 Log.VERBOSE = True
 ```
-
-
-## Contribution guide
-
-This guide is for those who want to extend the module or documentation. If you just want to use the package, skip to [this section](./reference_guide.md#using-the-module).
-
-### Initial set-up and installing dependencies
-0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [pip](https://pip.pypa.io/en/stable/installation/) (and optionally [Miniconda](https://docs.conda.io/en/latest/miniconda.html)) installed.
-1. Open terminal.
-
-    1.5 (Optional) It can be useful to create a new environment (here called `my_forging_env`) and install Python 3.9 (recommended). Within terminal:
-    ```
-    conda create -n my_forging_env python=3.9
-    ```
-    then
-    ```
-    conda activate my_forging_env
-    ```
-2. Within terminal, clone repository:
-```bash
-git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
-```
-3. Change directory to the freshly cloned forging module:
-```bash
-cd prototype-entanglement-forging
-```
-4. Install the dependencies needed:
-```
-pip install -r requirements.txt
-```
-
-### Running tests
-First install required packages:
-```
-pip install -r requirements-dev.txt
-```
-To run tests:
-```
-tox -e{env}
-```
-where you replace `{env}` with `py37`, `py38` or `py39` depending on which version of python you have (to check python version, type `python --version` in the terminal).
-
-To run all the tests:
-```
-python -m unittest discover -v tests
-```
-
-To run linting tests (checks formatting/syntax):
-```
-tox -elint
-```
-
-To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon):
-```
-pip install pytest nbmake
-treon docs/
-```
-Note: notebook tests check for execution and time-out errors, not correctness.
-
-### Making a pull request
-
-1. To make a contribution, first set up a remote branch (here called `my-contribution`) that is tracked:
-```
-git checkout main
-git pull
-git checkout -b my-contribution
-```
-... make your contribution now (edit some code, add some files) ...
-```
-git add .
-git commit -m 'initial working version of my contribution'
-git push -u origin my-contribution
-```
-2. Before making a Pull Request always get the latest changes from main:
-```
-git checkout main
-git pull
-git checkout my-contribution
-git merge main
-```
-... fix any merge conflicts here ...
-```
-git add .
-git commit -m 'merged updates from main'
-git push
-```
-3. Go back to the `/prototype-entanglement-forging` repo on _GitHub_, switch to your contribution branch (same name: `my-contribution`), and click "Pull Request". Write a clear explanation of the feature.
-4. Under Reviewer, select Aggie Branczyk **and** Caleb Johnson.
-5. Click "Create Pull Request".
-6. Your Pull Request will be reviewed and, if everything is ok, it will be merged.
