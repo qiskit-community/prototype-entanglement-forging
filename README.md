@@ -31,17 +31,19 @@
 
 <!-- TABLE OF CONTENTS -->
 ### Table of Contents
-* [Installation](docs/2-reference_guide/reference_guide.md#installation-instructions)
 * [Tutorials](docs/1-tutorials/)
-* [Background](docs/3-explanatory_material/)
+* [Reference guide](docs/2-reference_guide/reference_guide.md)
+* [Explanatory material](docs/3-explanatory_material/)
+* [About This Project](#about-this-project)
 * [How to Give Feedback](#how-to-give-feedback)
 * [Contribution Guidelines](#contribution-guidelines)
 * [Acknowledgements](#acknowledgements)
 * [About Prototypes](#about-prototypes)
 * [References](#references)
 * [License](#license)
-----------------------------------------------------------------------------------------------------
 
+
+----------------------------------------------------------------------------------------------------
 
 <!-- ABOUT THIS PROJECT -->
 ### About This Project
