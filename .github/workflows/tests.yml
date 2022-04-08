@@ -4,63 +4,57 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-concurrency:
-  group: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
-  cancel-in-progress: true
 jobs:
-  tests_linux:
-    runs-on: ${{ matrix.os }}
-    needs: []
-    timeout-minutes: 60
+  test_linux:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        os: ["ubuntu-latest"]
+        include:
+          - python-version: 3.7
+            TOXENV: "py37"
+          - python-version: 3.8
+            TOXENV: "py38"
+          - python-version: 3.9
+            TOXENV: "py39"
+
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Entanglement Forging
-        run: |
-            set -e
-            pip install -U build wheel
-            python -m build
-            cd dist && pip install -U entanglement_forging*.whl 
-      - name: Run Tests
-        run: |
-          set -e
-          pip install -U -r requirements-dev.txt
-          pylint -rn entanglement_forging/
-          python -m unittest -v
-          treon docs/ --threads 5
-        shell: bash
-  tests_macos:
-    runs-on: ${{ matrix.os }}
-    needs: []
-    timeout-minutes: 60
+      - name: Install Dependencies
+        run: pip install --upgrade pip tox --user
+      - name: Test with tox 
+        env:
+          TOXENV: ${{ matrix.TOXENV }}
+        run: python -m tox
+
+  test_macOS:
+    runs-on: macOS-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        os: ["macOS-latest"]
+        include:
+          - python-version: 3.7
+            TOXENV: "py37"
+          - python-version: 3.8
+            TOXENV: "py38"
+          - python-version: 3.9
+            TOXENV: "py39"
+
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Entanglement Forging
-        run: |
-            set -e
-            pip install -U build wheel
-            python -m build
-            cd dist && pip install -U entanglement_forging*.whl 
-      - name: Run Tests
-        run: |
-          set -e
-          pip install -U -r requirements-dev.txt
-          pylint -rn entanglement_forging/
-          python -m unittest -v
-          treon docs/ --threads 5
-        shell: bash
+      - name: Install Dependencies
+        run: pip install --upgrade pip tox --user
+      - name: Test with tox
+        env:
+          TOXENV: ${{ matrix.TOXENV }}
+        run: python -m tox
