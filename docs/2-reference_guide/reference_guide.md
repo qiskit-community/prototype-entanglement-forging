@@ -5,7 +5,6 @@
     - [Basic installation](#basic-installation)
     - [Installation from source](#installation-from-source)
 2. [Using the module](#using-the-module)
-    - [Installation instructions](#installation-instructions)
     - [Specifying the problem](#specifying-the-problem)
     - [Specifying the bitstrings](#specifying-the-bitstrings)
     - [Freezing orbitals](#freezing-orbitals)
