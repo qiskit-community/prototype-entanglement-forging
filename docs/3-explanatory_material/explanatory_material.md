@@ -2,23 +2,23 @@
 
 ## Table of Contents
 
-1. <a href="#overview-of-entanglement-forging">Overview of entanglement forging</a>
-2. <a href="#entanglement-forging-procedure">Entanglement Forging Procedure</a>
-3. <a href="#scaling">Scaling</a>
-    - <a href="#freezing-orbitals">Freezing orbitals</a> 
-    - <a href="#picking-the-bitstrings">Picking the bitstrings</a>
-    - <a href="#designing-the-ansatz-used-in-entanglement-forging">Designing the ansatz used in Entanglement Forging</a>
-    - <a href="#picking-the-backend">Picking the backend</a>
-4. <a href="#%EF%B8%8F-current-limitations">⚠️ Current limitations</a>    
-    - <a href="#ansatz--bitstrings">Ansatz & bitstrings</a>
-    - <a href="#orbitals">Orbitals</a>    
-    - <a href="#converter">Converter</a> 
-    - <a href="#running-on-quantum-hardware">Running on quantum hardware</a>
-    - <a href="#unsupported-qiskit-vqe-features">Unsupported Qiskit VQE features</a>    
-5. <a href="#troubleshooting">Troubleshooting</a>    
-    - <a href="#getting-poor-results-on-the-hardware">Getting poor results on the hardware</a> 
-    - <a href="#for-ibm-power-users">For IBM Power users</a>    
-6. <a href="#references">References</a>   
+1. [Overview of entanglement forging](#overview-of-entanglement-forging)
+2. [Entanglement Forging Procedure](#entanglement-forging-procedure)
+3. [Scaling](#scaling)
+    - [Freezing orbitals](#freezing-orbitals)
+    - [Picking the bitstrings](#picking-the-bitstrings)
+    - [Designing the ansatz used in Entanglement Forging](#designing-the-ansatz-used-in-entanglement-forging)
+    - [Picking the backend](#picking-the-backend)
+4. [⚠️ Current limitations](#%EF%B8%8F-current-limitations)    
+    - [Ansatz & bitstrings](#ansatz--bitstrings)
+    - [Orbitals](#orbitals)    
+    - [Converter](#converter)
+    - [Running on quantum hardware](#running-on-quantum-hardware)
+    - [Unsupported Qiskit VQE features](#unsupported-qiskit-vqe-features)    
+5. [Troubleshooting](#troubleshooting)    
+    - [Getting poor results on the hardware](#getting-poor-results-on-the-hardware)
+    - [For IBM Power users](#for-ibm-power-users)    
+6. [References](#references)   
 
 ## Overview of entanglement forging
 
@@ -117,7 +117,7 @@ For a chemistry simulation problem, the number of qubits in the circuit must equ
 
 ### Picking the backend
 
-`backend` is an option in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can choose between Statevector simulation, QASM simulation, or real quantum hardware. 
+`backend` is an option in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can choose between Statevector simulation, QASM simulation, or real quantum hardware.
 
 Statevector simulation is useful when we want to:
 1. get the exact values of energies (e.g. for chemistry problems) without any error bars (assuming there are no other sources of randomness)
@@ -127,7 +127,7 @@ QASM simulation is useful when:
 1. the system sizes are larger because the statevector simulator scales exponentially in system size and will not be useful beyond small systems
 2. simulating circuits with noise to mimic a real noisy quantum computer
 
-When running the entanglement forging module either on the QASM simulator or on real quantum hardware, several additional options are available: `shots`, `bootstrap_trials`, `copysample_job_size`, `meas_error_mit`, `meas_error_shots`, `meas_error_refresh_period_minutes`, `zero_noise_extrap`. These options can be specified in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can use the QASM simulator to test out these options before running them on real quantum hardware. 
+When running the entanglement forging module either on the QASM simulator or on real quantum hardware, several additional options are available: `shots`, `bootstrap_trials`, `copysample_job_size`, `meas_error_mit`, `meas_error_shots`, `meas_error_refresh_period_minutes`, `zero_noise_extrap`. These options can be specified in the [`EntanglementForgedConfig`](https://github.com/qiskit-community/prototype-entanglement-forging/blob/main/docs/2-reference_guide/reference_guide.md#options-entanglementforgedconfig) class. Users can use the QASM simulator to test out these options before running them on real quantum hardware.
 
 Notes:
 - In the limit of infinite shots, the mean value of the QASM simulator will be equal to the value of the statevector simulator.
@@ -136,14 +136,14 @@ Notes:
 ## ⚠️ Current limitations
 
 ### Ansatz & bitstrings
-- It is currently an open problem how to pick the best circuit (ansatze) for VQE (and thus Entanglement Forging) for a given system. 
-- It is also currently an open problem how to pick the best bitstring for Entanglement Forging. 
-- In the current implementation of the module, the spin-up and spin-down particles are treated symmetrically (U=V for the ansatz with equivalent bitstrings). 
-  - It would be useful to be able to specify different bit strings for spin-up/spin down orbitals as this would open the door to open-shell species. 
+- It is currently an open problem how to pick the best circuit (ansatze) for VQE (and thus Entanglement Forging) for a given system.
+- It is also currently an open problem how to pick the best bitstring for Entanglement Forging.
+- In the current implementation of the module, the spin-up and spin-down particles are treated symmetrically (U=V for the ansatz with equivalent bitstrings).
+  - It would be useful to be able to specify different bit strings for spin-up/spin down orbitals as this would open the door to open-shell species.
   - There are plans in the future to break the ansatz and bitstring symmetry. This will be made possible after a new expectation values class is merged in Terra.
-- In the current implementation of the module, the ansatz must be real. 
+- In the current implementation of the module, the ansatz must be real.
   - For molecular calculations, one can usually force the ansatz to be real. On the other hand, in crystalline solids (away from the gamma point and without inversion symmetry), the Hamiltonian is defined by the complex numbers.
-  - There are plans in the future to implement complex ansatze. 
+  - There are plans in the future to implement complex ansatze.
 
 ### Orbitals
 - The current implementation of Forged VQE also requires that the number of alpha particles equals the number of beta particles. The relevant parameters can be found with the following code:
@@ -155,7 +155,7 @@ print(f"Number of beta particles: {qmolecule.num_beta}")
 ```
 
 ### Converter
-- The current implementation only supports the `JordanWignerMapper` converter. 
+- The current implementation only supports the `JordanWignerMapper` converter.
 
 ### Results
 - In the current implementation, only the energy of the final state is available. It would be useful to have a feature to output the 1- and 2-body density matrices of the final state after the optimization.
@@ -196,7 +196,7 @@ pip is not well-supported on IBM power, so everything should be installed with c
 - install matplotlib with conda manually instead of pip
 
 ```
-pip uninstall matplotlib 
+pip uninstall matplotlib
 conda install matplotlib
 ```
 
