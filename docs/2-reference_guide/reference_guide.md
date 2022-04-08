@@ -55,11 +55,11 @@ Ensure your local environment is compatible with the entanglement-forging packag
     ```
 3. Install the dependencies needed:
     ```
-    pip install -r requirements.txt
+    pip install .
     ```
-4. (Optional) Install the developer dependencies:
+4. (Optional) Install in editable mode and with developer dependencies for contributing:
     ```
-    pip install -r dev-requirements.txt
+    pip install -e .[dev]
     ```
 
 

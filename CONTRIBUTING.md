@@ -11,9 +11,9 @@ Code in this repository should conform to PEP8 standards. Style/lint checks are 
 In order to contribute, you will need to [install the module from source](./docs/2-reference_guide/reference_guide.md#installation-from-source). If you do not have write permissions to the original Entanglement Forging repo, you will need to fork it to your personal account first, and submit all Pull Requests (PR) from there. Even if you have write permissions, forking the repo should always work; so this is the recommended approach.
 
 ### Running tests
-If you haven't, install all packages requiered for development:
+If you haven't already, install in editable mode and with developer dependencies:
 ```
-pip install -r requirements-dev.txt
+pip install -e .[dev]
 ```
 
 To run tests:
