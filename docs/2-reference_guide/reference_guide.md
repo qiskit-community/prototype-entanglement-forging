@@ -15,6 +15,9 @@
     - [Running the algorithm](#running-the-algorithm)
     - [Viewing the results](#viewing-the-results)
     - [Verbose](#verbose)
+3. [Troubleshooting](#troubleshooting)    
+    - [Getting poor results on the hardware](#getting-poor-results-on-the-hardware)
+    - [For IBM Power users](#for-ibm-power-users)    
 
 This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
 
@@ -230,4 +233,19 @@ To activate verbose output
 ```
 from entanglement_forging import Log
 Log.VERBOSE = True
+```
+
+
+## Troubleshooting
+
+### Getting poor results on the hardware
+Try using `fix_first_bitstring=True` in `EntanglementForgedConfig`. This bypasses the computation of the first bitstring and replaces the result with the HF energy. This setting requires an ansatz that leaves the HF state unchanged under `var_form`.
+
+### For IBM Power users
+pip is not well-supported on IBM power, so everything should be installed with conda. To get the package to work on Power, one needs to:
+- remove `matplotlib>=2.1,<3.4` from setup.cfg
+- install matplotlib with conda manually instead of pip
+```
+pip uninstall matplotlib
+conda install matplotlib
 ```
