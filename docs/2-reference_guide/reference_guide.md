@@ -19,7 +19,7 @@
     - [Getting poor results on the hardware](#getting-poor-results-on-the-hardware)
     - [For IBM Power users](#for-ibm-power-users)    
 
-This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
+This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](/CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
 
 
 ## Installation instructions
@@ -114,7 +114,7 @@ _Option 2_: specifying the properties of the system directly to the `Entanglemen
   ```
 
 The second option is useful when:
-  1. you don't want to study a molecule (situations where there is no driver, so you want to feed the Hamiltonian by by-passing pyscf driver
+  1. you don't want to study a molecule (situations where there is no driver, so you want to feed the Hamiltonian by by-passing pyscf driver)
   2. you want to manipulate the electronic structure of the system in a way that is not supported by the driver (molecular, but not in standard tool kit)
 
 ### Specifying the bitstrings

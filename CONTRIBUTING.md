@@ -32,7 +32,7 @@ To run all the tests:
 python -m unittest discover -v tests
 ```
 
-To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon):
+To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon)):
 ```
 pip install pytest nbmake
 treon docs/
@@ -74,7 +74,10 @@ Note: notebook tests check for execution and time-out errors, not correctness.
 
 #### Pull request checklist
 When submitting a pull request and you feel it is ready for review, please ensure that:
-1. The code follows the _code style_ of this project and successfully passes the _unit tests_. Entanglement Forging uses [Pylint](https://www.pylint.org) and [PEP8](https://www.python.org/dev/peps/pep-0008) style guidelines. For this you can run:
+1. The code follows the _code style_ of this project and
+2. successfully passes the _unit tests_.
+
+Entanglement Forging uses [Pylint](https://www.pylint.org) and [PEP8](https://www.python.org/dev/peps/pep-0008) style guidelines. For this you can run:
    ```
    tox -elint
    ```
