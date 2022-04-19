@@ -66,7 +66,7 @@ We encourage your feedback! You can share your thoughts with us by:
 
 <!-- CONTRIBUTION GUIDELINES -->
 ### Contribution Guidelines
-For information on how to contribute to this project, please take a look at our [CONTRIBUTING.MD](CONTRIBUTING.md).
+For information on how to contribute to this project, please take a look at [CONTRIBUTING.MD](CONTRIBUTING.md).
 
 
 ----------------------------------------------------------------------------------------------------
