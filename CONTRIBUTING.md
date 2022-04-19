@@ -8,10 +8,10 @@ This guide is for those who want to extend the module or documentation. If you j
 Code in this repository should conform to PEP8 standards. Style/lint checks are run to validate this. Line length must be limited to no more than 100 characters.
 
 ### Initial set-up and installing dependencies
-In order to contribute, you will need to [install the module from source](./docs/2-reference_guide/reference_guide.md#installation-from-source). If you do not have write permissions to the original Entanglement Forging repo, you will need to fork it to your personal account first, and submit all Pull Requests (PR) from there. Even if you have write permissions, forking the repo should always work; so this is the recommended approach.
+In order to contribute, you will need to [install the module from source](./docs/2-reference_guide/reference_guide.md#installation-from-source). If you do not have write permissions to the original Entanglement Forging repo, you will need to fork it to your personal account first, and submit all Pull Requests (PR) from there. Even if you have write permissions, forking the repo should always work, so this is the recommended approach.
 
 ### Running tests
-If you haven't already, install in editable mode and with developer dependencies:
+If you haven't already, install the repo in editable mode and with developer dependencies:
 ```
 pip install -e .[dev]
 ```
@@ -27,14 +27,8 @@ To run linting tests (checks formatting/syntax):
 tox -elint
 ```
 
-To run all the tests:
-```
-python -m unittest discover -v tests
-```
-
 To run notebook tests (for more info, see [here](https://github.com/ReviewNB/treon)):
 ```
-pip install pytest nbmake
 treon docs/
 ```
 Note: notebook tests check for execution and time-out errors, not correctness.
@@ -84,6 +78,6 @@ Entanglement Forging uses [Pylint](https://www.pylint.org) and [PEP8](https://ww
 
 
 ## Other ways of contributing
-Other than submitting new sourcecode, users can contribute in the following meaningful ways:
+Other than submitting new source code, users can contribute in the following meaningful ways:
  - __Reporting Bugs and Requesting Features__: Users are encouraged to use Github Issues for reporting issues are requesting features.
  - __Ask/Answer Questions and Discuss Entanglement Forging__: Users are encouraged to use Github Discussions for engaging with researchers, developers, and other users regarding this project.

@@ -60,7 +60,7 @@ Ensure your local environment is compatible with the entanglement-forging packag
     ```
     pip install .
     ```
-4. (Optional) Install in editable mode and with developer dependencies for contributing:
+4. (Optional) Install the repo in editable mode and with developer dependencies for contributing:
     ```
     pip install -e .[dev]
     ```
