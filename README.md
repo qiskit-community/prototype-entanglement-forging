@@ -33,7 +33,7 @@
 ### Table of Contents
 * [Tutorials](docs/1-tutorials/)
 * [Reference Guide](docs/2-reference_guide/reference_guide.md)
-* [Explanatory Material](docs/3-explanatory_material/)
+* [Explanatory Material](docs/3-explanatory_material/explanatory_material.md)
 * [About This Project](#about-this-project)
 * [How to Give Feedback](#how-to-give-feedback)
 * [Contribution Guidelines](#contribution-guidelines)
