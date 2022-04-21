@@ -51,7 +51,14 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
     """
 
     def __init__(
-        self, qubit_converter, ansatz, bitstrings, config, orbitals_to_reduce=None
+        self,
+        qubit_converter,
+        ansatz,
+        bitstrings_u,
+        bitstrings_v,
+        config,
+        bitstrings_beta=None,
+        orbitals_to_reduce=None,
     ):
         if orbitals_to_reduce is None:
             orbitals_to_reduce = []
@@ -59,7 +66,8 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         super().__init__(qubit_converter)
 
         self._ansatz = ansatz
-        self._bitstrings = bitstrings
+        self._bitstrings_u = bitstrings_u
+        self._bitstrings_v = bitstrings_v
         self._config = config  # pylint: disable=arguments-differ
 
     # pylint: disable=arguments-differ
@@ -98,11 +106,13 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
 
         solver = EntanglementForgedVQE(
             ansatz=self._ansatz,
-            bitstrings=self._bitstrings,
+            bitstrings_u=self._bitstrings_u,
+            bitstrings_v=self._bitstrings_v,
             config=self._config,
             forged_operator=forged_operator,
             classical_energies=classical_energies,
         )
+
         result = solver.compute_minimum_eigenvalue(forged_operator.h_1_op)
 
         elapsed_time = time.time() - start_time

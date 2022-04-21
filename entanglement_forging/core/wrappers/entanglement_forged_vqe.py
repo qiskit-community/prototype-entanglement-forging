@@ -60,7 +60,15 @@ from entanglement_forging.utils.pseudorichardson import make_pseudorichardson_ci
 class EntanglementForgedVQE(VQE):
     """A class for Entanglement Forged VQE <https://arxiv.org/abs/2104.10220>."""
 
-    def __init__(self, ansatz, bitstrings, config, forged_operator, classical_energies):
+    def __init__(
+        self,
+        ansatz,
+        bitstrings_u,
+        bitstrings_v,
+        config,
+        forged_operator,
+        classical_energies,
+    ):
         """Initialize the EntanglementForgedVQE class."""
         super().__init__(
             ansatz=ansatz,
@@ -75,15 +83,21 @@ class EntanglementForgedVQE(VQE):
         self._paramsets_each_iteration = []
         self._schmidt_coeffs_each_iteration_each_paramset = []
         self._zero_noise_extrap = config.zero_noise_extrap
-        self.bitstrings = bitstrings
-        self._bitstrings_s = np.asarray(bitstrings)
+        self.bitstrings_u = bitstrings_u
+        self.bitstrings_v = bitstrings_v
+        self._bitstrings_s_u = np.asarray(bitstrings_u)
         (
-            self._tensor_prep_circuits,
-            self._superpos_prep_circuits,
-        ) = make_stateprep_circuits(bitstrings, config.fix_first_bitstring)
+            self._tensor_prep_circuits_u,
+            self._superpos_prep_circuits_u,
+        ) = make_stateprep_circuits(bitstrings_u, config.fix_first_bitstring)
+        self._bitstrings_s_v = np.asarray(bitstrings_v)
+        (
+            self._tensor_prep_circuits_v,
+            self._superpos_prep_circuits_v,
+        ) = make_stateprep_circuits(bitstrings_v, config.fix_first_bitstring)
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
-            [1.0] + [0.1] * (len(self._bitstrings_s) - 1)
+            [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
         )
         self._running_estimate_of_schmidts /= np.linalg.norm(
             self._running_estimate_of_schmidts
@@ -351,36 +365,59 @@ class EntanglementForgedVQE(VQE):
         circuits_to_execute = []
         for params_idx, params in enumerate(parameter_sets):
             Log.log("Constructing the circuits for parameter set", params, "...")
-            tensor_circuits_to_execute = prepare_circuits_to_execute(
+            tensor_circuits_to_execute_u = prepare_circuits_to_execute(
                 params,
-                self._tensor_prep_circuits,
+                self._tensor_prep_circuits_u,
+                op_for_generating_tensor_circuits,
+                self._ansatz,
+                self._is_sv_sim,
+            )
+            tensor_circuits_to_execute_v = prepare_circuits_to_execute(
+                params,
+                self._tensor_prep_circuits_v,
                 op_for_generating_tensor_circuits,
                 self._ansatz,
                 self._is_sv_sim,
             )
             if pauli_names_for_superpos_states:
-                superpos_circuits_to_execute = prepare_circuits_to_execute(
+                superpos_circuits_to_execute_u = prepare_circuits_to_execute(
                     params,
-                    self._superpos_prep_circuits,
+                    self._superpos_prep_circuits_u,
+                    op_for_generating_superpos_circuits,
+                    self._ansatz,
+                    self._is_sv_sim,
+                )
+                superpos_circuits_to_execute_v = prepare_circuits_to_execute(
+                    params,
+                    self._superpos_prep_circuits_v,
                     op_for_generating_superpos_circuits,
                     self._ansatz,
                     self._is_sv_sim,
                 )
             else:
-                superpos_circuits_to_execute = []
+                superpos_circuits_to_execute_u = []
+                superpos_circuits_to_execute_v = []
             if params_idx == 0:
                 Log.log(
                     "inferred number of pauli groups for tensor statepreps:",
-                    len(tensor_circuits_to_execute) / len(self._tensor_prep_circuits),
+                    len(tensor_circuits_to_execute_u)
+                    + len(tensor_circuits_to_execute_v)
+                    / len(self._tensor_prep_circuits_u)
+                    + len(self._tensor_prep_circuits_v),
                 )
                 if self._superpos_prep_circuits:
                     Log.log(
                         "inferred number of pauli groups for superposition statepreps:",
-                        len(superpos_circuits_to_execute)
-                        / len(self._superpos_prep_circuits),
+                        len(superpos_circuits_to_execute_u)
+                        + len(superpos_circuits_to_execute_v)
+                        / len(self._superpos_prep_circuits_u)
+                        + len(self._superpos_prep_circuits_v),
                     )
             circuits_to_execute += (
-                tensor_circuits_to_execute + superpos_circuits_to_execute
+                tensor_circuits_to_execute_u
+                + tensor_circuits_to_execute_v
+                + superpos_circuits_to_execute_u
+                + superpos_circuits_to_execute_v
             )
         Log.log("Transpiling circuits...")
         Log.log(self._initial_layout)
@@ -483,6 +520,8 @@ class EntanglementForgedVQE(VQE):
             Log.log("Applying meas fitter/filter...")
             result = self._meas_fitter.filter.apply(result)
 
+        print("Result of circuit execution: {result}")
+
         Log.log("Done executing. Analyzing results...")
         op_mean_each_parameter_set = [None] * len(parameter_sets)
         op_std_each_parameter_set = [None] * len(parameter_sets)
@@ -513,7 +552,8 @@ class EntanglementForgedVQE(VQE):
                     w_ij_tensor_states,
                     w_ij_superpos_states,
                     params,
-                    self._bitstrings_s,
+                    self._bitstrings_s_u,
+                    self._bitstrings_s_v,
                     op_for_generating_tensor_circuits,
                     op_for_generating_superpos_circuits,
                     self._zero_noise_extrap,

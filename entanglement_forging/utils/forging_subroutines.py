@@ -112,7 +112,8 @@ def eval_forged_op_with_result(
     w_ij_tensor_states,
     w_ab_superpos_states,
     params,
-    bitstrings_s,
+    bitstrings_s_u,
+    bitstrings_s_v,
     op_for_generating_tensor_circuits,
     op_for_generating_superpos_circuits,
     richardson_stretch_factors,
@@ -145,7 +146,7 @@ def eval_forged_op_with_result(
     superpos_state_prefixes = []
     superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
-    num_bitstrings = len(bitstrings_s)
+    num_bitstrings = len(bitstrings_s_u)
     for x in range(num_bitstrings):
         for y in range(num_bitstrings):
             if x == y:
