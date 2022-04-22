@@ -101,9 +101,14 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         start_time = time.time()
 
         problem.driver.run()
+
+        # Decompose the Hamiltonian operators into a form appropraite for EF
         forged_operator = ForgedOperator(problem, self.orbitals_to_reduce)
+
+        # Calculate energies clasically using pySCF
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
 
+        # Instantiate EFVQE object
         solver = EntanglementForgedVQE(
             ansatz=self._ansatz,
             bitstrings_u=self._bitstrings_u,
