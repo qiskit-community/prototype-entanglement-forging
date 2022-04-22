@@ -163,7 +163,9 @@ def eval_forged_op_with_result(
             ]
             superpos_state_indices += [(x, y)]
 
-            superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v
+            superpos_state_prefixes = (
+                superpos_state_prefixes_u + superpos_state_prefixes_v
+            )
 
     raw_states = _get_pauli_expectations_from_result(
         result,

@@ -157,17 +157,15 @@ class EntanglementForgedVQE(VQE):
                 "The same number of bitstrings should be passed for U and V."
             )
         if len(self.bitstrings_u[0]) != len(self.bitstrings_v[0]):
-            raise ValueError(
-                "Bitstrings for U and V should be the same length."
-            )
-        if any(len(self.bitstrings_u[0]) != len(bitstr) for bitstr in self.bitstrings_u):
-            raise ValueError(
-                "All U bitstrings must be the same length."
-            )
-        if any(len(self.bitstrings_v[0]) != len(bitstr) for bitstr in self.bitstrings_v):
-            raise ValueError(
-                "All V bitstrings must be the same length."
-            )
+            raise ValueError("Bitstrings for U and V should be the same length.")
+        if any(
+            len(self.bitstrings_u[0]) != len(bitstr) for bitstr in self.bitstrings_u
+        ):
+            raise ValueError("All U bitstrings must be the same length.")
+        if any(
+            len(self.bitstrings_v[0]) != len(bitstr) for bitstr in self.bitstrings_v
+        ):
+            raise ValueError("All V bitstrings must be the same length.")
 
     @property
     def shots_multiplier(self):
@@ -412,7 +410,9 @@ class EntanglementForgedVQE(VQE):
                 self._is_sv_sim,
             )
             # Combine all superposition circuits into a single list
-            tensor_circuits_to_execute = tensor_circuits_to_execute_u + tensor_circuits_to_execute_v
+            tensor_circuits_to_execute = (
+                tensor_circuits_to_execute_u + tensor_circuits_to_execute_v
+            )
 
             if pauli_names_for_superpos_states:
                 # Get superposition circuits associated with ansatz U
@@ -432,7 +432,9 @@ class EntanglementForgedVQE(VQE):
                     self._is_sv_sim,
                 )
                 # Combine all superposition circuits into a single list
-                superpos_circuits_to_execute = superpos_circuits_to_execute_u + superpos_circuits_to_execute_v
+                superpos_circuits_to_execute = (
+                    superpos_circuits_to_execute_u + superpos_circuits_to_execute_v
+                )
 
             else:
                 superpos_circuits_to_execute_u = []
@@ -441,8 +443,7 @@ class EntanglementForgedVQE(VQE):
             if params_idx == 0:
                 Log.log(
                     "inferred number of pauli groups for tensor statepreps:",
-                    len(tensor_circuits_to_execute)
-                    / len(self._tensor_prep_circuits_u)
+                    len(tensor_circuits_to_execute) / len(self._tensor_prep_circuits_u)
                     + len(self._tensor_prep_circuits_v),
                 )
                 if self._superpos_prep_circuits:
@@ -453,8 +454,7 @@ class EntanglementForgedVQE(VQE):
                         + len(self._superpos_prep_circuits_v),
                     )
             circuits_to_execute += (
-                tensor_circuits_to_execute
-                + superpos_circuits_to_execute
+                tensor_circuits_to_execute + superpos_circuits_to_execute
             )
         Log.log("Transpiling circuits...")
         Log.log(self._initial_layout)
