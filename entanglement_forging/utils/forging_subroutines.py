@@ -132,34 +132,21 @@ def eval_forged_op_with_result(
     """
     tensor_state_prefixes_u = [f"bsu{idx}" for idx in range(len(bitstrings_s_u))]
     tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
-    pauli_vals_tensor_states_raw_u = _get_pauli_expectations_from_result(
+    tensor_state_prefixes = tensor_state_prefixes_u + tensor_state_prefixes_v
+    pauli_vals_tensor_states_raw = _get_pauli_expectations_from_result(
         result,
         params,
-        tensor_state_prefixes_u,
+        tensor_state_prefixes,
         op_for_generating_tensor_circuits,
         richardson_stretch_factors=richardson_stretch_factors,
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    pauli_vals_tensor_states_raw_v = _get_pauli_expectations_from_result(
-        result,
-        params,
-        tensor_state_prefixes_v,
-        op_for_generating_tensor_circuits,
-        richardson_stretch_factors=richardson_stretch_factors,
-        statevector_mode=statevector_mode,
-        no_bs0_circuits=no_bs0_circuits,
+    pauli_vals_tensor_states_extrap = richardson_extrapolate(
+        pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
     )
-    pauli_vals_tensor_states_extrap_u = richardson_extrapolate(
-        pauli_vals_tensor_states_raw_u, richardson_stretch_factors, axis=2
-    )
-    pauli_vals_tensor_states_extrap_v = richardson_extrapolate(
-        pauli_vals_tensor_states_raw_v, richardson_stretch_factors, axis=2
-    )
-    superpos_state_prefixes_u = []
-    superpos_state_indices_u = []
-    superpos_state_prefixes_v = []
-    superpos_state_indices_v = []
+    superpos_state_prefixes = []
+    superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
     num_bitstrings = len(bitstrings_s_u)
     for x in range(num_bitstrings):
@@ -175,29 +162,20 @@ def eval_forged_op_with_result(
                 bsv_string + lin_combo for lin_combo in lin_combos
             ]
             superpos_state_indices += [(x, y)]
-    raw_states_u = _get_pauli_expectations_from_result(
+
+            superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v
+
+    raw_states = _get_pauli_expectations_from_result(
         result,
         params,
-        superpos_state_prefixes_u,
+        superpos_state_prefixes,
         op_for_generating_superpos_circuits,
         richardson_stretch_factors=richardson_stretch_factors,
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    raw_states_v = _get_pauli_expectations_from_result(
-        result,
-        params,
-        superpos_state_prefixes_v,
-        op_for_generating_superpos_circuits,
-        richardson_stretch_factors=richardson_stretch_factors,
-        statevector_mode=statevector_mode,
-        no_bs0_circuits=no_bs0_circuits,
-    )
-    pauli_vals_superpos_states_extrap_u = richardson_extrapolate(
-        raw_states_u, richardson_stretch_factors, axis=2
-    )
-    pauli_vals_superpos_states_extrap_v = richardson_extrapolate(
-        raw_states_v, richardson_stretch_factors, axis=2
+    pauli_vals_superpos_states_extrap = richardson_extrapolate(
+        raw_states, richardson_stretch_factors, axis=2
     )
 
     forged_op_results_w_and_wo_extrapolation = []
@@ -272,7 +250,7 @@ def _get_pauli_expectations_from_result(
     )
     pauli_names_temp = [p[1].to_label() for p in op_for_generating_circuits.paulis]
     for prep_idx, prep_string in enumerate(stateprep_strings):
-        if no_bs0_circuits and prep_string == "bs0":
+        if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.
             # HF BITSTRING (FIRST BITSTRING) IS UNAFFECTED,
             # ALLOWING CORRESPONDING ENERGY TO BE FIXED AT H
