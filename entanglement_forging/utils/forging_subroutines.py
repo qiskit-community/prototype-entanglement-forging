@@ -30,28 +30,35 @@ from .pseudorichardson import richardson_extrapolate
 
 
 # pylint: disable=too-many-locals,too-many-arguments,too-many-branches,invalid-name
-def make_stateprep_circuits(bitstrings, no_bs0_circuits=True):
+def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=None):
     """Builds the circuits preparing states |b_n> and |phi^p_nm>
     as defined in <https://arxiv.org/abs/2104.10220>.
 
     Assumes that the operator amplitudes are real,
     thus does not construct superposition states with odd p.
     """
+    if suffix is None:
+        suffix = ""
+
     # If the spin-up and spin-down spin orbitals are together a 2*N qubit system,
     # the bitstring should be N bits long.
     bitstrings = np.asarray(bitstrings)
     tensor_prep_circuits = [
-        prepare_bitstring(bs, name="bs" + str(bs_idx))
+        prepare_bitstring(bs, name="bs" + suffix + str(bs_idx))
         for bs_idx, bs in enumerate(bitstrings)
     ]
+
     if no_bs0_circuits:
         # Drops the HF bitstring, which is assumed to be first,
         # since hops in our ansatz are chosen to leave it unchanged! (IMPORTANT)
         tensor_prep_circuits = tensor_prep_circuits[1:]
+
     superpos_prep_circuits = []
     for bs1_idx, bs1 in enumerate(bitstrings):
         for bs2_relative_idx, bs2 in enumerate(bitstrings[bs1_idx + 1 :]):
             diffs = np.where(bs1 != bs2)[0]
+            if diffs.shape[0] == 0:
+                continue
             i = diffs[0]
             # TODO implement p -> -p as needed for problems with complex amplitudes  # pylint: disable=fixme
             if bs1[i]:
@@ -64,7 +71,7 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True):
             qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
             qcirc.h(i)
             psi_xplus, psi_xmin = [
-                qcirc.copy(name=f"bs{bs1_idx}bs{bs1_idx+1+bs2_relative_idx}{name}")
+                qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
                 for name in ["xplus", "xmin"]
             ]
             psi_xmin.z(i)
@@ -145,7 +152,8 @@ def eval_forged_op_with_result(
     pauli_vals_tensor_states_extrap = richardson_extrapolate(
         pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
     )
-    superpos_state_prefixes = []
+    superpos_state_prefixes_u = []
+    superpos_state_prefixes_v = []
     superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
     num_bitstrings = len(bitstrings_s_u)
@@ -163,9 +171,9 @@ def eval_forged_op_with_result(
             ]
             superpos_state_indices += [(x, y)]
 
-            superpos_state_prefixes = (
-                superpos_state_prefixes_u + superpos_state_prefixes_v
-            )
+    superpos_state_prefixes = (
+        superpos_state_prefixes_u + superpos_state_prefixes_v
+    )
 
     raw_states = _get_pauli_expectations_from_result(
         result,

@@ -94,7 +94,7 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_u,
             self._superpos_prep_circuits_u,
-        ) = make_stateprep_circuits(bitstrings_u, config.fix_first_bitstring)
+        ) = make_stateprep_circuits(bitstrings_u, config.fix_first_bitstring, suffix="u")
 
         # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
         # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
@@ -102,7 +102,7 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_v,
             self._superpos_prep_circuits_v,
-        ) = make_stateprep_circuits(bitstrings_v, config.fix_first_bitstring)
+        ) = make_stateprep_circuits(bitstrings_v, config.fix_first_bitstring, suffix="v")
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
@@ -409,7 +409,8 @@ class EntanglementForgedVQE(VQE):
                 self._ansatz,
                 self._is_sv_sim,
             )
-            # Combine all superposition circuits into a single list
+
+            # Combine all tensor circuits into a single list
             tensor_circuits_to_execute = (
                 tensor_circuits_to_execute_u + tensor_circuits_to_execute_v
             )
@@ -446,7 +447,7 @@ class EntanglementForgedVQE(VQE):
                     len(tensor_circuits_to_execute) / len(self._tensor_prep_circuits_u)
                     + len(self._tensor_prep_circuits_v),
                 )
-                if self._superpos_prep_circuits:
+                if self._superpos_prep_circuits_u:
                     Log.log(
                         "inferred number of pauli groups for superposition statepreps:",
                         len(superpos_circuits_to_execute)
