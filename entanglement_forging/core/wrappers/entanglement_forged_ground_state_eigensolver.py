@@ -57,7 +57,6 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         bitstrings_u,
         bitstrings_v,
         config,
-        bitstrings_beta=None,
         orbitals_to_reduce=None,
     ):
         if orbitals_to_reduce is None:
