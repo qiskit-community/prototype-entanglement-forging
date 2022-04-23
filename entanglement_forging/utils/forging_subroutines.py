@@ -57,28 +57,37 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=None):
     for bs1_idx, bs1 in enumerate(bitstrings):
         for bs2_relative_idx, bs2 in enumerate(bitstrings[bs1_idx + 1 :]):
             diffs = np.where(bs1 != bs2)[0]
-            if diffs.shape[0] == 0:
-                continue
-            i = diffs[0]
-            # TODO implement p -> -p as needed for problems with complex amplitudes  # pylint: disable=fixme
-            if bs1[i]:
-                x = bs2
-                y = bs1  # pylint: disable=unused-variable
+            if diffs.shape[0] > 0:
+                i = diffs[0]
+                # TODO implement p -> -p as needed for problems with complex amplitudes  # pylint: disable=fixme
+                if bs1[i]:
+                    x = bs2
+                    y = bs1  # pylint: disable=unused-variable
+                else:
+                    x = bs1
+                    y = bs2  # pylint: disable=unused-variable
+                S = np.delete(diffs, 0)
+                qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
+                qcirc.h(i)
+                psi_xplus, psi_xmin = [
+                    qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
+                    for name in ["xplus", "xmin"]
+                ]
+                psi_xmin.z(i)
+                for psi in [psi_xplus, psi_xmin]:
+                    for target in S:
+                        psi.cx(i, target)
+                    superpos_prep_circuits.append(psi)
+            # TODO: Ensure it is valid to do this when there are equivalent bitstrings within a list
             else:
-                x = bs1
-                y = bs2  # pylint: disable=unused-variable
-            S = np.delete(diffs, 0)
-            qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
-            qcirc.h(i)
-            psi_xplus, psi_xmin = [
-                qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
-                for name in ["xplus", "xmin"]
-            ]
-            psi_xmin.z(i)
-            for psi in [psi_xplus, psi_xmin]:
-                for target in S:
-                    psi.cx(i, target)
-                superpos_prep_circuits.append(psi)
+                qcirc = prepare_bitstring(x)
+                psi_xplus, psi_xmin = [
+                    qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
+                    for name in ["xplus", "xmin"]
+                ]
+                for psi in [psi_xplus, psi_xmin]:
+                    superpos_prep_circuits.append(psi)
+
     return tensor_prep_circuits, superpos_prep_circuits
 
 
