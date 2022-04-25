@@ -558,8 +558,6 @@ class EntanglementForgedVQE(VQE):
             Log.log("Applying meas fitter/filter...")
             result = self._meas_fitter.filter.apply(result)
 
-        print("Result of circuit execution: {result}")
-
         Log.log("Done executing. Analyzing results...")
         op_mean_each_parameter_set = [None] * len(parameter_sets)
         op_std_each_parameter_set = [None] * len(parameter_sets)
