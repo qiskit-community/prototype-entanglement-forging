@@ -70,7 +70,9 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=None):
                 qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
                 qcirc.h(i)
                 psi_xplus, psi_xmin = [
-                    qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
+                    qcirc.copy(
+                        name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}"
+                    )
                     for name in ["xplus", "xmin"]
                 ]
                 psi_xmin.z(i)
@@ -82,7 +84,9 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=None):
             else:
                 qcirc = prepare_bitstring(x)
                 psi_xplus, psi_xmin = [
-                    qcirc.copy(name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}")
+                    qcirc.copy(
+                        name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}"
+                    )
                     for name in ["xplus", "xmin"]
                 ]
                 for psi in [psi_xplus, psi_xmin]:
@@ -165,6 +169,8 @@ def eval_forged_op_with_result(
     superpos_state_prefixes_v = []
     superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
+
+    # num_bitstrings is the number of bitstring combos we have
     num_bitstrings = len(bitstrings_s_u)
     for x in range(num_bitstrings):
         for y in range(num_bitstrings):
@@ -180,9 +186,7 @@ def eval_forged_op_with_result(
             ]
             superpos_state_indices += [(x, y)]
 
-    superpos_state_prefixes = (
-        superpos_state_prefixes_u + superpos_state_prefixes_v
-    )
+    superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v
 
     raw_states = _get_pauli_expectations_from_result(
         result,
@@ -236,6 +240,7 @@ def eval_forged_op_with_result(
     return forged_op_results_extrap, forged_op_results_raw
 
 
+# TODO: RUN DIAGNOSTICS ON THIS FUNCTION AND FIGURE OUT HOW TO DISENTANGLE U AND V TERMS
 def _get_pauli_expectations_from_result(
     result,
     params,
@@ -250,6 +255,7 @@ def _get_pauli_expectations_from_result(
 
     Axes are [stateprep_idx, Pauli_idx, richardson_stretch_factor_idx, mean_or_variance]
     """
+    # TODO: Stateprep strings contain both U and V state prep. Ensure this is the correct thing to do here
     if richardson_stretch_factors is None:
         richardson_stretch_factors = [1]
     if not op_for_generating_circuits:
@@ -259,6 +265,9 @@ def _get_pauli_expectations_from_result(
         op_matrices = np.asarray(
             [op.to_matrix() for op in [p[1] for p in op_for_generating_circuits.paulis]]
         )
+    # stateprep_strings should always be even, as there are an equal number of U and V stateprep circuits
+    #num_stateprep_terms = int(len(stateprep_strings) / 2)
+    #stateprep_strings_u = stateprep_strings[:num_stateprep_terms]
     pauli_vals = np.zeros(
         (
             len(stateprep_strings),
@@ -268,6 +277,7 @@ def _get_pauli_expectations_from_result(
         )
     )
     pauli_names_temp = [p[1].to_label() for p in op_for_generating_circuits.paulis]
+    # TODO: GO THROUGH THIS LOOP WITH PRINT STATEMENTS AND SEE WHAT IS HAPPENING
     for prep_idx, prep_string in enumerate(stateprep_strings):
         if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.

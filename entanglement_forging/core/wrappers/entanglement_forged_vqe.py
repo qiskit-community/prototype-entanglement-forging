@@ -94,7 +94,9 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_u,
             self._superpos_prep_circuits_u,
-        ) = make_stateprep_circuits(bitstrings_u, config.fix_first_bitstring, suffix="u")
+        ) = make_stateprep_circuits(
+            bitstrings_u, config.fix_first_bitstring, suffix="u"
+        )
 
         # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
         # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
@@ -102,7 +104,9 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_v,
             self._superpos_prep_circuits_v,
-        ) = make_stateprep_circuits(bitstrings_v, config.fix_first_bitstring, suffix="v")
+        ) = make_stateprep_circuits(
+            bitstrings_v, config.fix_first_bitstring, suffix="v"
+        )
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
