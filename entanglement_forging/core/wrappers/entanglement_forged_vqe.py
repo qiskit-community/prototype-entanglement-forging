@@ -448,15 +448,20 @@ class EntanglementForgedVQE(VQE):
             if params_idx == 0:
                 Log.log(
                     "inferred number of pauli groups for tensor statepreps:",
-                    len(tensor_circuits_to_execute) / len(self._tensor_prep_circuits_u)
-                    + len(self._tensor_prep_circuits_v),
+                    len(tensor_circuits_to_execute)
+                    / (
+                        len(self._tensor_prep_circuits_u)
+                        + len(self._tensor_prep_circuits_v)
+                    ),
                 )
                 if self._superpos_prep_circuits_u:
                     Log.log(
                         "inferred number of pauli groups for superposition statepreps:",
                         len(superpos_circuits_to_execute)
-                        / len(self._superpos_prep_circuits_u)
-                        + len(self._superpos_prep_circuits_v),
+                        / (
+                            len(self._superpos_prep_circuits_u)
+                            + len(self._superpos_prep_circuits_v)
+                        ),
                     )
             circuits_to_execute += (
                 tensor_circuits_to_execute + superpos_circuits_to_execute

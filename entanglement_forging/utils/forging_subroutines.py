@@ -240,7 +240,6 @@ def eval_forged_op_with_result(
     return forged_op_results_extrap, forged_op_results_raw
 
 
-# TODO: RUN DIAGNOSTICS ON THIS FUNCTION AND FIGURE OUT HOW TO DISENTANGLE U AND V TERMS
 def _get_pauli_expectations_from_result(
     result,
     params,
@@ -255,7 +254,6 @@ def _get_pauli_expectations_from_result(
 
     Axes are [stateprep_idx, Pauli_idx, richardson_stretch_factor_idx, mean_or_variance]
     """
-    # TODO: Stateprep strings contain both U and V state prep. Ensure this is the correct thing to do here
     if richardson_stretch_factors is None:
         richardson_stretch_factors = [1]
     if not op_for_generating_circuits:
@@ -266,8 +264,8 @@ def _get_pauli_expectations_from_result(
             [op.to_matrix() for op in [p[1] for p in op_for_generating_circuits.paulis]]
         )
     # stateprep_strings should always be even, as there are an equal number of U and V stateprep circuits
-    #num_stateprep_terms = int(len(stateprep_strings) / 2)
-    #stateprep_strings_u = stateprep_strings[:num_stateprep_terms]
+    # num_stateprep_terms = int(len(stateprep_strings) / 2)
+    # stateprep_strings_u = stateprep_strings[:num_stateprep_terms]
     pauli_vals = np.zeros(
         (
             len(stateprep_strings),
@@ -277,7 +275,6 @@ def _get_pauli_expectations_from_result(
         )
     )
     pauli_names_temp = [p[1].to_label() for p in op_for_generating_circuits.paulis]
-    # TODO: GO THROUGH THIS LOOP WITH PRINT STATEMENTS AND SEE WHAT IS HAPPENING
     for prep_idx, prep_string in enumerate(stateprep_strings):
         if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.
@@ -297,9 +294,6 @@ def _get_pauli_expectations_from_result(
                     np.einsum("i,Mij,j->M", np.conj(psi), op_matrices, psi)
                 )
             else:
-                # pcov_each_richardson = np.zeros(len(richardson_stretch_factors),,
-                # len(op_for_generating_circuits.paulis),
-                # len(op_for_generating_circuits.paulis))+np.nan
                 pauli_vals_temp, _ = _eval_each_pauli_with_result(
                     tpbgwpo=op_for_generating_circuits,
                     result=result,
@@ -362,26 +356,36 @@ def compute_h_schmidt(
     Axes are [x_idx, P_idx, mean_or_variance]
     W_ij: Coefficients W_ij. Axes: [index of Pauli string for eta, index of Pauli string for tau].
     """
-    num_bitstrings = int(np.shape(pauli_vals_tensor_states)[0] / 2)
+    num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0] / 2)
     h_schmidt_diagonal = np.einsum(
         "ij,xi,xj->x",
         w_ij_tensor_states,
-        pauli_vals_tensor_states[:num_bitstrings, :, 0],
-        pauli_vals_tensor_states[num_bitstrings:, :, 0],
+        pauli_vals_tensor_states[:num_tensor_terms, :, 0],
+        pauli_vals_tensor_states[num_tensor_terms:, :, 0],
     )
     h_schmidt = np.diag(h_schmidt_diagonal)
     # If including the +/-Y superpositions (omitted at time of writing
     # since they typically have 0 net contribution) would change this to 4 instead of 2.
     num_lin_combos = 2
+
+    num_superpos_terms = int(np.shape(pauli_vals_superpos_states)[0] / 2)
+
+    # Calculate for U subsystem
     p_plus_x_u = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
     p_minus_x_u = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
-    p_plus_x_v = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
-    p_minus_x_v = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
     p_delta_x_u = p_plus_x_u - p_minus_x_u
+
+    # Calculate for V subsystem
+    p_plus_x_v = pauli_vals_superpos_states[
+        num_superpos_terms :: num_superpos_terms + num_lin_combos, :, 0
+    ]
+    p_minus_x_v = pauli_vals_superpos_states[
+        num_superpos_terms + 1 :: num_superpos_terms + num_lin_combos, :, 0
+    ]
     p_delta_x_v = p_plus_x_v - p_minus_x_v
     # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
     h_schmidt_off_diagonals = (1 / 4) * np.einsum(
-        "ab,xa,xb->x", w_ab_superpos_states, p_delta_x, p_delta_x
+        "ab,xa,xb->x", w_ab_superpos_states, p_delta_x_u, p_delta_x_v
     )
     for element, indices in zip(h_schmidt_off_diagonals, superpos_state_indices):
         h_schmidt[indices] = element
