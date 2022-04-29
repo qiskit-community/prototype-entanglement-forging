@@ -84,8 +84,6 @@ class EntanglementForgedVQE(VQE):
         self._schmidt_coeffs_each_iteration_each_paramset = []
         self._zero_noise_extrap = config.zero_noise_extrap
 
-        # Store separate lists of bitstrings to allow for representing
-        # some circuits where U=/=V
         self.bitstrings_u = bitstrings_u
         self.bitstrings_v = bitstrings_v
         self._bitstrings_s_u = np.asarray(bitstrings_u)

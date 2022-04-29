@@ -251,9 +251,6 @@ def _get_pauli_expectations_from_result(
         op_matrices = np.asarray(
             [op.to_matrix() for op in [p[1] for p in op_for_generating_circuits.paulis]]
         )
-    # stateprep_strings should always be even, as there are an equal number of U and V stateprep circuits
-    # num_stateprep_terms = int(len(stateprep_strings) / 2)
-    # stateprep_strings_u = stateprep_strings[:num_stateprep_terms]
     pauli_vals = np.zeros(
         (
             len(stateprep_strings),
@@ -344,7 +341,11 @@ def compute_h_schmidt(
     Axes are [x_idx, P_idx, mean_or_variance]
     W_ij: Coefficients W_ij. Axes: [index of Pauli string for eta, index of Pauli string for tau].
     """
+
+    # This is essentially the number of bitstrings or bitstring pairs that were passed
     num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0] / 2)
+
+    # Calculate the schmidt summation over the U and V subsystems and diagonalize the values
     h_schmidt_diagonal = np.einsum(
         "ij,xi,xj->x",
         w_ij_tensor_states,
@@ -352,18 +353,20 @@ def compute_h_schmidt(
         pauli_vals_tensor_states[num_tensor_terms:, :, 0],
     )
     h_schmidt = np.diag(h_schmidt_diagonal)
+
     # If including the +/-Y superpositions (omitted at time of writing
     # since they typically have 0 net contribution) would change this to 4 instead of 2.
     num_lin_combos = 2
 
+    # This variable equals the number of bitstring combinations * num_lin_combos
     num_superpos_terms = int(np.shape(pauli_vals_superpos_states)[0] / 2)
 
-    # Calculate for U subsystem
+    # Calculate delta for U subsystem
     p_plus_x_u = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
     p_minus_x_u = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
     p_delta_x_u = p_plus_x_u - p_minus_x_u
 
-    # Calculate for V subsystem
+    # Calculate delta for V subsystem
     p_plus_x_v = pauli_vals_superpos_states[
         num_superpos_terms :: num_superpos_terms + num_lin_combos, :, 0
     ]
@@ -371,12 +374,16 @@ def compute_h_schmidt(
         num_superpos_terms + 1 :: num_superpos_terms + num_lin_combos, :, 0
     ]
     p_delta_x_v = p_plus_x_v - p_minus_x_v
+
     # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
+    # Calculate schmidts for superposition terms
     h_schmidt_off_diagonals = (1 / 4) * np.einsum(
         "ab,xa,xb->x", w_ab_superpos_states, p_delta_x_u, p_delta_x_v
     )
+
     for element, indices in zip(h_schmidt_off_diagonals, superpos_state_indices):
         h_schmidt[indices] = element
+
     return h_schmidt  # , H_schmidt_vars)
 
 
