@@ -362,19 +362,23 @@ def compute_h_schmidt(
     Axes are [x_idx, P_idx, mean_or_variance]
     W_ij: Coefficients W_ij. Axes: [index of Pauli string for eta, index of Pauli string for tau].
     """
+    num_bitstrings = int(np.shape(pauli_vals_tensor_states)[0] / 2)
     h_schmidt_diagonal = np.einsum(
         "ij,xi,xj->x",
         w_ij_tensor_states,
-        pauli_vals_tensor_states[:, :, 0],
-        pauli_vals_tensor_states[:, :, 0],
+        pauli_vals_tensor_states[:num_bitstrings, :, 0],
+        pauli_vals_tensor_states[num_bitstrings:, :, 0],
     )
     h_schmidt = np.diag(h_schmidt_diagonal)
     # If including the +/-Y superpositions (omitted at time of writing
     # since they typically have 0 net contribution) would change this to 4 instead of 2.
     num_lin_combos = 2
-    p_plus_x = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
-    p_minus_x = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
-    p_delta_x = p_plus_x - p_minus_x
+    p_plus_x_u = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
+    p_minus_x_u = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
+    p_plus_x_v = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
+    p_minus_x_v = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
+    p_delta_x_u = p_plus_x_u - p_minus_x_u
+    p_delta_x_v = p_plus_x_v - p_minus_x_v
     # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
     h_schmidt_off_diagonals = (1 / 4) * np.einsum(
         "ab,xa,xb->x", w_ab_superpos_states, p_delta_x, p_delta_x
