@@ -356,21 +356,18 @@ def compute_h_schmidt(
     # since they typically have 0 net contribution) would change this to 4 instead of 2.
     num_lin_combos = 2
 
-    # This variable equals the number of bitstring combinations * num_lin_combos
     num_superpos_terms = int(np.shape(pauli_vals_superpos_states)[0] / 2)
+    pvss_u = pauli_vals_superpos_states[0:num_superpos_terms, :, :]
+    pvss_v = pauli_vals_superpos_states[num_superpos_terms:, :, :]
 
     # Calculate delta for U subsystem
-    p_plus_x_u = pauli_vals_superpos_states[0::num_lin_combos, :, 0]
-    p_minus_x_u = pauli_vals_superpos_states[1::num_lin_combos, :, 0]
+    p_plus_x_u = pvss_u[0::num_lin_combos, :, 0]
+    p_minus_x_u = pvss_u[1::num_lin_combos, :, 0]
     p_delta_x_u = p_plus_x_u - p_minus_x_u
 
     # Calculate delta for V subsystem
-    p_plus_x_v = pauli_vals_superpos_states[
-        num_superpos_terms :: num_superpos_terms + num_lin_combos, :, 0
-    ]
-    p_minus_x_v = pauli_vals_superpos_states[
-        num_superpos_terms + 1 :: num_superpos_terms + num_lin_combos, :, 0
-    ]
+    p_plus_x_v = pvss_v[0::num_lin_combos, :, 0]
+    p_minus_x_v = pvss_v[1::num_lin_combos, :, 0]
     p_delta_x_v = p_plus_x_v - p_minus_x_v
 
     # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
