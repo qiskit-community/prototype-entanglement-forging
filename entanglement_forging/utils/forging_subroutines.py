@@ -30,15 +30,13 @@ from .pseudorichardson import richardson_extrapolate
 
 
 # pylint: disable=too-many-locals,too-many-arguments,too-many-branches,invalid-name
-def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=None):
+def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
     """Builds the circuits preparing states |b_n> and |phi^p_nm>
     as defined in <https://arxiv.org/abs/2104.10220>.
 
     Assumes that the operator amplitudes are real,
     thus does not construct superposition states with odd p.
     """
-    if suffix is None:
-        suffix = ""
 
     # If the spin-up and spin-down spin orbitals are together a 2*N qubit system,
     # the bitstring should be N bits long.
