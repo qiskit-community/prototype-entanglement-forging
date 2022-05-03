@@ -32,7 +32,9 @@ from .pseudorichardson import richardson_extrapolate
 # pylint: disable=too-many-locals,too-many-arguments,too-many-branches,invalid-name
 def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
     """Builds the circuits preparing states |b_n> and |phi^p_nm>
-    as defined in <https://arxiv.org/abs/2104.10220>.
+    as defined in <https://arxiv.org/abs/2104.10220>. Also returns
+    a list of tuples which describe any superposition terms which
+    carry a coefficient.
 
     Assumes that the operator amplitudes are real,
     thus does not construct superposition states with odd p.
@@ -52,33 +54,51 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
         tensor_prep_circuits = tensor_prep_circuits[1:]
 
     superpos_prep_circuits = []
+    superpos_coeffs = []
     for bs1_idx, bs1 in enumerate(bitstrings):
         for bs2_relative_idx, bs2 in enumerate(bitstrings[bs1_idx + 1 :]):
             diffs = np.where(bs1 != bs2)[0]
-            i = diffs[0]
-            # TODO implement p -> -p as needed for problems with complex amplitudes  # pylint: disable=fixme
-            if bs1[i]:
-                x = bs2
-                y = bs1  # pylint: disable=unused-variable
-            else:
-                x = bs1
-                y = bs2  # pylint: disable=unused-variable
-            S = np.delete(diffs, 0)
-            qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
-            qcirc.h(i)
-            psi_xplus, psi_xmin = [
-                qcirc.copy(
-                    name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}"
-                )
-                for name in ["xplus", "xmin"]
-            ]
-            psi_xmin.z(i)
-            for psi in [psi_xplus, psi_xmin]:
-                for target in S:
-                    psi.cx(i, target)
-                superpos_prep_circuits.append(psi)
 
-    return tensor_prep_circuits, superpos_prep_circuits
+            # TODO implement p -> -p as needed for problems with complex amplitudes  # pylint: disable=fixme
+            if len(diffs) > 0:
+                i = diffs[0]
+                if bs1[i]:
+                    x = bs2
+                    y = bs1  # pylint: disable=unused-variable
+                else:
+                    x = bs1
+                    y = bs2  # pylint: disable=unused-variable
+                S = np.delete(diffs, 0)
+                qcirc = prepare_bitstring(np.concatenate((x[:i], [0], x[i + 1 :])))
+                qcirc.h(i)
+                psi_xplus, psi_xmin = [
+                    qcirc.copy(
+                        name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}"
+                    )
+                    for name in ["xplus", "xmin"]
+                ]
+                psi_xmin.z(i)
+                for psi in [psi_xplus, psi_xmin]:
+                    for target in S:
+                        psi.cx(i, target)
+                    superpos_prep_circuits.append(psi)
+
+            # If the two bitstrings are equivalent
+            else:
+                coeff_idx = len(superpos_prep_circuits)
+                qcirc = prepare_bitstring(bs1)
+                psi_xplus, psi_xmin = [
+                    qcirc.copy(
+                        name=f"bs{suffix}{bs1_idx}bs{suffix}{bs1_idx+1+bs2_relative_idx}{name}"
+                    )
+                    for name in ["xplus", "xmin"]
+                ]
+
+                superpos_coeffs.append((coeff_idx, np.sqrt(2)))
+                superpos_coeffs.append((coeff_idx+1, 0))
+                superpos_prep_circuits += [psi_xplus, psi_xmin]
+
+    return tensor_prep_circuits, superpos_prep_circuits, superpos_coeffs
 
 
 def prepare_circuits_to_execute(
@@ -126,6 +146,7 @@ def eval_forged_op_with_result(
     statevector_mode,
     hf_value,
     add_this_to_mean_values_displayed,
+    superpos_coeffs=None,
     no_bs0_circuits=True,
     verbose=False,
 ):
@@ -179,6 +200,7 @@ def eval_forged_op_with_result(
         params,
         superpos_state_prefixes,
         op_for_generating_superpos_circuits,
+        superpos_coeffs=superpos_coeffs,
         richardson_stretch_factors=richardson_stretch_factors,
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
@@ -232,6 +254,7 @@ def _get_pauli_expectations_from_result(
     stateprep_strings,
     op_for_generating_circuits,
     statevector_mode,
+    superpos_coeffs=None,
     richardson_stretch_factors=None,
     no_bs0_circuits=True,
 ):
@@ -294,6 +317,14 @@ def _get_pauli_expectations_from_result(
                     "imaginary part which will be discarded."
                 )
             pauli_vals[prep_idx, :, rich_idx, 0] = np.real(pauli_vals_alphabetical)
+
+    # Scale the superpos terms which have associated coefficients
+    if superpos_coeffs:
+        for i, superpos_coeff in enumerate(superpos_coeffs):
+            coeff_idx = superpos_coeff[0]
+            coeff = superpos_coeff[1]
+            pauli_vals[coeff_idx, :, :, 0] *= coeff
+
     return pauli_vals
 
 

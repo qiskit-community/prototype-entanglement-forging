@@ -92,6 +92,7 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_u,
             self._superpos_prep_circuits_u,
+            self._superpos_coeffs_u
         ) = make_stateprep_circuits(
             bitstrings_u, config.fix_first_bitstring, suffix="u"
         )
@@ -102,6 +103,7 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_v,
             self._superpos_prep_circuits_v,
+            self._superpos_coeffs_v
         ) = make_stateprep_circuits(
             bitstrings_v, config.fix_first_bitstring, suffix="v"
         )
@@ -434,15 +436,26 @@ class EntanglementForgedVQE(VQE):
                     self._ansatz,
                     self._is_sv_sim,
                 )
+
+                # Offset the superpos coeffs associated with V so the indices match up
+                offset = len(self._superpos_coeffs_u)
+                self._superpos_coeffs_v = [x + offset for x in self._superpos_coeffs_v]
+
                 # Combine all superposition circuits into a single list
                 superpos_circuits_to_execute = (
                     superpos_circuits_to_execute_u + superpos_circuits_to_execute_v
                 )
+                superpos_coeffs = (
+                    self._superpos_coeffs_u + self._superpos_coeffs_v
+                )
+
 
             else:
                 superpos_circuits_to_execute_u = []
                 superpos_circuits_to_execute_v = []
                 superpos_circuits_to_execute = []
+                superpos_coeffs = []
+
             if params_idx == 0:
                 Log.log(
                     "inferred number of pauli groups for tensor statepreps:",
@@ -602,6 +615,7 @@ class EntanglementForgedVQE(VQE):
                     self._zero_noise_extrap,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
+                    superpos_coeffs=superpos_coeffs,
                     add_this_to_mean_values_displayed=add_this_to_mean_values_displayed,
                     no_bs0_circuits=self._no_bs0_circuits,
                 )
