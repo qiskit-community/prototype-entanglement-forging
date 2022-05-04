@@ -108,7 +108,11 @@ class EntanglementForgedVQE(VQE):
         self.bitstrings_u = bitstrings_u
         self._bitstrings_s_u = np.asarray(bitstrings_u)
 
-        self.bitstrings_v = bitstrings_v
+        # Prevent unnecessary duplication of ansatz calculation if U=V
+        if bitstrings_v == bitstrings_u:
+            self.bitstrings_v = []
+        else:
+            self.bitstrings_v = bitstrings_v
 
         # Make circuits which prepare states U|b_n_u> and U|phi^p_nm_u>
         (
