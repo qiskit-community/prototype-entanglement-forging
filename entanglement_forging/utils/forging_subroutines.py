@@ -189,7 +189,11 @@ def eval_forged_op_with_result(
             superpos_state_prefixes_u += [
                 bsu_string + lin_combo for lin_combo in lin_combos
             ]
+
+            # Determine whether we are handling the two subsystems separately
+            asymmetric_bitstrings = False
             if bitstrings_s_v:
+                asymmetric_bitstrings = True
                 bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
                 superpos_state_prefixes_v += [
                     bsv_string + lin_combo for lin_combo in lin_combos
@@ -224,6 +228,7 @@ def eval_forged_op_with_result(
             w_ij_tensor_states,
             w_ab_superpos_states,
             superpos_state_indices,
+            asymmetric_bitstrings,
         )
         if no_bs0_circuits:
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
@@ -367,23 +372,37 @@ def compute_h_schmidt(
     w_ij_tensor_states,
     w_ab_superpos_states,
     superpos_state_indices,
+    asymmetric_bitstrings,
 ):
     """Computes the schmidt decomposition of the Hamiltonian. TODO checkthis.  # pylint: disable=fixme
 
     Pauli val arrays contain expectation values <x|P|x> and their standard deviations.
     Axes are [x_idx, P_idx, mean_or_variance]
     W_ij: Coefficients W_ij. Axes: [index of Pauli string for eta, index of Pauli string for tau].
+    asymmetric_bitstrings: A boolean which signifies whether the U and V subsystems have
+                            different ansatze.
     """
 
     # This is essentially the number of bitstrings or bitstring pairs that were passed
-    num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0] / 2)
+    num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0])
+
+    if asymmetric_bitstrings:
+        num_tensor_terms = int(
+            num_tensor_terms / 2
+        )  # num_tensor_terms should always be even here
+        tensor_exp_vals_u = pauli_vals_tensor_states[:num_tensor_terms, :, 0]
+        tensor_exp_vals_v = pauli_vals_tensor_states[num_tensor_terms:, :, 0]
+    else:
+        # Use the same expectation values for both subsystem calculations
+        tensor_exp_vals_u = pauli_vals_tensor_states[:num_tensor_terms, :, 0]
+        tensor_exp_vals_v = tensor_exp_vals_u
 
     # Calculate the schmidt summation over the U and V subsystems and diagonalize the values
     h_schmidt_diagonal = np.einsum(
         "ij,xi,xj->x",
         w_ij_tensor_states,
-        pauli_vals_tensor_states[:num_tensor_terms, :, 0],
-        pauli_vals_tensor_states[num_tensor_terms:, :, 0],
+        tensor_exp_vals_u,
+        tensor_exp_vals_v,
     )
     h_schmidt = np.diag(h_schmidt_diagonal)
 
@@ -391,9 +410,16 @@ def compute_h_schmidt(
     # since they typically have 0 net contribution) would change this to 4 instead of 2.
     num_lin_combos = 2
 
-    num_superpos_terms = int(np.shape(pauli_vals_superpos_states)[0] / 2)
-    pvss_u = pauli_vals_superpos_states[0:num_superpos_terms, :, :]
-    pvss_v = pauli_vals_superpos_states[num_superpos_terms:, :, :]
+    num_superpos_terms = int(np.shape(pauli_vals_superpos_states)[0])
+    if asymmetric_bitstrings:
+        num_superpos_terms = int(
+            num_superpos_terms / 2
+        )  # num_superpos_terms should always be even here
+        pvss_u = pauli_vals_superpos_states[:num_superpos_terms, :, :]
+        pvss_v = pauli_vals_superpos_states[num_superpos_terms:, :, :]
+    else:
+        pvss_u = pauli_vals_superpos_states[:num_superpos_terms, :, :]
+        pvss_v = pvss_u
 
     # Calculate delta for U subsystem
     p_plus_x_u = pvss_u[0::num_lin_combos, :, 0]
@@ -401,9 +427,12 @@ def compute_h_schmidt(
     p_delta_x_u = p_plus_x_u - p_minus_x_u
 
     # Calculate delta for V subsystem
-    p_plus_x_v = pvss_v[0::num_lin_combos, :, 0]
-    p_minus_x_v = pvss_v[1::num_lin_combos, :, 0]
-    p_delta_x_v = p_plus_x_v - p_minus_x_v
+    if asymmetric_bitstrings:
+        p_plus_x_v = pvss_v[0::num_lin_combos, :, 0]
+        p_minus_x_v = pvss_v[1::num_lin_combos, :, 0]
+        p_delta_x_v = p_plus_x_v - p_minus_x_v
+    else:
+        p_delta_x_v = p_delta_x_u
 
     # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
     # Calculate schmidts for superposition terms

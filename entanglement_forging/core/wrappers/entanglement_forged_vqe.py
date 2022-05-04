@@ -76,7 +76,7 @@ class EntanglementForgedVQE(VQE):
                 "not match the number of bits in reduced_bitstrings."
             )
 
-        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in self.bitstrings_u):
+        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in bitstrings_u):
             raise ValueError("All U bitstrings must be the same length.")
 
         if bitstrings_v:
