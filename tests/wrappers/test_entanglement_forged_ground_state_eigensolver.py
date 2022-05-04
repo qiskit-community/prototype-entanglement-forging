@@ -143,7 +143,11 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         converter = QubitConverter(JordanWignerMapper())
 
         solver = EntanglementForgedGroundStateSolver(
-            converter, ansatz, reduced_bitstrings, config, orbitals_to_reduce=orbitals_to_reduce
+            converter,
+            ansatz,
+            reduced_bitstrings,
+            config,
+            orbitals_to_reduce=orbitals_to_reduce,
         )
         forged_result = solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -75.68366174497027)
