@@ -137,13 +137,13 @@ def eval_forged_op_with_result(
     w_ab_superpos_states,
     params,
     bitstrings_s_u,
-    bitstrings_s_v,
     op_for_generating_tensor_circuits,
     op_for_generating_superpos_circuits,
     richardson_stretch_factors,
     statevector_mode,
     hf_value,
     add_this_to_mean_values_displayed,
+    bitstrings_s_v=[],
     superpos_coeffs=None,
     no_bs0_circuits=True,
     verbose=False,
@@ -156,7 +156,11 @@ def eval_forged_op_with_result(
     For reference, also computes mean value obtained without Richardson
     """
     tensor_state_prefixes_u = [f"bsu{idx}" for idx in range(len(bitstrings_s_u))]
-    tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
+    tensor_state_prefixes_v = []
+
+    if bitstrings_s_v:
+        tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
+
     tensor_state_prefixes = tensor_state_prefixes_u + tensor_state_prefixes_v
     pauli_vals_tensor_states_raw = _get_pauli_expectations_from_result(
         result,
@@ -170,11 +174,11 @@ def eval_forged_op_with_result(
     pauli_vals_tensor_states_extrap = richardson_extrapolate(
         pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
     )
+
     superpos_state_prefixes_u = []
     superpos_state_prefixes_v = []
     superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
-
     # num_bitstrings is the number of bitstring combos we have
     num_bitstrings = len(bitstrings_s_u)
     for x in range(num_bitstrings):
@@ -182,13 +186,15 @@ def eval_forged_op_with_result(
             if x == y:
                 continue
             bsu_string = f"bsu{min(x,y)}bsu{max(x,y)}"
-            bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
             superpos_state_prefixes_u += [
                 bsu_string + lin_combo for lin_combo in lin_combos
             ]
-            superpos_state_prefixes_v += [
-                bsv_string + lin_combo for lin_combo in lin_combos
-            ]
+            if bitstrings_s_v:
+                bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
+                superpos_state_prefixes_v += [
+                    bsv_string + lin_combo for lin_combo in lin_combos
+                ]
+
             superpos_state_indices += [(x, y)]
 
     superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v

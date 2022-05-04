@@ -64,12 +64,33 @@ class EntanglementForgedVQE(VQE):
         self,
         ansatz,
         bitstrings_u,
-        bitstrings_v,
         config,
         forged_operator,
         classical_energies,
+        bitstrings_v=[],
     ):
         """Initialize the EntanglementForgedVQE class."""
+        if ansatz.num_qubits != len(bitstrings_u[0]):
+            raise ValueError(
+                "The number of qubits in ansatz does "
+                "not match the number of bits in reduced_bitstrings."
+            )
+
+        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in self.bitstrings_u):
+            raise ValueError("All U bitstrings must be the same length.")
+
+        if bitstrings_v:
+            if len(bitstrings_u) != len(bitstrings_v):
+                raise ValueError(
+                    "The same number of bitstrings should be passed for U and V."
+                )
+
+            if len(bitstrings_u[0]) != len(bitstrings_v[0]):
+                raise ValueError("Bitstrings for U and V should be the same length.")
+
+            if any(len(bitstrings_v[0]) != len(bitstr) for bitstr in bitstrings_v):
+                raise ValueError("All V bitstrings must be the same length.")
+
         super().__init__(
             ansatz=ansatz,
             optimizer=get_optimizer_instance(config),
@@ -85,8 +106,9 @@ class EntanglementForgedVQE(VQE):
         self._zero_noise_extrap = config.zero_noise_extrap
 
         self.bitstrings_u = bitstrings_u
-        self.bitstrings_v = bitstrings_v
         self._bitstrings_s_u = np.asarray(bitstrings_u)
+
+        self.bitstrings_v = bitstrings_v
 
         # Make circuits which prepare states U|b_n_u> and U|phi^p_nm_u>
         (
@@ -97,22 +119,27 @@ class EntanglementForgedVQE(VQE):
             bitstrings_u, config.fix_first_bitstring, suffix="u"
         )
 
-        # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
-        # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
-        self._bitstrings_s_v = np.asarray(bitstrings_v)
-        (
-            self._tensor_prep_circuits_v,
-            self._superpos_prep_circuits_v,
-            superpos_coeffs_v,
-        ) = make_stateprep_circuits(
-            bitstrings_v, config.fix_first_bitstring, suffix="v"
-        )
+        self._tensor_prep_circuits_v = []
+        self._superpos_prep_circuits_v = []
+        superpos_coeffs_v = []
+        self._bitstrings_s_v = np.array([])
+        if self.bitstrings_v:
+            # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
+            # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
+            self._bitstrings_s_v = np.asarray(bitstrings_v)
+            (
+                self._tensor_prep_circuits_v,
+                self._superpos_prep_circuits_v,
+                superpos_coeffs_v,
+            ) = make_stateprep_circuits(
+                bitstrings_v, config.fix_first_bitstring, suffix="v"
+            )
 
-        # Offset the superpos coeffs associated with V so the indices match up
-        # We multiply by 2 to account for the +/- terms for each superposition pair
-        offset = 2 * len(self._superpos_prep_circuits_u)
-        for i, coeff in enumerate(superpos_coeffs_v):
-            superpos_coeffs_v[i][0] += offset
+            # Offset the superpos coeffs associated with V so the indices match up
+            # We multiply by 2 to account for the +/- terms for each superposition pair
+            offset = 2 * len(self._superpos_prep_circuits_u)
+            for i, coeff in enumerate(superpos_coeffs_v):
+                superpos_coeffs_v[i][0] += offset
 
         self._superpos_coeffs = superpos_coeffs_u + superpos_coeffs_v
 
@@ -159,26 +186,6 @@ class EntanglementForgedVQE(VQE):
             self._is_sv_sim = True
         else:
             self._is_sv_sim = False
-
-        if self.ansatz.num_qubits != len(self.bitstrings_u[0]):
-            raise ValueError(
-                "The number of qubits in ansatz does "
-                "not match the number of bits in reduced_bitstrings."
-            )
-        if len(self.bitstrings_u) != len(self.bitstrings_v):
-            raise ValueError(
-                "The same number of bitstrings should be passed for U and V."
-            )
-        if len(self.bitstrings_u[0]) != len(self.bitstrings_v[0]):
-            raise ValueError("Bitstrings for U and V should be the same length.")
-        if any(
-            len(self.bitstrings_u[0]) != len(bitstr) for bitstr in self.bitstrings_u
-        ):
-            raise ValueError("All U bitstrings must be the same length.")
-        if any(
-            len(self.bitstrings_v[0]) != len(bitstr) for bitstr in self.bitstrings_v
-        ):
-            raise ValueError("All V bitstrings must be the same length.")
 
     @property
     def shots_multiplier(self):
@@ -610,10 +617,10 @@ class EntanglementForgedVQE(VQE):
                     w_ij_superpos_states,
                     params,
                     self._bitstrings_s_u,
-                    self._bitstrings_s_v,
                     op_for_generating_tensor_circuits,
                     op_for_generating_superpos_circuits,
                     self._zero_noise_extrap,
+                    bitstrings_s_v=self._bitstrings_s_v,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
                     superpos_coeffs=self._superpos_coeffs,
