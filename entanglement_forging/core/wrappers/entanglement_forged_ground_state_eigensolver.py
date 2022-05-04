@@ -56,11 +56,14 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         ansatz,
         bitstrings_u: List[List[int]],
         config,
-        bitstrings_v=[]: List[List[int]],
-        orbitals_to_reduce=None: bool,
+        bitstrings_v: List[List[int]] = None,
+        orbitals_to_reduce: bool = None,
     ):
         if orbitals_to_reduce is None:
             orbitals_to_reduce = []
+        if bitstrings_v is None:
+            bitstrings_v = []
+
         self.orbitals_to_reduce = orbitals_to_reduce
         super().__init__(qubit_converter)
 

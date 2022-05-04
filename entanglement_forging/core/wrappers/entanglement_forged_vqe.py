@@ -63,12 +63,15 @@ class EntanglementForgedVQE(VQE):
     def __init__(
         self,
         ansatz,
-        bitstrings_u,
+        bitstrings_u: List[List[int]],
         config,
         forged_operator,
         classical_energies,
-        bitstrings_v=[],
+        bitstrings_v: List[List[int]] = None,
     ):
+        if bitstrings_v is None:
+            bitstrings_v = []
+
         """Initialize the EntanglementForgedVQE class."""
         if ansatz.num_qubits != len(bitstrings_u[0]):
             raise ValueError(
