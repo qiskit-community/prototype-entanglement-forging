@@ -93,11 +93,9 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
                     )
                     for name in ["xplus", "xmin"]
                 ]
-
-                superpos_coeffs.append((coeff_idx, np.sqrt(2)))
-                superpos_coeffs.append((coeff_idx+1, 0))
+                superpos_coeffs.append([coeff_idx, np.sqrt(2)])
+                superpos_coeffs.append([coeff_idx + 1, 0])
                 superpos_prep_circuits += [psi_xplus, psi_xmin]
-
     return tensor_prep_circuits, superpos_prep_circuits, superpos_coeffs
 
 

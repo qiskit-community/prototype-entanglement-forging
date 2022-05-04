@@ -92,7 +92,7 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_u,
             self._superpos_prep_circuits_u,
-            self._superpos_coeffs_u
+            superpos_coeffs_u,
         ) = make_stateprep_circuits(
             bitstrings_u, config.fix_first_bitstring, suffix="u"
         )
@@ -103,10 +103,19 @@ class EntanglementForgedVQE(VQE):
         (
             self._tensor_prep_circuits_v,
             self._superpos_prep_circuits_v,
-            self._superpos_coeffs_v
+            superpos_coeffs_v,
         ) = make_stateprep_circuits(
             bitstrings_v, config.fix_first_bitstring, suffix="v"
         )
+
+        # Offset the superpos coeffs associated with V so the indices match up
+        # We multiply by 2 to account for the +/- terms for each superposition pair
+        offset = 2 * len(self._superpos_prep_circuits_u)
+        for i, coeff in enumerate(superpos_coeffs_v):
+            superpos_coeffs_v[i][0] += offset
+
+        self._superpos_coeffs = superpos_coeffs_u + superpos_coeffs_v
+
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
@@ -393,6 +402,7 @@ class EntanglementForgedVQE(VQE):
         else:
             op_for_generating_superpos_circuits = None
         circuits_to_execute = []
+
         for params_idx, params in enumerate(parameter_sets):
             Log.log("Constructing the circuits for parameter set", params, "...")
 
@@ -437,24 +447,15 @@ class EntanglementForgedVQE(VQE):
                     self._is_sv_sim,
                 )
 
-                # Offset the superpos coeffs associated with V so the indices match up
-                offset = len(self._superpos_coeffs_u)
-                self._superpos_coeffs_v = [x + offset for x in self._superpos_coeffs_v]
-
                 # Combine all superposition circuits into a single list
                 superpos_circuits_to_execute = (
                     superpos_circuits_to_execute_u + superpos_circuits_to_execute_v
                 )
-                superpos_coeffs = (
-                    self._superpos_coeffs_u + self._superpos_coeffs_v
-                )
-
 
             else:
                 superpos_circuits_to_execute_u = []
                 superpos_circuits_to_execute_v = []
                 superpos_circuits_to_execute = []
-                superpos_coeffs = []
 
             if params_idx == 0:
                 Log.log(
@@ -615,7 +616,7 @@ class EntanglementForgedVQE(VQE):
                     self._zero_noise_extrap,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
-                    superpos_coeffs=superpos_coeffs,
+                    superpos_coeffs=self._superpos_coeffs,
                     add_this_to_mean_values_displayed=add_this_to_mean_values_displayed,
                     no_bs0_circuits=self._no_bs0_circuits,
                 )
