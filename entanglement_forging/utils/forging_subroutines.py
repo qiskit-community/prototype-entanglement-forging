@@ -143,7 +143,7 @@ def eval_forged_op_with_result(
     statevector_mode,
     hf_value,
     add_this_to_mean_values_displayed,
-    bitstrings_s_v=[],
+    bitstrings_s_v=None,
     superpos_coeffs=None,
     no_bs0_circuits=True,
     verbose=False,
@@ -155,10 +155,13 @@ def eval_forged_op_with_result(
     (Hamiltonian in the basis of determinants/bitstrings).
     For reference, also computes mean value obtained without Richardson
     """
+    if bitstrings_s_v is None:
+        bitstrings_s_v = []
+
     tensor_state_prefixes_u = [f"bsu{idx}" for idx in range(len(bitstrings_s_u))]
     tensor_state_prefixes_v = []
 
-    if bitstrings_s_v:
+    if len(bitstrings_s_v) > 0:
         tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
 
     tensor_state_prefixes = tensor_state_prefixes_u + tensor_state_prefixes_v
