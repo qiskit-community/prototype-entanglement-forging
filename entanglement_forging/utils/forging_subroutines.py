@@ -195,7 +195,7 @@ def eval_forged_op_with_result(
 
             # Determine whether we are handling the two subsystems separately
             asymmetric_bitstrings = False
-            if bitstrings_s_v:
+            if len(bitstrings_s_v) > 0:
                 asymmetric_bitstrings = True
                 bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
                 superpos_state_prefixes_v += [
