@@ -20,7 +20,7 @@ from typing import List, Tuple, Callable, Union
 import numpy as np
 from qiskit import transpile
 from qiskit.algorithms import VQE
-from qiskit.ignis.mitigation.measurement import complete_meas_cal
+from qiskit.utils.mitigation import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import OperatorBase
