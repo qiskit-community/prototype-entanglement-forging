@@ -13,10 +13,26 @@
 """EntanglementForgedDriver."""
 
 import numpy as np
-from qiskit_nature.drivers import QMolecule, FermionicDriver
+from qiskit_nature.drivers import Molecule
+from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
+from qiskit_nature.properties.second_quantization.electronic import (
+    ElectronicStructureDriverResult,
+    ParticleNumber,
+    ElectronicEnergy,
+)
+from qiskit_nature.properties.second_quantization.electronic.integrals import (
+    ElectronicIntegrals,
+    OneBodyElectronicIntegrals,
+    TwoBodyElectronicIntegrals,
+)
+
+from qiskit_nature.properties.second_quantization.electronic.bases import (
+    ElectronicBasis,
+    ElectronicBasisTransform,
+)
 
 
-class EntanglementForgedDriver(FermionicDriver):
+class EntanglementForgedDriver(ElectronicStructureDriver):
     """EntanglementForgedDriver."""
 
     # pylint: disable=too-many-arguments
@@ -48,26 +64,40 @@ class EntanglementForgedDriver(FermionicDriver):
         self._num_beta = num_beta
         self._nuclear_repulsion_energy = nuclear_repulsion_energy
 
-    def run(self) -> QMolecule:
+    def run(self) -> ElectronicStructureDriverResult:
         """Returns QMolecule constructed from input data."""
-        q_molecule = QMolecule()
-        q_molecule.atom_symbol = []
-        q_molecule.atom_xyz = []
-        q_molecule.hcore = self._hcore
-        q_molecule.mo_coeff = self._mo_coeff
-        q_molecule.eri = self._eri
-        q_molecule.num_molecular_orbitals = self._mo_coeff.shape[0]
-        q_molecule.num_alpha = self._num_alpha
-        q_molecule.num_beta = self._num_beta
-        q_molecule.nuclear_repulsion_energy = self._nuclear_repulsion_energy
+        # Create ParticleNumber property. Multiply by 2 since the number
+        # of spin orbitals is 2x the number of MOs
+        particle_number = ParticleNumber(
+            self._mo_coeff.shape[0] * 2, (self._num_alpha, self._num_beta)
+        )
 
-        one_body_in_mo_basis = QMolecule.oneeints2mo(self._hcore, self._mo_coeff)
-        q_molecule.mo_onee_ints = one_body_in_mo_basis
-        q_molecule.mo_onee_ints_b = one_body_in_mo_basis
+        # Define the transform from AO to MO
+        elx_basis_xform = ElectronicBasisTransform(
+            ElectronicBasis.AO, ElectronicBasis.MO, self._mo_coeff
+        )
 
-        two_body_in_mo_basis = QMolecule.twoeints2mo(self._eri, self._mo_coeff)
-        q_molecule.mo_eri_ints = two_body_in_mo_basis
-        q_molecule.mo_eri_ints_ba = two_body_in_mo_basis
-        q_molecule.mo_eri_ints_bb = two_body_in_mo_basis
+        # One and two-body integrals in AO basis
+        one_body_ao = OneBodyElectronicIntegrals(
+            ElectronicBasis.AO, (self._hcore, None)
+        )
+        two_body_ao = TwoBodyElectronicIntegrals(
+            ElectronicBasis.AO, (self._eri, None, None, None)
+        )
 
-        return q_molecule
+        # One and two-body integrals in MO basis
+        one_body_mo = one_body_ao.transform_basis(elx_basis_xform)
+        two_body_mo = two_body_ao.transform_basis(elx_basis_xform)
+
+        # Instantiate ElectronicEnergy property object
+        electronic_energy = ElectronicEnergy(
+            [one_body_ao, two_body_ao, one_body_mo, two_body_mo],
+            nuclear_repulsion_energy=self._nuclear_repulsion_energy,
+        )
+
+        result = ElectronicStructureDriverResult()
+        result.add_property(electronic_energy)
+        result.add_property(particle_number)
+        result.add_property(elx_basis_xform)
+
+        return result

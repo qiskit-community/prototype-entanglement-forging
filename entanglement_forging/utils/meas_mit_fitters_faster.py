@@ -24,7 +24,7 @@ from typing import List, Union
 
 import numpy as np
 from qiskit import QiskitError
-from qiskit.ignis.verification.tomography import count_keys
+from qiskit.utils.mitigation.circuits import count_keys
 from qiskit.result import Result
 
 from entanglement_forging.utils.meas_mit_filters_faster import MeasurementFilter

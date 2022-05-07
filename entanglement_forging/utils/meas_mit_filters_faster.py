@@ -25,7 +25,7 @@ import numpy as np
 import qiskit
 import scipy.linalg as la
 from qiskit import QiskitError
-from qiskit.ignis.verification.tomography import count_keys
+from qiskit.utils.mitigation.circuits import count_keys
 from qiskit.tools import parallel_map
 from scipy.optimize import minimize
 
