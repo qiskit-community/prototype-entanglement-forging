@@ -49,15 +49,14 @@ def execute_with_retry(circuits, backend, shots, rep_delay=None, noise_model=Non
         try:
             if backend.name() in [
                 "statevector_simulator",
-                "qasm_simulator",
                 "aer_simulator_statevector",
             ]:
                 job = backend.run(
                     circuits,
-                    noise_model=noise_model,
-                    shots=shots,
                     seed_simulator=42,
                 )
+            elif backend.name() == "qasm_simulator":
+                job = backend.run(circuits, shots=shots, noise_model=noise_model)
             else:
                 job = backend.run(circuits, shots=shots, rep_delay=rep_delay)
 
