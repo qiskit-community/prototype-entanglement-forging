@@ -216,6 +216,18 @@ def eval_forged_op_with_result(
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
+
+    pauli_vals_hybrid_states = _get_pauli_expectations_from_result(
+        result,
+        params,
+        superpos_state_prefixes,
+        op_for_generating_tensor_circuits,
+        superpos_coeffs=superpos_coeffs,
+        richardson_stretch_factors=richardson_stretch_factors,
+        statevector_mode=statevector_mode,
+        no_bs0_circuits=no_bs0_circuits,
+        )[:, :, 0]
+
     #pauli_vals_superpos_states_extrap = richardson_extrapolate(
     #    raw_states, richardson_stretch_factors, axis=2
     #)
@@ -225,12 +237,13 @@ def eval_forged_op_with_result(
     h_schmidt = compute_h_schmidt(
         pauli_vals_tensor_states,
         pauli_vals_superpos_states,
+        pauli_vals_hybrid_states,
         w_ij_tensor_states,
         w_ab_superpos_states,
         superpos_state_indices,
         asymmetric_bitstrings,
         bitstrings_s_u,
-        bitstrings_s_v
+        bitstrings_s_v,
         tensor_state_prefixes,
         superpos_state_prefixes
     )
@@ -383,12 +396,13 @@ def _eval_each_pauli_with_result(
 def compute_h_schmidt(
     pauli_vals_tensor_states,
     pauli_vals_superpos_states,
+    pauli_vals_hybrid_states,
     w_ij_tensor_states,
     w_ab_superpos_states,
     superpos_state_indices,
     asymmetric_bitstrings,
     bitstrings_u,
-    bitstrings_v
+    bitstrings_v,
     tensor_state_prefixes,
     superpos_state_prefixes
 ):
@@ -400,7 +414,7 @@ def compute_h_schmidt(
     asymmetric_bitstrings: A boolean which signifies whether the U and V subsystems have
                             different ansatze.
     """
-
+    print(pauli_vals_hybrid_states.shape)
     # This is essentially the number of bitstrings or bitstring pairs that were passed
     num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0])
 
@@ -452,10 +466,6 @@ def compute_h_schmidt(
     else:
         pass
         p_delta_x_v = p_delta_x_u
-    
-    print(p_delta_x_u)
-    print("#########################")
-    print(p_delta_x_v)
 
     h_schmidt_off_diagonals = np.einsum(
         "ab,xa,xb->x", w_ab_superpos_states, p_delta_x_u, p_delta_x_v
