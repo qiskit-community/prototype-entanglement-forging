@@ -229,6 +229,8 @@ def eval_forged_op_with_result(
         w_ab_superpos_states,
         superpos_state_indices,
         asymmetric_bitstrings,
+        bitstrings_s_u,
+        bitstrings_s_v
     )
     if no_bs0_circuits:
         # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
@@ -383,6 +385,8 @@ def compute_h_schmidt(
     w_ab_superpos_states,
     superpos_state_indices,
     asymmetric_bitstrings,
+    bitstrings_u,
+    bitstrings_v
 ):
     """Computes the schmidt decomposition of the Hamiltonian. TODO checkthis.  # pylint: disable=fixme
 
