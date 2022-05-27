@@ -54,7 +54,7 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
         tensor_prep_circuits = tensor_prep_circuits[1:]
 
     superpos_prep_circuits = []
-    superpos_coeffs = []
+    superpos_coeffs = {}
     for bs1_idx, bs1 in enumerate(bitstrings):
         for bs2_relative_idx, bs2 in enumerate(bitstrings[bs1_idx + 1 :]):
             diffs = np.where(bs1 != bs2)[0]
@@ -93,8 +93,7 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
                     )
                     for name in ["xplus", "xmin"]
                 ]
-                superpos_coeffs.append([coeff_idx, np.sqrt(2)])
-                superpos_coeffs.append([coeff_idx + 1, 0])
+                superpos_coeffs[(suffix, str(bs1_idx), str(bs1_idx+1+bs2_relative_idx))] = np.sqrt(2)
                 superpos_prep_circuits += [psi_xplus, psi_xmin]
     return tensor_prep_circuits, superpos_prep_circuits, superpos_coeffs
 
@@ -171,12 +170,13 @@ def eval_forged_op_with_result(
         tensor_state_prefixes,
         op_for_generating_tensor_circuits,
         richardson_stretch_factors=richardson_stretch_factors,
+        superpos_coeffs=superpos_coeffs,
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    pauli_vals_tensor_states_extrap = richardson_extrapolate(
-        pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
-    )
+    #pauli_vals_tensor_states_extrap = richardson_extrapolate(
+    #    pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
+    #)
 
     superpos_state_prefixes_u = []
     superpos_state_prefixes_v = []
@@ -216,48 +216,46 @@ def eval_forged_op_with_result(
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    pauli_vals_superpos_states_extrap = richardson_extrapolate(
-        raw_states, richardson_stretch_factors, axis=2
-    )
+    #pauli_vals_superpos_states_extrap = richardson_extrapolate(
+    #    raw_states, richardson_stretch_factors, axis=2
+    #)
 
     forged_op_results_w_and_wo_extrapolation = []
-    for (pauli_vals_tensor_states, pauli_vals_superpos_states) in [
-        [pauli_vals_tensor_states_extrap, pauli_vals_superpos_states_extrap],
-        [pauli_vals_tensor_states_raw[:, :, 0], raw_states[:, :, 0]],
-    ]:
-        h_schmidt = compute_h_schmidt(
-            pauli_vals_tensor_states,
-            pauli_vals_superpos_states,
-            w_ij_tensor_states,
-            w_ab_superpos_states,
-            superpos_state_indices,
-            asymmetric_bitstrings,
+    pauli_vals_tensor_states, pauli_vals_superpos_states = pauli_vals_tensor_states_raw[:, :, 0], raw_states[:, :, 0]
+    h_schmidt = compute_h_schmidt(
+        pauli_vals_tensor_states,
+        pauli_vals_superpos_states,
+        w_ij_tensor_states,
+        w_ab_superpos_states,
+        superpos_state_indices,
+        asymmetric_bitstrings,
+    )
+    if no_bs0_circuits:
+        # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
+        # (FIRST BITSTRING) IS UNAFFECTED, ALLOWING CORRESPONDING
+        # ENERGY TO BE FIXED AT HF VALUE CALCULATED BY QISKIT/PYSCF.
+        h_schmidt[0, 0] = hf_value - add_this_to_mean_values_displayed
+    # Update Schmidt coefficients to minimize operator (presumably energy):
+    if verbose:
+        Log.log(
+            "Operator as Schmidt matrix: (diagonals have been shifted by given offset",
+            add_this_to_mean_values_displayed,
+            ")",
         )
-        if no_bs0_circuits:
-            # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
-            # (FIRST BITSTRING) IS UNAFFECTED, ALLOWING CORRESPONDING
-            # ENERGY TO BE FIXED AT HF VALUE CALCULATED BY QISKIT/PYSCF.
-            h_schmidt[0, 0] = hf_value - add_this_to_mean_values_displayed
-        # Update Schmidt coefficients to minimize operator (presumably energy):
-        if verbose:
-            Log.log(
-                "Operator as Schmidt matrix: (diagonals have been shifted by given offset",
-                add_this_to_mean_values_displayed,
-                ")",
-            )
-            Log.log(
-                h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed
-            )
-        evals, evecs = np.linalg.eigh(h_schmidt)
-        schmidts = evecs[:, 0]
-        op_mean = evals[0]
-        op_std = None
-        forged_op_results_w_and_wo_extrapolation.append([op_mean, op_std, schmidts])
-    (
-        forged_op_results_extrap,
-        forged_op_results_raw,
-    ) = forged_op_results_w_and_wo_extrapolation  # pylint: disable=unbalanced-tuple-unpacking
-    return forged_op_results_extrap, forged_op_results_raw
+        Log.log(
+            h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed
+        )
+    evals, evecs = np.linalg.eigh(h_schmidt)
+    schmidts = evecs[:, 0]
+    op_mean = evals[0]
+    op_std = None
+    forged_op_results = [op_mean, op_std, schmidts]
+#        forged_op_results_w_and_wo_extrapolation.append([op_mean, op_std, schmidts])
+#    (
+#        forged_op_results_extrap,
+#        forged_op_results_raw,
+#    ) = forged_op_results_w_and_wo_extrapolation  # pylint: disable=unbalanced-tuple-unpacking
+    return forged_op_results, forged_op_results
 
 
 def _get_pauli_expectations_from_result(
@@ -294,6 +292,10 @@ def _get_pauli_expectations_from_result(
     )
     pauli_names_temp = [p[1].to_label() for p in op_for_generating_circuits.paulis]
     for prep_idx, prep_string in enumerate(stateprep_strings):
+        suffix = prep_string[2]
+        bitstring_pair = [0, 0]
+        if len(prep_string) > 4:
+            bitstring_pair = [prep_string[3], prep_string[7]]
         if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.
             # HF BITSTRING (FIRST BITSTRING) IS UNAFFECTED,
@@ -329,13 +331,18 @@ def _get_pauli_expectations_from_result(
                     "imaginary part which will be discarded."
                 )
             pauli_vals[prep_idx, :, rich_idx, 0] = np.real(pauli_vals_alphabetical)
-
-    # Scale the superpos terms which have associated coefficients
-    if superpos_coeffs:
-        for i, superpos_coeff in enumerate(superpos_coeffs):
-            coeff_idx = superpos_coeff[0]
-            coeff = superpos_coeff[1]
-            pauli_vals[coeff_idx, :, :, 0] *= coeff
+        key = (suffix, bitstring_pair[0], bitstring_pair[1])
+        if key in superpos_coeffs.keys():
+            if prep_string[-4:] == 'xmin':
+                print(f"Zeroing {prep_string}")
+                pauli_vals[prep_idx] *= 0
+            else:
+                print(f"Scaling {prep_string} by 2")
+                pauli_vals[prep_idx] *= 2
+        else:
+            if bitstring_pair != [0, 0]:
+                print(f"Scaling {prep_string} by (1 / 2)")
+                pauli_vals[prep_idx] *= (1 / 2)
 
     return pauli_vals
 
@@ -435,17 +442,19 @@ def compute_h_schmidt(
         p_minus_x_v = pvss_v[1::num_lin_combos, :, 0]
         p_delta_x_v = p_plus_x_v - p_minus_x_v
     else:
+        pass
         p_delta_x_v = p_delta_x_u
+    
+    print(p_delta_x_u)
+    print("#########################")
+    print(p_delta_x_v)
 
-    # -(1/4)*np.einsum('ij,xyi,xyj->xy',W_ij_array,PdeltaY,PdeltaY,optimize=True))
-    # Calculate schmidts for superposition terms
-    h_schmidt_off_diagonals = (1 / 4) * np.einsum(
+    h_schmidt_off_diagonals = np.einsum(
         "ab,xa,xb->x", w_ab_superpos_states, p_delta_x_u, p_delta_x_v
     )
 
     for element, indices in zip(h_schmidt_off_diagonals, superpos_state_indices):
         h_schmidt[indices] = element
-
     return h_schmidt  # , H_schmidt_vars)
 
 

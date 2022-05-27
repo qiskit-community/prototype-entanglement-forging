@@ -142,14 +142,8 @@ class EntanglementForgedVQE(VQE):
                 bitstrings_v, config.fix_first_bitstring, suffix="v"
             )
 
-            # Offset the superpos coeffs associated with V so the indices match up
-            # We multiply by 2 to account for the +/- terms for each superposition pair
-            offset = 2 * len(self._superpos_prep_circuits_u)
-            for i, coeff in enumerate(superpos_coeffs_v):
-                superpos_coeffs_v[i][0] += offset
-
-        self._superpos_coeffs = superpos_coeffs_u + superpos_coeffs_v
-
+        superpos_coeffs_u.update(superpos_coeffs_v)
+        self._superpos_coeffs = superpos_coeffs_u
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
