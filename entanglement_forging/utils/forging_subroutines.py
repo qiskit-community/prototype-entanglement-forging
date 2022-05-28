@@ -237,15 +237,10 @@ def eval_forged_op_with_result(
     h_schmidt = compute_h_schmidt(
         pauli_vals_tensor_states,
         pauli_vals_superpos_states,
-        pauli_vals_hybrid_states,
         w_ij_tensor_states,
         w_ab_superpos_states,
         superpos_state_indices,
         asymmetric_bitstrings,
-        bitstrings_s_u,
-        bitstrings_s_v,
-        tensor_state_prefixes,
-        superpos_state_prefixes
     )
     if no_bs0_circuits:
         # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
@@ -396,15 +391,10 @@ def _eval_each_pauli_with_result(
 def compute_h_schmidt(
     pauli_vals_tensor_states,
     pauli_vals_superpos_states,
-    pauli_vals_hybrid_states,
     w_ij_tensor_states,
     w_ab_superpos_states,
     superpos_state_indices,
     asymmetric_bitstrings,
-    bitstrings_u,
-    bitstrings_v,
-    tensor_state_prefixes,
-    superpos_state_prefixes
 ):
     """Computes the schmidt decomposition of the Hamiltonian. TODO checkthis.  # pylint: disable=fixme
 
@@ -414,7 +404,6 @@ def compute_h_schmidt(
     asymmetric_bitstrings: A boolean which signifies whether the U and V subsystems have
                             different ansatze.
     """
-    print(pauli_vals_hybrid_states.shape)
     # This is essentially the number of bitstrings or bitstring pairs that were passed
     num_tensor_terms = int(np.shape(pauli_vals_tensor_states)[0])
 

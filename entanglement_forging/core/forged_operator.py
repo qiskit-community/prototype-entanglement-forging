@@ -141,8 +141,7 @@ class ForgedOperator:
         for op_idx, paulis_this_op in enumerate(paulis_each_op):
             pnames = list(paulis_this_op.keys())
             tensor_paulis.update(pnames)
-            if op_idx > 0:
-                superpos_paulis.update(pnames)
+            superpos_paulis.update(pnames)
         # ensure Identity string is represented since we will need it
         identity_string = "I" * len(pnames[0])
         tensor_paulis.add(identity_string)
@@ -164,6 +163,8 @@ class ForgedOperator:
             i = pauli_ordering_for_tensor_states[pname_i]
             w_ij[i, identity_idx] += np.real(w_i)  # H_spin-up
             w_ij[identity_idx, i] += np.real(w_i)  # H_spin-down
+            w_ab[i, identity_idx] += np.real(w_i) / 2.0
+            w_ab[identity_idx, i] += np.real(w_i) / 2.0
         # Processes the Cholesky operators (indexed by gamma)
         for paulis_this_gamma in paulis_each_op[1:]:
             for pname_1, w_1 in paulis_this_gamma.items():
