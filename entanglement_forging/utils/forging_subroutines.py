@@ -93,7 +93,9 @@ def make_stateprep_circuits(bitstrings, no_bs0_circuits=True, suffix=""):
                     )
                     for name in ["xplus", "xmin"]
                 ]
-                superpos_coeffs[(suffix, str(bs1_idx), str(bs1_idx+1+bs2_relative_idx))] = np.sqrt(2)
+                superpos_coeffs[
+                    (suffix, str(bs1_idx), str(bs1_idx + 1 + bs2_relative_idx))
+                ] = np.sqrt(2)
                 superpos_prep_circuits += [psi_xplus, psi_xmin]
     return tensor_prep_circuits, superpos_prep_circuits, superpos_coeffs
 
@@ -174,9 +176,9 @@ def eval_forged_op_with_result(
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    #pauli_vals_tensor_states_extrap = richardson_extrapolate(
+    # pauli_vals_tensor_states_extrap = richardson_extrapolate(
     #    pauli_vals_tensor_states_raw, richardson_stretch_factors, axis=2
-    #)
+    # )
 
     superpos_state_prefixes_u = []
     superpos_state_prefixes_v = []
@@ -226,14 +228,17 @@ def eval_forged_op_with_result(
         richardson_stretch_factors=richardson_stretch_factors,
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
-        )[:, :, 0]
+    )[:, :, 0]
 
-    #pauli_vals_superpos_states_extrap = richardson_extrapolate(
+    # pauli_vals_superpos_states_extrap = richardson_extrapolate(
     #    raw_states, richardson_stretch_factors, axis=2
-    #)
+    # )
 
     forged_op_results_w_and_wo_extrapolation = []
-    pauli_vals_tensor_states, pauli_vals_superpos_states = pauli_vals_tensor_states_raw[:, :, 0], raw_states[:, :, 0]
+    pauli_vals_tensor_states, pauli_vals_superpos_states = (
+        pauli_vals_tensor_states_raw[:, :, 0],
+        raw_states[:, :, 0],
+    )
     h_schmidt = compute_h_schmidt(
         pauli_vals_tensor_states,
         pauli_vals_superpos_states,
@@ -254,19 +259,17 @@ def eval_forged_op_with_result(
             add_this_to_mean_values_displayed,
             ")",
         )
-        Log.log(
-            h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed
-        )
+        Log.log(h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed)
     evals, evecs = np.linalg.eigh(h_schmidt)
     schmidts = evecs[:, 0]
     op_mean = evals[0]
     op_std = None
     forged_op_results = [op_mean, op_std, schmidts]
-#        forged_op_results_w_and_wo_extrapolation.append([op_mean, op_std, schmidts])
-#    (
-#        forged_op_results_extrap,
-#        forged_op_results_raw,
-#    ) = forged_op_results_w_and_wo_extrapolation  # pylint: disable=unbalanced-tuple-unpacking
+    #        forged_op_results_w_and_wo_extrapolation.append([op_mean, op_std, schmidts])
+    #    (
+    #        forged_op_results_extrap,
+    #        forged_op_results_raw,
+    #    ) = forged_op_results_w_and_wo_extrapolation  # pylint: disable=unbalanced-tuple-unpacking
     return forged_op_results, forged_op_results
 
 
@@ -345,7 +348,7 @@ def _get_pauli_expectations_from_result(
             pauli_vals[prep_idx, :, rich_idx, 0] = np.real(pauli_vals_alphabetical)
         key = (suffix, bitstring_pair[0], bitstring_pair[1])
         if key in superpos_coeffs.keys():
-            if prep_string[-4:] == 'xmin':
+            if prep_string[-4:] == "xmin":
                 print(f"Zeroing {prep_string}")
                 pauli_vals[prep_idx] *= 0
             else:
@@ -354,7 +357,7 @@ def _get_pauli_expectations_from_result(
         else:
             if bitstring_pair != [0, 0]:
                 print(f"Scaling {prep_string} by (1 / 2)")
-                pauli_vals[prep_idx] *= (1 / 2)
+                pauli_vals[prep_idx] *= 1 / 2
 
     return pauli_vals
 
