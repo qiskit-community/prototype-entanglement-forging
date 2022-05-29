@@ -349,14 +349,11 @@ def _get_pauli_expectations_from_result(
         key = (suffix, bitstring_pair[0], bitstring_pair[1])
         if key in superpos_coeffs.keys():
             if prep_string[-4:] == "xmin":
-                print(f"Zeroing {prep_string}")
                 pauli_vals[prep_idx] *= 0
             else:
-                print(f"Scaling {prep_string} by 2")
                 pauli_vals[prep_idx] *= 2
         else:
             if bitstring_pair != [0, 0]:
-                print(f"Scaling {prep_string} by (1 / 2)")
                 pauli_vals[prep_idx] *= 1 / 2
 
     return pauli_vals
