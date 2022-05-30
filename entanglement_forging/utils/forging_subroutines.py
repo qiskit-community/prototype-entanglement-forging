@@ -36,7 +36,9 @@ from .legacy.weighted_pauli_operator import WeightedPauliOperator
 Matrix = Iterable[Iterable[float]]
 
 # pylint: disable=too-many-locals,too-many-arguments,too-many-branches,invalid-name
-def make_stateprep_circuits(bitstrings: Iterable[Iterable[int]], no_bs0_circuits: bool=True, suffix: str=""):
+def make_stateprep_circuits(
+    bitstrings: Iterable[Iterable[int]], no_bs0_circuits: bool = True, suffix: str = ""
+):
     """Builds the circuits preparing states |b_n> and |phi^p_nm>
     as defined in <https://arxiv.org/abs/2104.10220>. Also returns
     a list of tuples which describe any superposition terms which
@@ -110,7 +112,11 @@ def make_stateprep_circuits(bitstrings: Iterable[Iterable[int]], no_bs0_circuits
 
 
 def prepare_circuits_to_execute(
-        params: Iterable[float], stateprep_circuits: Iterable[QuantumCircuit], op_for_generating_circuits: WeightedPauliOperator, var_form: QuantumCircuit, statevector_mode: bool
+    params: Iterable[float],
+    stateprep_circuits: Iterable[QuantumCircuit],
+    op_for_generating_circuits: WeightedPauliOperator,
+    var_form: QuantumCircuit,
+    statevector_mode: bool,
 ):
     """Given a set of variational parameters and list of 6qb state-preps,
     this function returns all (unique) circuits that must be run to evaluate those samples.
@@ -157,10 +163,10 @@ def eval_forged_op_with_result(
     statevector_mode: bool,
     hf_value: float,
     add_this_to_mean_values_displayed: float,
-    bitstrings_s_v: np.ndarray=None,
-    hybrid_superpos_coeffs: Dict[Tuple[int, int, str], bool]=None,
-    no_bs0_circuits: bool=True,
-    verbose: bool=False,
+    bitstrings_s_v: np.ndarray = None,
+    hybrid_superpos_coeffs: Dict[Tuple[int, int, str], bool] = None,
+    no_bs0_circuits: bool = True,
+    verbose: bool = False,
 ):
     """Evaluates the forged operator.
 
@@ -189,7 +195,9 @@ def eval_forged_op_with_result(
         statevector_mode=statevector_mode,
         no_bs0_circuits=no_bs0_circuits,
     )
-    tensor_expvals_extrap = richardson_extrapolate(tensor_expvals, richardson_stretch_factors, axis=2)
+    tensor_expvals_extrap = richardson_extrapolate(
+        tensor_expvals, richardson_stretch_factors, axis=2
+    )
 
     superpos_state_prefixes_u = []
     superpos_state_prefixes_v = []
@@ -230,13 +238,15 @@ def eval_forged_op_with_result(
         no_bs0_circuits=no_bs0_circuits,
     )
 
-    superpos_expvals_extrap = richardson_extrapolate(superpos_expvals, richardson_stretch_factors, axis=2)
+    superpos_expvals_extrap = richardson_extrapolate(
+        superpos_expvals, richardson_stretch_factors, axis=2
+    )
 
     forged_op_results_w_and_wo_extrapolation = []
     for (tensor_expvals_real, superpos_expvals_real) in [
-       [tensor_expvals_extrap, superpos_expvals_extrap],
-       [tensor_expvals[:, :, 0], superpos_expvals[:, :, 0]],
-   ]:
+        [tensor_expvals_extrap, superpos_expvals_extrap],
+        [tensor_expvals[:, :, 0], superpos_expvals[:, :, 0]],
+    ]:
         h_schmidt = compute_h_schmidt(
             tensor_expvals_real,
             superpos_expvals_real,
@@ -257,7 +267,9 @@ def eval_forged_op_with_result(
                 add_this_to_mean_values_displayed,
                 ")",
             )
-            Log.log(h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed)
+            Log.log(
+                h_schmidt + np.eye(len(h_schmidt)) * add_this_to_mean_values_displayed
+            )
         evals, evecs = np.linalg.eigh(h_schmidt)
         schmidts = evecs[:, 0]
         op_mean = evals[0]
@@ -309,9 +321,11 @@ def _get_pauli_expectations_from_result(
         suffix = prep_string[2]
         bitstring_pair = [0, 0]
         tensor_circuit = True
-        if prep_string.count('bs') > 1:
+        if prep_string.count("bs") > 1:
             tensor_circuit = False
-            prep_string_digits = [int(float(s)) for s in re.findall(r'-?\d+\.?\d*', prep_string)]
+            prep_string_digits = [
+                int(float(s)) for s in re.findall(r"-?\d+\.?\d*", prep_string)
+            ]
             bitstring_pair = [prep_string_digits[0], prep_string_digits[1]]
         if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.
@@ -348,7 +362,7 @@ def _get_pauli_expectations_from_result(
                     "imaginary part which will be discarded."
                 )
             pauli_vals[prep_idx, :, rich_idx, 0] = np.real(pauli_vals_alphabetical)
-        key = (suffix, bitstring_pair[0], bitstring_pair[1])
+        key = (suffix, str(bitstring_pair[0]), str(bitstring_pair[1]))
         if key in hybrid_superpos_coeffs.keys():
             if prep_string[-4:] == "xmin":
                 pauli_vals[prep_idx] *= 0
@@ -357,7 +371,7 @@ def _get_pauli_expectations_from_result(
             else:
                 raise ValueError(f"Invalid circuit name: {prep_string}")
         elif not tensor_circuit:
-                pauli_vals[prep_idx] *= 1 / 2
+            pauli_vals[prep_idx] *= 1 / 2
 
     return pauli_vals
 
@@ -456,7 +470,6 @@ def compute_h_schmidt(
         p_minus_x_v = pvss_v[1::num_lin_combos, :]
         p_delta_x_v = p_plus_x_v - p_minus_x_v
     else:
-        pass
         p_delta_x_v = p_delta_x_u
 
     h_schmidt_off_diagonals = np.einsum(

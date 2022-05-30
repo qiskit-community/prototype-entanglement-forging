@@ -31,7 +31,9 @@ from qiskit_nature.problems.second_quantization.electronic import (
 
 from entanglement_forging.core.classical_energies import ClassicalEnergies
 from entanglement_forging.core.forged_operator import ForgedOperator
-from entanglement_forging.core.entanglement_forged_config import EntanglementForgedConfig
+from entanglement_forging.core.entanglement_forged_config import (
+    EntanglementForgedConfig,
+)
 from entanglement_forging.core.wrappers.entanglement_forged_vqe import (
     EntanglementForgedVQE,
 )
@@ -129,7 +131,9 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         problem.driver.run()
 
         # Decompose the Hamiltonian operators into a form appropraite for EF
-        forged_operator = ForgedOperator(problem, self.orbitals_to_reduce, self._calculate_tensor_cross_terms())
+        forged_operator = ForgedOperator(
+            problem, self.orbitals_to_reduce, self._calculate_tensor_cross_terms()
+        )
 
         # Calculate energies clasically using pySCF
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)

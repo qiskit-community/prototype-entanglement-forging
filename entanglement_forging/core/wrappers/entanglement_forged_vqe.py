@@ -25,7 +25,9 @@ from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import OperatorBase
 
-from entanglement_forging.core.entanglement_forged_config import EntanglementForgedConfig
+from entanglement_forging.core.entanglement_forged_config import (
+    EntanglementForgedConfig,
+)
 from entanglement_forging.core.forged_operator import ForgedOperator
 from entanglement_forging.core.classical_energies import ClassicalEnergies
 from entanglement_forging.core.wrappers.entanglement_forged_vqe_result import (

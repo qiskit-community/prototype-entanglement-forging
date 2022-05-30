@@ -46,7 +46,10 @@ class ForgedOperator:
     """
 
     def __init__(
-            self, problem: ElectronicStructureProblem, all_orbitals_to_reduce: List[int], calculate_tensor_cross_terms: bool = False,
+        self,
+        problem: ElectronicStructureProblem,
+        all_orbitals_to_reduce: List[int],
+        calculate_tensor_cross_terms: bool = False,
     ):
         self.problem = problem
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
