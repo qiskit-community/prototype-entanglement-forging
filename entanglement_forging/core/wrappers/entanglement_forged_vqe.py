@@ -15,16 +15,19 @@
 import datetime
 import time
 import warnings
-from typing import List, Tuple, Callable, Union
+from typing import Iterable, Tuple, Callable, Union
 
 import numpy as np
-from qiskit import transpile
+from qiskit import transpile, QuantumCircuit
 from qiskit.algorithms import VQE
 from qiskit.ignis.mitigation.measurement import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import OperatorBase
 
+from entanglement_forging.core.entanglement_forged_config import EntanglementForgedConfig
+from entanglement_forging.core.forged_operator import ForgedOperator
+from entanglement_forging.core.classical_energies import ClassicalEnergies
 from entanglement_forging.core.wrappers.entanglement_forged_vqe_result import (
     DataResults,
     Bootstrap,
@@ -62,16 +65,13 @@ class EntanglementForgedVQE(VQE):
 
     def __init__(
         self,
-        ansatz,
-        bitstrings_u: List[List[int]],
-        config,
-        forged_operator,
-        classical_energies,
-        bitstrings_v: List[List[int]] = None,
+        ansatz: QuantumCircuit,
+        bitstrings_u: Iterable[Iterable[int]],
+        config: EntanglementForgedConfig,
+        forged_operator: ForgedOperator,
+        classical_energies: ClassicalEnergies,
+        bitstrings_v: Iterable[Iterable[int]] = None,
     ):
-        if bitstrings_v is None:
-            bitstrings_v = []
-
         """Initialize the EntanglementForgedVQE class."""
         if ansatz.num_qubits != len(bitstrings_u[0]):
             raise ValueError(
@@ -101,6 +101,13 @@ class EntanglementForgedVQE(VQE):
             max_evals_grouped=config.max_evals_grouped,
             callback=None,
         )
+
+        # Prevent unnecessary duplication if subsystems are equivalent
+        if (bitstrings_v is None) or (bitstrings_u == bitstrings_v):
+            self.bitstrings_v = []
+        else:
+            self.bitstrings_v = bitstrings_v
+
         self.ansatz = ansatz
         self.config = config
         self._energy_each_iteration_each_paramset = []
@@ -111,24 +118,18 @@ class EntanglementForgedVQE(VQE):
         self.bitstrings_u = bitstrings_u
         self._bitstrings_s_u = np.asarray(bitstrings_u)
 
-        # Prevent unnecessary duplication of ansatz calculation if U=V
-        if bitstrings_v == bitstrings_u:
-            self.bitstrings_v = []
-        else:
-            self.bitstrings_v = bitstrings_v
-
         # Make circuits which prepare states U|b_n_u> and U|phi^p_nm_u>
         (
             self._tensor_prep_circuits_u,
             self._superpos_prep_circuits_u,
-            superpos_coeffs_u,
+            hybrid_superpos_coeffs_u,
         ) = make_stateprep_circuits(
             bitstrings_u, config.fix_first_bitstring, suffix="u"
         )
 
         self._tensor_prep_circuits_v = []
         self._superpos_prep_circuits_v = []
-        superpos_coeffs_v = []
+        hybrid_superpos_coeffs_v = []
         self._bitstrings_s_v = np.array([])
         if self.bitstrings_v:
             # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
@@ -137,13 +138,13 @@ class EntanglementForgedVQE(VQE):
             (
                 self._tensor_prep_circuits_v,
                 self._superpos_prep_circuits_v,
-                superpos_coeffs_v,
+                hybrid_superpos_coeffs_v,
             ) = make_stateprep_circuits(
                 bitstrings_v, config.fix_first_bitstring, suffix="v"
             )
 
-        superpos_coeffs_u.update(superpos_coeffs_v)
-        self._superpos_coeffs = superpos_coeffs_u
+        hybrid_superpos_coeffs_u.update(hybrid_superpos_coeffs_v)
+        self._hybrid_superpos_coeffs = hybrid_superpos_coeffs_u
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
@@ -172,7 +173,7 @@ class EntanglementForgedVQE(VQE):
         self._add_this_to_energies_displayed = classical_energies.shift
         self._hf_energy = classical_energies.HF
 
-        self.aux_results: List[Tuple[str, AuxiliaryResults]] = []
+        self.aux_results: Iterable[Tuple[str, AuxiliaryResults]] = []
 
         self.parameter_sets = []
         self.energy_mean_each_parameter_set = []
@@ -189,6 +190,10 @@ class EntanglementForgedVQE(VQE):
             self._is_sv_sim = False
 
         # Load the two circuit generation operations
+        self._pauli_names_for_tensor_states = None
+        self._pauli_names_for_superpos_states = None
+        self._w_ij_tensor_states = None
+        self._w_ab_superpos_states = None
         self._op_for_generating_tensor_circuits = None
         self._op_for_generating_superpos_circuits = None
         self._load_ops()
@@ -219,13 +224,13 @@ class EntanglementForgedVQE(VQE):
             pauli_names_for_tensor_states,
             pauli_names_for_superpos_states,
             w_ij_tensor_states,
-            w_ij_superpos_states,
+            w_ab_superpos_states,
         ) = self.forged_operator.construct()
 
         self._pauli_names_for_tensor_states = pauli_names_for_tensor_states
         self._pauli_names_for_superpos_states = pauli_names_for_superpos_states
         self._w_ij_tensor_states = w_ij_tensor_states
-        self._w_ij_superpos_states = w_ij_superpos_states
+        self._w_ab_superpos_states = w_ab_superpos_states
 
         op_for_generating_tensor_circuits = to_tpb_grouped_weighted_pauli_operator(
             WeightedPauliOperator(
@@ -256,7 +261,7 @@ class EntanglementForgedVQE(VQE):
 
     def get_energy_evaluation(
         self, operator: OperatorBase, return_expectation: bool = False
-    ) -> Callable[[np.ndarray], Union[float, List[float]]]:
+    ) -> Callable[[np.ndarray], Union[float, Iterable[float]]]:
 
         if self._is_sv_sim:
             self._shots_multiplier = 1
@@ -628,7 +633,7 @@ class EntanglementForgedVQE(VQE):
                 results_extrap, results_raw = eval_forged_op_with_result(
                     res,
                     self._w_ij_tensor_states,
-                    self._w_ij_superpos_states,
+                    self._w_ab_superpos_states,
                     params,
                     self._bitstrings_s_u,
                     self._op_for_generating_tensor_circuits,
@@ -637,7 +642,7 @@ class EntanglementForgedVQE(VQE):
                     bitstrings_s_v=self._bitstrings_s_v,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
-                    superpos_coeffs=self._superpos_coeffs,
+                    hybrid_superpos_coeffs=self._hybrid_superpos_coeffs,
                     add_this_to_mean_values_displayed=add_this_to_mean_values_displayed,
                     no_bs0_circuits=self._no_bs0_circuits,
                 )

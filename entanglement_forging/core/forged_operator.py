@@ -46,7 +46,7 @@ class ForgedOperator:
     """
 
     def __init__(
-        self, problem: ElectronicStructureProblem, all_orbitals_to_reduce: List[int]
+            self, problem: ElectronicStructureProblem, all_orbitals_to_reduce: List[int], calculate_tensor_cross_terms: bool = False,
     ):
         self.problem = problem
         self.all_orbitals_to_reduce = all_orbitals_to_reduce
@@ -54,6 +54,7 @@ class ForgedOperator:
             self.all_orbitals_to_reduce, self.problem
         )
         self.epsilon_cholesky = 1e-10
+        self._calculate_tensor_cross_terms = calculate_tensor_cross_terms
 
         if isinstance(problem.driver, ElectronicStructureDriver):
             electronic_basis_transform = self.problem.grouped_property.get_property(
@@ -141,7 +142,10 @@ class ForgedOperator:
         for op_idx, paulis_this_op in enumerate(paulis_each_op):
             pnames = list(paulis_this_op.keys())
             tensor_paulis.update(pnames)
-            superpos_paulis.update(pnames)
+            if (not self._calculate_tensor_cross_terms) and (op_idx == 0):
+                pass
+            else:
+                superpos_paulis.update(pnames)
         # ensure Identity string is represented since we will need it
         identity_string = "I" * len(pnames[0])
         tensor_paulis.add(identity_string)
@@ -163,8 +167,14 @@ class ForgedOperator:
             i = pauli_ordering_for_tensor_states[pname_i]
             w_ij[i, identity_idx] += np.real(w_i)  # H_spin-up
             w_ij[identity_idx, i] += np.real(w_i)  # H_spin-down
-            w_ab[i, identity_idx] += np.real(w_i) / 2.0
-            w_ab[identity_idx, i] += np.real(w_i) / 2.0
+
+            # In the special case where bn=bm, we need terms from the
+            # single body system represented in the cross terms. Divide
+            # by two to account for two independent spins in the Born-Oppenheimer
+            # Hamiltonian, and the extra factor of 2 in the tensor pool
+            if self._calculate_tensor_cross_terms:
+                w_ab[i, identity_idx] += np.real(w_i) / 2.0
+                w_ab[identity_idx, i] += np.real(w_i) / 2.0
         # Processes the Cholesky operators (indexed by gamma)
         for paulis_this_gamma in paulis_each_op[1:]:
             for pname_1, w_1 in paulis_this_gamma.items():
