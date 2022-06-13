@@ -99,9 +99,9 @@ class ForgedOperator:
         )
         self.h_1_op, self.h_chol_ops, _, _, _ = fermionic_results
 
-        #assert (
+        # assert (
         #    num_alpha == num_beta
-        #), "Currently only supports molecules with equal number of alpha and beta particles."
+        # ), "Currently only supports molecules with equal number of alpha and beta particles."
 
     def construct(self):
         """Constructs the forged operator by extracting the Pauli operators and weights.
