@@ -176,8 +176,8 @@ class ForgedOperator:
             # by two to account for two independent spins in the Born-Oppenheimer
             # Hamiltonian, and the extra factor of 2 in the tensor pool
             if self._calculate_tensor_cross_terms:
-                w_ab[i, identity_idx] += np.real(w_i) #/ 2.0
-                w_ab[identity_idx, i] += np.real(w_i) #/ 2.0
+                w_ab[i, identity_idx] += np.real(w_i)
+                w_ab[identity_idx, i] += np.real(w_i)
         # Processes the Cholesky operators (indexed by gamma)
         for paulis_this_gamma in paulis_each_op[1:]:
             for pname_1, w_1 in paulis_this_gamma.items():
