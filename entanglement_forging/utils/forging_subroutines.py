@@ -367,7 +367,7 @@ def _get_pauli_expectations_from_result(
             if prep_string[-4:] == "xmin":
                 pauli_vals[prep_idx] *= 0
             elif prep_string[-5:] == "xplus":
-                pauli_vals[prep_idx] *= 2
+                pauli_vals[prep_idx] *= 1 #2
             else:
                 raise ValueError(f"Invalid circuit name: {prep_string}")
         elif not tensor_circuit:
