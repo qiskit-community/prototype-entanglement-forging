@@ -50,6 +50,10 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         np.random.seed(42)
         self.backend = BasicAer.get_backend("statevector_simulator")
 
+        self.two_body_integrals_alpha_alpha = np.load(
+            os.path.join(os.path.dirname(__file__), "two_body_alpha_alpha.npy")
+        )
+
     def test_forged_vqe_for_hydrogen(self):
         """Test of applying Entanglement Forged VQE to to compute the energy of a H2 molecule."""
         # setup problem
@@ -279,16 +283,12 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             ]
         )
 
-        two_body_integrals_alpha_alpha = np.load(
-            os.path.join(os.getcwd(), "two_body_alpha_alpha.npy")
-        )
-
         nuclear_repulsion_energy = -264.7518219120776
 
         driver = EntanglementForgedDriver(
             hcore=one_body_integrals_alpha,
             mo_coeff=np.eye(4, 4),
-            eri=two_body_integrals_alpha_alpha,
+            eri=self.two_body_integrals_alpha_alpha,
             num_alpha=2,
             num_beta=2,
             nuclear_repulsion_energy=nuclear_repulsion_energy,
