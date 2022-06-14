@@ -201,7 +201,6 @@ def eval_forged_op_with_result(
 
     superpos_state_prefixes_u = []
     superpos_state_prefixes_v = []
-    superpos_state_indices = []
     lin_combos = ["xplus", "xmin"]  # ,'yplus','ymin']
     # num_bitstrings is the number of bitstring combos we have
     num_bitstrings = len(bitstrings_s_u)
@@ -222,8 +221,6 @@ def eval_forged_op_with_result(
                 superpos_state_prefixes_v += [
                     bsv_string + lin_combo for lin_combo in lin_combos
                 ]
-
-            superpos_state_indices += [(x, y)]
 
     superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v
 
@@ -252,7 +249,6 @@ def eval_forged_op_with_result(
             superpos_expvals_real,
             w_ij_tensor_states,
             w_ab_superpos_states,
-            superpos_state_indices,
             asymmetric_bitstrings,
         )
         if no_bs0_circuits:
@@ -319,14 +315,20 @@ def _get_pauli_expectations_from_result(
     pauli_names_temp = [p[1].to_label() for p in op_for_generating_circuits.paulis]
     for prep_idx, prep_string in enumerate(stateprep_strings):
         suffix = prep_string[2]
+        if suffix not in ["u", "v"]:
+            raise ValueError(f"Invalid stateprep circuit name: {prep_string}")
         bitstring_pair = [0, 0]
         tensor_circuit = True
-        if prep_string.count("bs") > 1:
+        num_bs_terms = prep_string.count("bs")
+        if (num_bs_terms > 2) or (num_bs_terms == 0):
+            raise ValueError(f"Invalid stateprep circuit name: {prep_string}")
+        elif num_bs_terms == 2:
             tensor_circuit = False
             prep_string_digits = [
                 int(float(s)) for s in re.findall(r"-?\d+\.?\d*", prep_string)
             ]
             bitstring_pair = [prep_string_digits[0], prep_string_digits[1]]
+
         if no_bs0_circuits and (prep_string == "bsu0" or prep_string == "bsv0"):
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T.
             # HF BITSTRING (FIRST BITSTRING) IS UNAFFECTED,
@@ -410,14 +412,13 @@ def compute_h_schmidt(
     superpos_expvals,
     w_ij_tensor_weights,
     w_ab_superpos_weights,
-    superpos_state_indices,
     asymmetric_bitstrings,
 ):
     """Computes the schmidt decomposition of the Hamiltonian. TODO checkthis.  # pylint: disable=fixme
 
     Pauli val arrays contain expectation values <x|P|x> and their standard deviations.
     Axes are [x_idx, P_idx, mean_or_variance]
-    W_ij: Coefficients W_ij. Axes: [index of Pauli string for eta, index of Pauli string for tau].
+    Coefficients w_ij/w_ab: Axes: [index of Pauli string for eta, index of Pauli string for tau].
     asymmetric_bitstrings: A boolean which signifies whether the U and V subsystems have
                             different ansatze.
     """
@@ -476,6 +477,12 @@ def compute_h_schmidt(
         "ab,xa,xb->x", w_ab_superpos_weights, p_delta_x_u, p_delta_x_v
     )
 
+    superpos_state_indices = [
+        (x, y)
+        for x in range(h_schmidt.shape[0])
+        for y in range(h_schmidt.shape[0])
+        if x != y
+    ]
     for element, indices in zip(h_schmidt_off_diagonals, superpos_state_indices):
         h_schmidt[indices] = element
     return h_schmidt  # , H_schmidt_vars)

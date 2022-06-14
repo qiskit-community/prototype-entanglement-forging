@@ -99,9 +99,9 @@ class ForgedOperator:
         )
         self.h_1_op, self.h_chol_ops, _, _, _ = fermionic_results
 
-        # assert (
-        #    num_alpha == num_beta
-        # ), "Currently only supports molecules with equal number of alpha and beta particles."
+        assert (
+            num_alpha == num_beta
+        ), "Currently only supports molecules with equal number of alpha and beta particles."
 
     def construct(self):
         """Constructs the forged operator by extracting the Pauli operators and weights.
@@ -145,10 +145,15 @@ class ForgedOperator:
         for op_idx, paulis_this_op in enumerate(paulis_each_op):
             pnames = list(paulis_this_op.keys())
             tensor_paulis.update(pnames)
+
+            # Only pull bases from the single-body Hamiltonian to the
+            # superposition basis if the calculate_tensor_cross_terms flag
+            # is set
             if (not self._calculate_tensor_cross_terms) and (op_idx == 0):
                 pass
             else:
                 superpos_paulis.update(pnames)
+
         # ensure Identity string is represented since we will need it
         identity_string = "I" * len(pnames[0])
         tensor_paulis.add(identity_string)
@@ -172,9 +177,7 @@ class ForgedOperator:
             w_ij[identity_idx, i] += np.real(w_i)  # H_spin-down
 
             # In the special case where bn=bm, we need terms from the
-            # single body system represented in the cross terms. Divide
-            # by two to account for two independent spins in the Born-Oppenheimer
-            # Hamiltonian, and the extra factor of 2 in the tensor pool
+            # single body system represented in the cross terms.
             if self._calculate_tensor_cross_terms:
                 w_ab[i, identity_idx] += np.real(w_i)
                 w_ab[identity_idx, i] += np.real(w_i)

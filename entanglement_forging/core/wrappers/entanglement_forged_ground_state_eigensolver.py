@@ -87,16 +87,16 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             orbitals_to_reduce = []
         self.orbitals_to_reduce = orbitals_to_reduce
 
+        # Set private class fields
+        self._ansatz = ansatz
+        self._bitstrings_u = bitstrings_u
+        self._config = config  # pylint: disable=arguments-differ
+
         # Prevent unnecessary duplication of circuits if subsystems are identical
         if (bitstrings_v is None) or (bitstrings_u == bitstrings_v):
             self._bitstrings_v = []
         else:
             self._bitstrings_v = bitstrings_v
-
-        # Set private class fields
-        self._ansatz = ansatz
-        self._bitstrings_u = bitstrings_u
-        self._config = config  # pylint: disable=arguments-differ
 
     # pylint: disable=arguments-differ
     def solve(
@@ -166,8 +166,8 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
     def _calculate_tensor_cross_terms(self) -> bool:
         """
         Determine whether circuits should be generated to account for
-        the tensor terms which should up in the cross-terms in the special
-        case where bn==bm within a given subsystem's (U or V) bitstring list.
+        the special superposition terms needed when bn==bm for two
+        bitstrings within a given subsystem's (U or V) bitstring list.
         """
         bsu = self._bitstrings_u
         bsv = self._bitstrings_u
