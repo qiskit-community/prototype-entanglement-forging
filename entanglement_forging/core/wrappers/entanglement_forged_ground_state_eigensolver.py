@@ -24,7 +24,10 @@ from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit_nature import ListOrDictType
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateSolver, MinimumEigensolverFactory
+from qiskit_nature.algorithms.ground_state_solvers import (
+    GroundStateSolver,
+    MinimumEigensolverFactory,
+)
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -161,7 +164,11 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[
+            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]
+        ] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
-        raise NotImplementedError("get_qubit_operators has not been implemented in EntanglementForgedGroundStateEigensolver")
+        raise NotImplementedError(
+            "get_qubit_operators has not been implemented in EntanglementForgedGroundStateEigensolver"
+        )
