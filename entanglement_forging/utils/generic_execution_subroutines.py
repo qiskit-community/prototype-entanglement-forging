@@ -47,22 +47,19 @@ def execute_with_retry(circuits, backend, shots, rep_delay=None, noise_model=Non
     ran_job_ok = False
     while not ran_job_ok:
         try:
-            qobj = assemble(
-                circuits,
-                backend=backend,
-                shots=shots,
-                rep_delay=rep_delay,
-                noise_model=noise_model,
-                seed_simulator=42,
-            )
             if backend.name() in [
                 "statevector_simulator",
-                "qasm_simulator",
                 "aer_simulator_statevector",
             ]:
-                job = backend.run(qobj, noise_model=noise_model)
+                job = backend.run(
+                    circuits,
+                    seed_simulator=42,
+                )
+            elif backend.name() == "qasm_simulator":
+                job = backend.run(circuits, shots=shots, noise_model=noise_model)
             else:
-                job = backend.run(qobj)
+                job = backend.run(circuits, shots=shots, rep_delay=rep_delay)
+
             result = job.result()
             ran_job_ok = True
         except (IBMQJobFailureError, IBMQJobApiError, IBMQJobInvalidStateError) as err:
