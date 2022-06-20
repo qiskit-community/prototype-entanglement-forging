@@ -14,17 +14,23 @@
 
 import time
 import warnings
-from typing import Iterable, Union, Dict
+from typing import List, Union, Dict, Optional, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
+from qiskit.algorithms import MinimumEigensolver
 from qiskit.circuit import Instruction
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import Statevector
 from qiskit.result import Result
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature import ListOrDictType
+from qiskit_nature.algorithms.ground_state_solvers import (
+    GroundStateSolver,
+    MinimumEigensolverFactory,
+)
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )
@@ -138,8 +144,7 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         # Calculate energies clasically using pySCF
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
 
-        # Instantiate EFVQE object
-        solver = EntanglementForgedVQE(
+        self._solver = EntanglementForgedVQE(
             ansatz=self._ansatz,
             bitstrings_u=self._bitstrings_u,
             bitstrings_v=self._bitstrings_v,
@@ -147,18 +152,17 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             forged_operator=forged_operator,
             classical_energies=classical_energies,
         )
-
-        result = solver.compute_minimum_eigenvalue(forged_operator.h_1_op)
+        result = self._solver.compute_minimum_eigenvalue(forged_operator.h_1_op)
 
         elapsed_time = time.time() - start_time
         Log.log(f"VQE for this problem took {elapsed_time} seconds")
         res = EntanglementForgedVQEResult(
-            parameters_history=solver._paramsets_each_iteration,
-            energies_history=solver._energy_each_iteration_each_paramset,
-            schmidts_history=solver._schmidt_coeffs_each_iteration_each_paramset,
-            energy_std_each_parameter_set=solver.energy_std_each_parameter_set,
-            energy_offset=solver._add_this_to_energies_displayed,
-            eval_count=solver._eval_count,
+            parameters_history=self._solver._paramsets_each_iteration,
+            energies_history=self._solver._energy_each_iteration_each_paramset,
+            schmidts_history=self._solver._schmidt_coeffs_each_iteration_each_paramset,
+            energy_std_each_parameter_set=self._solver.energy_std_each_parameter_set,
+            energy_offset=self._solver._add_this_to_energies_displayed,
+            eval_count=self._solver._eval_count,
         )
         res.combine(result)
         return res
@@ -218,3 +222,20 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
             "forged EntanglementForgedGroundStateSolver."
         )
         return []
+
+    @property
+    def solver(self) -> Union[MinimumEigensolver, MinimumEigensolverFactory]:
+        """Returns the minimum eigensolver or factory."""
+        return self._solver
+
+    def get_qubit_operators(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[
+            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]
+        ] = None,
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
+        raise NotImplementedError(
+            "get_qubit_operators has not been implemented in EntanglementForgedGroundStateEigensolver"
+        )
