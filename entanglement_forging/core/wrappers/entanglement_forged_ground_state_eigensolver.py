@@ -14,7 +14,7 @@
 
 import time
 import warnings
-from typing import List, Union, Dict, Optional, Tuple
+from typing import List, Iterable, Union, Dict, Optional, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -28,6 +28,7 @@ from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateSolver,
     MinimumEigensolverFactory,
 )
+from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
