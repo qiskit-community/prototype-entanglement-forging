@@ -175,7 +175,7 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         bitstrings within a given subsystem's (U or V) bitstring list.
         """
         bsu = self._bitstrings_u
-        bsv = self._bitstrings_u
+        bsv = self._bitstrings_v
 
         # Search for any duplicate bitstrings within the subsystem lists
         for i, bu1 in enumerate(bsu):
