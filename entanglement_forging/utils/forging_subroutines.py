@@ -157,13 +157,13 @@ def eval_forged_op_with_result(
     w_ab_superpos_states: Matrix,
     params: Iterable[float],
     bitstrings_s_u: np.ndarray,
+    bitstrings_s_v: np.ndarray,
     op_for_generating_tensor_circuits: WeightedPauliOperator,
     op_for_generating_superpos_circuits: WeightedPauliOperator,
     richardson_stretch_factors: Iterable[float],
     statevector_mode: bool,
     hf_value: float,
     add_this_to_mean_values_displayed: float,
-    bitstrings_s_v: np.ndarray = None,
     hybrid_superpos_coeffs: Dict[Tuple[int, int, str], bool] = None,
     no_bs0_circuits: bool = True,
     verbose: bool = False,
@@ -175,14 +175,9 @@ def eval_forged_op_with_result(
     (Hamiltonian in the basis of determinants/bitstrings).
     For reference, also computes mean value obtained without Richardson
     """
-    if bitstrings_s_v is None:
-        bitstrings_s_v = []
 
     tensor_state_prefixes_u = [f"bsu{idx}" for idx in range(len(bitstrings_s_u))]
-    tensor_state_prefixes_v = []
-
-    if len(bitstrings_s_v) > 0:
-        tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
+    tensor_state_prefixes_v = [f"bsv{idx}" for idx in range(len(bitstrings_s_v))]
 
     tensor_state_prefixes = tensor_state_prefixes_u + tensor_state_prefixes_v
     tensor_expvals = _get_pauli_expectations_from_result(
@@ -213,14 +208,10 @@ def eval_forged_op_with_result(
                 bsu_string + lin_combo for lin_combo in lin_combos
             ]
 
-            # Determine whether we are handling the two subsystems separately
-            asymmetric_bitstrings = False
-            if len(bitstrings_s_v) > 0:
-                asymmetric_bitstrings = True
-                bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
-                superpos_state_prefixes_v += [
-                    bsv_string + lin_combo for lin_combo in lin_combos
-                ]
+            bsv_string = f"bsv{min(x,y)}bsv{max(x,y)}"
+            superpos_state_prefixes_v += [
+                bsv_string + lin_combo for lin_combo in lin_combos
+            ]
 
     superpos_state_prefixes = superpos_state_prefixes_u + superpos_state_prefixes_v
 
@@ -249,7 +240,6 @@ def eval_forged_op_with_result(
             superpos_expvals_real,
             w_ij_tensor_states,
             w_ab_superpos_states,
-            asymmetric_bitstrings,
         )
         if no_bs0_circuits:
             # IMPORTANT: ASSUMING HOPGATES CHOSEN S.T. HF BITSTRING
@@ -412,7 +402,6 @@ def compute_h_schmidt(
     superpos_expvals,
     w_ij_tensor_weights,
     w_ab_superpos_weights,
-    asymmetric_bitstrings,
 ):
     """Computes the schmidt decomposition of the Hamiltonian. TODO checkthis.  # pylint: disable=fixme
 
@@ -425,16 +414,11 @@ def compute_h_schmidt(
     # Number of tensor stateprep circuits
     num_tensor_terms = int(np.shape(tensor_expvals)[0])
 
-    if asymmetric_bitstrings:
-        num_tensor_terms = int(
-            num_tensor_terms / 2
-        )  # num_tensor_terms should always be even here
-        tensor_exp_vals_u = tensor_expvals[:num_tensor_terms, :, 0]
-        tensor_exp_vals_v = tensor_expvals[num_tensor_terms:, :, 0]
-    else:
-        # Use the same expectation values for both subsystem calculations
-        tensor_exp_vals_u = tensor_expvals[:, :, 0]
-        tensor_exp_vals_v = tensor_expvals[:, :, 0]
+    num_tensor_terms = int(
+        num_tensor_terms / 2
+    )  # num_tensor_terms should always be even here
+    tensor_exp_vals_u = tensor_expvals[:num_tensor_terms, :, 0]
+    tensor_exp_vals_v = tensor_expvals[num_tensor_terms:, :, 0]
 
     # Calculate the schmidt summation over the U and V subsystems and diagonalize the values
     h_schmidt_diagonal = np.einsum(
@@ -450,15 +434,12 @@ def compute_h_schmidt(
     num_lin_combos = 2
 
     num_superpos_terms = int(np.shape(superpos_expvals)[0])
-    if asymmetric_bitstrings:
-        num_superpos_terms = int(
-            num_superpos_terms / 2
-        )  # num_superpos_terms should always be even here
-        pvss_u = superpos_expvals[:num_superpos_terms, :, 0]
-        pvss_v = superpos_expvals[num_superpos_terms:, :, 0]
-    else:
-        pvss_u = superpos_expvals[:, :, 0]
-        pvss_v = superpos_expvals[:, :, 0]
+
+    num_superpos_terms = int(
+        num_superpos_terms / 2
+    )  # num_superpos_terms should always be even here
+    pvss_u = superpos_expvals[:num_superpos_terms, :, 0]
+    pvss_v = superpos_expvals[num_superpos_terms:, :, 0]
 
     # Calculate delta for U subsystem
     p_plus_x_u = pvss_u[0::num_lin_combos, :]
@@ -466,12 +447,9 @@ def compute_h_schmidt(
     p_delta_x_u = p_plus_x_u - p_minus_x_u
 
     # Calculate delta for V subsystem
-    if asymmetric_bitstrings:
-        p_plus_x_v = pvss_v[0::num_lin_combos, :]
-        p_minus_x_v = pvss_v[1::num_lin_combos, :]
-        p_delta_x_v = p_plus_x_v - p_minus_x_v
-    else:
-        p_delta_x_v = p_delta_x_u
+    p_plus_x_v = pvss_v[0::num_lin_combos, :]
+    p_minus_x_v = pvss_v[1::num_lin_combos, :]
+    p_delta_x_v = p_plus_x_v - p_minus_x_v
 
     h_schmidt_off_diagonals = np.einsum(
         "ab,xa,xb->x", w_ab_superpos_weights, p_delta_x_u, p_delta_x_v

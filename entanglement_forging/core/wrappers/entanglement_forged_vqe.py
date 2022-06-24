@@ -67,58 +67,57 @@ class EntanglementForgedVQE(VQE):
 
     def __init__(
         self,
-        ansatz: QuantumCircuit,
+        ansatz_u: QuantumCircuit,
+        ansatz_v: QuantumCircuit,
         bitstrings_u: Iterable[Iterable[int]],
+        bitstrings_v: Iterable[Iterable[int]],
         config: EntanglementForgedConfig,
         forged_operator: ForgedOperator,
         classical_energies: ClassicalEnergies,
-        bitstrings_v: Iterable[Iterable[int]] = None,
     ):
         """Initialize the EntanglementForgedVQE class."""
-        if ansatz.num_qubits != len(bitstrings_u[0]):
-            raise ValueError(
-                "The number of qubits in ansatz does "
-                "not match the number of bits in reduced_bitstrings."
-            )
-
-        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in bitstrings_u):
-            raise ValueError("All U bitstrings must be the same length.")
-
-        if bitstrings_v:
-            if len(bitstrings_u) != len(bitstrings_v):
+        for ansatz, bitstrings, name in (
+            (ansatz_u, bitstrings_u, "U"),
+            (ansatz_v, bitstrings_v, "V"),
+        ):
+            if ansatz.num_qubits != len(bitstrings[0]):
                 raise ValueError(
-                    "The same number of bitstrings should be passed for U and V."
+                    f"The number of qubits in ansatz {name} does "
+                    "not match the number of bits in bitstrings."
                 )
 
-            if len(bitstrings_u[0]) != len(bitstrings_v[0]):
-                raise ValueError("Bitstrings for U and V should be the same length.")
+            if any(len(bitstrings[0]) != len(bitstr) for bitstr in bitstrings):
+                raise ValueError(f"All {name} bitstrings must be the same length.")
 
-            if any(len(bitstrings_v[0]) != len(bitstr) for bitstr in bitstrings_v):
-                raise ValueError("All V bitstrings must be the same length.")
+        if len(bitstrings_u) != len(bitstrings_v):
+            raise ValueError(
+                "The same number of bitstrings should be passed for U and V."
+            )
+
+        if len(bitstrings_u[0]) != len(bitstrings_v[0]):
+            raise ValueError("Bitstrings for U and V should be the same length.")
 
         super().__init__(
-            ansatz=ansatz,
             optimizer=get_optimizer_instance(config),
             initial_point=config.initial_params,
             max_evals_grouped=config.max_evals_grouped,
             callback=None,
         )
 
-        # Prevent unnecessary duplication if subsystems are equivalent
-        if (bitstrings_v is None) or (bitstrings_u == bitstrings_v):
-            self.bitstrings_v = []
-        else:
-            self.bitstrings_v = bitstrings_v
-
-        self.ansatz = ansatz
         self.config = config
         self._energy_each_iteration_each_paramset = []
         self._paramsets_each_iteration = []
         self._schmidt_coeffs_each_iteration_each_paramset = []
         self._zero_noise_extrap = config.zero_noise_extrap
 
+        self.ansatz_u = ansatz_u
+        self.ansatz_v = ansatz_v
+
         self.bitstrings_u = bitstrings_u
         self._bitstrings_s_u = np.asarray(bitstrings_u)
+
+        self.bitstrings_v = bitstrings_v
+        self._bitstrings_s_v = np.asarray(bitstrings_v)
 
         # Make circuits which prepare states U|b_n_u> and U|phi^p_nm_u>
         (
@@ -129,24 +128,19 @@ class EntanglementForgedVQE(VQE):
             bitstrings_u, config.fix_first_bitstring, suffix="u"
         )
 
-        self._tensor_prep_circuits_v = []
-        self._superpos_prep_circuits_v = []
-        hybrid_superpos_coeffs_v = []
-        self._bitstrings_s_v = np.array([])
-        if self.bitstrings_v:
-            # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
-            # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
-            self._bitstrings_s_v = np.asarray(bitstrings_v)
-            (
-                self._tensor_prep_circuits_v,
-                self._superpos_prep_circuits_v,
-                hybrid_superpos_coeffs_v,
-            ) = make_stateprep_circuits(
-                bitstrings_v, config.fix_first_bitstring, suffix="v"
-            )
+        # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
+        # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
+        (
+            self._tensor_prep_circuits_v,
+            self._superpos_prep_circuits_v,
+            hybrid_superpos_coeffs_v,
+        ) = make_stateprep_circuits(
+            bitstrings_v, config.fix_first_bitstring, suffix="v"
+        )
 
         hybrid_superpos_coeffs_u.update(hybrid_superpos_coeffs_v)
         self._hybrid_superpos_coeffs = hybrid_superpos_coeffs_u
+
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
             [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
@@ -268,16 +262,21 @@ class EntanglementForgedVQE(VQE):
         if self._is_sv_sim:
             self._shots_multiplier = 1
 
-        ansatz_params = self.ansatz.parameters
-        _, expectation = self.construct_expectation(
-            ansatz_params, operator, return_expectation=True
-        )
+        # ansatz_params = self.ansatz.parameters
+
+        # _, expectation = self.construct_expectation(
+        #     ansatz_params, operator, return_expectation=True
+        # )
 
         def energy_evaluation(parameters):
             Log.log("------ new iteration energy evaluation -----")
             # num_parameter_sets = len(parameters) // self.ansatz.num_parameters
             # parameter_sets = np.split(parameters, num_parameter_sets)
-            parameter_sets = np.reshape(parameters, (-1, self.ansatz.num_parameters))
+
+            parameter_sets = np.reshape(
+                parameters,
+                (-1, self.ansatz_u.num_parameters + self.ansatz_v.num_parameters),
+            )
             new_iteration_start_time = time.time()
 
             Log.log(
@@ -289,10 +288,12 @@ class EntanglementForgedVQE(VQE):
 
             Log.log("Parameter sets:", parameter_sets)
 
+            # TODO: update to take parameter_sets for both ansatz
             # Compute the expectation value of the forged operator with respect
             # to the ansatz at the given parameters
             eval_forged_result = self._evaluate_forged_operator(
                 parameter_sets=parameter_sets,
+                split_idx=self.ansatz_u.num_parameters,
                 hf_value=self._hf_energy,
                 add_this_to_mean_values_displayed=self._add_this_to_energies_displayed,
                 shots_multiplier=self._shots_multiplier,
@@ -413,13 +414,14 @@ class EntanglementForgedVQE(VQE):
             )
 
         if return_expectation:
-            return energy_evaluation, expectation
+            return energy_evaluation, None
 
         return energy_evaluation
 
     def _evaluate_forged_operator(
         self,
         parameter_sets,
+        split_idx,
         hf_value=0,
         add_this_to_mean_values_displayed=0,
         shots_multiplier=1,
@@ -434,21 +436,27 @@ class EntanglementForgedVQE(VQE):
         for params_idx, params in enumerate(parameter_sets):
             Log.log("Constructing the circuits for parameter set", params, "...")
 
+            if len(params) % 2 != 0:
+                raise ValueError("Must have an even number of parameters.")
+
+            params_u = params[:split_idx]
+            params_v = params[split_idx:]
+
             # Get all the tensor circuits associated with ansatz U
             tensor_circuits_to_execute_u = prepare_circuits_to_execute(
-                params,
+                params_u,
                 self._tensor_prep_circuits_u,
                 self._op_for_generating_tensor_circuits,
-                self._ansatz,
+                self.ansatz_u,
                 self._is_sv_sim,
             )
 
             # Get all tensor circuits associated with ansatz V
             tensor_circuits_to_execute_v = prepare_circuits_to_execute(
-                params,
+                params_v,
                 self._tensor_prep_circuits_v,
                 self._op_for_generating_tensor_circuits,
-                self._ansatz,
+                self.ansatz_v,
                 self._is_sv_sim,
             )
 
@@ -460,18 +468,18 @@ class EntanglementForgedVQE(VQE):
             if len(self._pauli_names_for_superpos_states) > 0:
                 # Get superposition circuits associated with ansatz U
                 superpos_circuits_to_execute_u = prepare_circuits_to_execute(
-                    params,
+                    params_u,
                     self._superpos_prep_circuits_u,
                     self._op_for_generating_superpos_circuits,
-                    self._ansatz,
+                    self.ansatz_u,
                     self._is_sv_sim,
                 )
                 # Get superposition circuits associated with ansatz V
                 superpos_circuits_to_execute_v = prepare_circuits_to_execute(
-                    params,
+                    params_v,
                     self._superpos_prep_circuits_v,
                     self._op_for_generating_superpos_circuits,
-                    self._ansatz,
+                    self.ansatz_v,
                     self._is_sv_sim,
                 )
 
@@ -638,10 +646,10 @@ class EntanglementForgedVQE(VQE):
                     self._w_ab_superpos_states,
                     params,
                     self._bitstrings_s_u,
+                    self._bitstrings_s_v,
                     self._op_for_generating_tensor_circuits,
                     self._op_for_generating_superpos_circuits,
                     self._zero_noise_extrap,
-                    bitstrings_s_v=self._bitstrings_s_v,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
                     hybrid_superpos_coeffs=self._hybrid_superpos_coeffs,

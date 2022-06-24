@@ -14,7 +14,7 @@
 
 import time
 import warnings
-from typing import List, Iterable, Union, Dict, Optional, Tuple
+from typing import Iterable, Union, Dict, Optional, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -46,7 +46,6 @@ from entanglement_forging.core.wrappers.entanglement_forged_vqe import (
 )
 from entanglement_forging.core.wrappers.entanglement_forged_vqe_result import (
     EntanglementForgedVQEResult,
-    OptimalParams,
 )
 from entanglement_forging.utils.log import Log
 
@@ -64,27 +63,41 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
     def __init__(
         self,
         qubit_converter: QubitConverter,
-        ansatz: QuantumCircuit,
+        ansatz_u: QuantumCircuit,
         bitstrings_u: Iterable[Iterable[int]],
         config: EntanglementForgedConfig,
+        ansatz_v: QuantumCircuit = None,
         bitstrings_v: Iterable[Iterable[int]] = None,
         orbitals_to_reduce: bool = None,
     ):
-        # Ensure the bitstrings are well formed
-        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in bitstrings_u):
-            raise ValueError("All U bitstrings must be the same length.")
 
-        if bitstrings_v:
-            if len(bitstrings_u) != len(bitstrings_v):
+        # Validate ansatz and bitstrings
+        if not ansatz_v:
+            ansatz_v = ansatz_u
+
+        if not bitstrings_v:
+            bitstrings_v = bitstrings_u
+
+        for ansatz, bitstrings, name in (
+            (ansatz_u, bitstrings_u, "U"),
+            (ansatz_v, bitstrings_v, "V"),
+        ):
+            if ansatz.num_qubits != len(bitstrings[0]):
                 raise ValueError(
-                    "The same number of bitstrings should be passed for U and V."
+                    f"The number of qubits in ansatz {name} does "
+                    "not match the number of bits in bitstrings."
                 )
 
-            if len(bitstrings_u[0]) != len(bitstrings_v[0]):
-                raise ValueError("Bitstrings for U and V should be the same length.")
+            if any(len(bitstrings[0]) != len(bitstr) for bitstr in bitstrings):
+                raise ValueError(f"All {name} bitstrings must be the same length.")
 
-            if any(len(bitstrings_v[0]) != len(bitstr) for bitstr in bitstrings_v):
-                raise ValueError("All V bitstrings must be the same length.")
+        if len(bitstrings_u) != len(bitstrings_v):
+            raise ValueError(
+                "The same number of bitstrings should be passed for U and V."
+            )
+
+        if len(bitstrings_u[0]) != len(bitstrings_v[0]):
+            raise ValueError("Bitstrings for U and V should be the same length.")
 
         # Initialize the GroundStateSolver
         super().__init__(qubit_converter)
@@ -95,15 +108,13 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         self.orbitals_to_reduce = orbitals_to_reduce
 
         # Set private class fields
-        self._ansatz = ansatz
-        self._bitstrings_u = bitstrings_u
-        self._config = config  # pylint: disable=arguments-differ
+        self._ansatz_u = ansatz_u
+        self._ansatz_v = ansatz_v
 
-        # Prevent unnecessary duplication of circuits if subsystems are identical
-        if (bitstrings_v is None) or (bitstrings_u == bitstrings_v):
-            self._bitstrings_v = []
-        else:
-            self._bitstrings_v = bitstrings_v
+        self._bitstrings_u = bitstrings_u
+        self._bitstrings_v = bitstrings_v
+
+        self._config = config  # pylint: disable=arguments-differ
 
     # pylint: disable=arguments-differ
     def solve(
@@ -146,7 +157,8 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         classical_energies = ClassicalEnergies(problem, self.orbitals_to_reduce)
 
         self._solver = EntanglementForgedVQE(
-            ansatz=self._ansatz,
+            ansatz_u=self._ansatz_u,
+            ansatz_v=self._ansatz_v,
             bitstrings_u=self._bitstrings_u,
             bitstrings_v=self._bitstrings_v,
             config=self._config,
