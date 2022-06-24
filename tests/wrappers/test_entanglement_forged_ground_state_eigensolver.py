@@ -509,7 +509,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             orbitals_to_reduce=[],
         )
         res = calc.solve(problem)
-        self.assertAlmostEqual(-91.17287058249526, res.ground_state_energy)
+        self.assertAlmostEqual(-91.0419294719206, res.ground_state_energy)
 
     def test_CH3(self):
         driver = EntanglementForgedDriver(
@@ -550,4 +550,4 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             orbitals_to_reduce=[],
         )
         res = calc.solve(problem)
-        self.assertAlmostEqual(-39.10177456544418, res.ground_state_energy)
+        self.assertAlmostEqual(-39.09031477502881, res.ground_state_energy)
