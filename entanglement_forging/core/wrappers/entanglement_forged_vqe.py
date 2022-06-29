@@ -15,16 +15,21 @@
 import datetime
 import time
 import warnings
-from typing import List, Tuple, Callable, Union
+from typing import Iterable, Tuple, Callable, Union
 
 import numpy as np
-from qiskit import transpile
+from qiskit import transpile, QuantumCircuit
 from qiskit.algorithms import VQE
 from qiskit.utils.mitigation import complete_meas_cal
 from qiskit.quantum_info import Pauli
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import OperatorBase
 
+from entanglement_forging.core.entanglement_forged_config import (
+    EntanglementForgedConfig,
+)
+from entanglement_forging.core.forged_operator import ForgedOperator
+from entanglement_forging.core.classical_energies import ClassicalEnergies
 from entanglement_forging.core.wrappers.entanglement_forged_vqe_result import (
     DataResults,
     Bootstrap,
@@ -60,8 +65,37 @@ from entanglement_forging.utils.pseudorichardson import make_pseudorichardson_ci
 class EntanglementForgedVQE(VQE):
     """A class for Entanglement Forged VQE <https://arxiv.org/abs/2104.10220>."""
 
-    def __init__(self, ansatz, bitstrings, config, forged_operator, classical_energies):
+    def __init__(
+        self,
+        ansatz: QuantumCircuit,
+        bitstrings_u: Iterable[Iterable[int]],
+        config: EntanglementForgedConfig,
+        forged_operator: ForgedOperator,
+        classical_energies: ClassicalEnergies,
+        bitstrings_v: Iterable[Iterable[int]] = None,
+    ):
         """Initialize the EntanglementForgedVQE class."""
+        if ansatz.num_qubits != len(bitstrings_u[0]):
+            raise ValueError(
+                "The number of qubits in ansatz does "
+                "not match the number of bits in reduced_bitstrings."
+            )
+
+        if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in bitstrings_u):
+            raise ValueError("All U bitstrings must be the same length.")
+
+        if bitstrings_v:
+            if len(bitstrings_u) != len(bitstrings_v):
+                raise ValueError(
+                    "The same number of bitstrings should be passed for U and V."
+                )
+
+            if len(bitstrings_u[0]) != len(bitstrings_v[0]):
+                raise ValueError("Bitstrings for U and V should be the same length.")
+
+            if any(len(bitstrings_v[0]) != len(bitstr) for bitstr in bitstrings_v):
+                raise ValueError("All V bitstrings must be the same length.")
+
         super().__init__(
             ansatz=ansatz,
             optimizer=get_optimizer_instance(config),
@@ -69,21 +103,53 @@ class EntanglementForgedVQE(VQE):
             max_evals_grouped=config.max_evals_grouped,
             callback=None,
         )
+
+        # Prevent unnecessary duplication if subsystems are equivalent
+        if (bitstrings_v is None) or (bitstrings_u == bitstrings_v):
+            self.bitstrings_v = []
+        else:
+            self.bitstrings_v = bitstrings_v
+
         self.ansatz = ansatz
         self.config = config
         self._energy_each_iteration_each_paramset = []
         self._paramsets_each_iteration = []
         self._schmidt_coeffs_each_iteration_each_paramset = []
         self._zero_noise_extrap = config.zero_noise_extrap
-        self.bitstrings = bitstrings
-        self._bitstrings_s = np.asarray(bitstrings)
+
+        self.bitstrings_u = bitstrings_u
+        self._bitstrings_s_u = np.asarray(bitstrings_u)
+
+        # Make circuits which prepare states U|b_n_u> and U|phi^p_nm_u>
         (
-            self._tensor_prep_circuits,
-            self._superpos_prep_circuits,
-        ) = make_stateprep_circuits(bitstrings, config.fix_first_bitstring)
+            self._tensor_prep_circuits_u,
+            self._superpos_prep_circuits_u,
+            hybrid_superpos_coeffs_u,
+        ) = make_stateprep_circuits(
+            bitstrings_u, config.fix_first_bitstring, suffix="u"
+        )
+
+        self._tensor_prep_circuits_v = []
+        self._superpos_prep_circuits_v = []
+        hybrid_superpos_coeffs_v = []
+        self._bitstrings_s_v = np.array([])
+        if self.bitstrings_v:
+            # Make circuits which prepare states V|b_n_v> and V|phi^p_nm_v>
+            # Where U = V but bitstring |b_n_v> does not necessarily equal |b_n_u>
+            self._bitstrings_s_v = np.asarray(bitstrings_v)
+            (
+                self._tensor_prep_circuits_v,
+                self._superpos_prep_circuits_v,
+                hybrid_superpos_coeffs_v,
+            ) = make_stateprep_circuits(
+                bitstrings_v, config.fix_first_bitstring, suffix="v"
+            )
+
+        hybrid_superpos_coeffs_u.update(hybrid_superpos_coeffs_v)
+        self._hybrid_superpos_coeffs = hybrid_superpos_coeffs_u
         self._iteration_start_time = np.nan
         self._running_estimate_of_schmidts = np.array(
-            [1.0] + [0.1] * (len(self._bitstrings_s) - 1)
+            [1.0] + [0.1] * (len(self._bitstrings_s_u) - 1)
         )
         self._running_estimate_of_schmidts /= np.linalg.norm(
             self._running_estimate_of_schmidts
@@ -109,7 +175,7 @@ class EntanglementForgedVQE(VQE):
         self._add_this_to_energies_displayed = classical_energies.shift
         self._hf_energy = classical_energies.HF
 
-        self.aux_results: List[Tuple[str, AuxiliaryResults]] = []
+        self.aux_results: Iterable[Tuple[str, AuxiliaryResults]] = []
 
         self.parameter_sets = []
         self.energy_mean_each_parameter_set = []
@@ -125,11 +191,14 @@ class EntanglementForgedVQE(VQE):
         else:
             self._is_sv_sim = False
 
-        if self.ansatz.num_qubits != len(self.bitstrings[0]):
-            raise ValueError(
-                "The number of qubits in ansatz does "
-                "not match the number of bits in reduced_bitstrings."
-            )
+        # Load the two circuit generation operations
+        self._pauli_names_for_tensor_states = None
+        self._pauli_names_for_superpos_states = None
+        self._w_ij_tensor_states = None
+        self._w_ab_superpos_states = None
+        self._op_for_generating_tensor_circuits = None
+        self._op_for_generating_superpos_circuits = None
+        self._load_ops()
 
     @property
     def shots_multiplier(self):
@@ -151,9 +220,50 @@ class EntanglementForgedVQE(VQE):
         """Set the bootstrap trials."""
         self._bootstrap_trials = trials
 
+    def _load_ops(self):
+        # Get the weighted Pauli deconstruction of the operator
+        (
+            pauli_names_for_tensor_states,
+            pauli_names_for_superpos_states,
+            w_ij_tensor_states,
+            w_ab_superpos_states,
+        ) = self.forged_operator.construct()
+
+        self._pauli_names_for_tensor_states = pauli_names_for_tensor_states
+        self._pauli_names_for_superpos_states = pauli_names_for_superpos_states
+        self._w_ij_tensor_states = w_ij_tensor_states
+        self._w_ab_superpos_states = w_ab_superpos_states
+
+        op_for_generating_tensor_circuits = to_tpb_grouped_weighted_pauli_operator(
+            WeightedPauliOperator(
+                paulis=[
+                    [1, Pauli(pname)] for pname in self._pauli_names_for_tensor_states
+                ]
+            ),
+            TPBGroupedWeightedPauliOperator.sorted_grouping,
+        )
+        if len(self._pauli_names_for_superpos_states) > 0:
+            op_for_generating_superpos_circuits = (
+                to_tpb_grouped_weighted_pauli_operator(
+                    WeightedPauliOperator(
+                        paulis=[
+                            [1, Pauli(pname)]
+                            for pname in self._pauli_names_for_superpos_states
+                        ]
+                    ),
+                    TPBGroupedWeightedPauliOperator.sorted_grouping,
+                )
+            )
+
+        else:
+            op_for_generating_superpos_circuits = None
+
+        self._op_for_generating_tensor_circuits = op_for_generating_tensor_circuits
+        self._op_for_generating_superpos_circuits = op_for_generating_superpos_circuits
+
     def get_energy_evaluation(
         self, operator: OperatorBase, return_expectation: bool = False
-    ) -> Callable[[np.ndarray], Union[float, List[float]]]:
+    ) -> Callable[[np.ndarray], Union[float, Iterable[float]]]:
 
         if self._is_sv_sim:
             self._shots_multiplier = 1
@@ -179,6 +289,8 @@ class EntanglementForgedVQE(VQE):
 
             Log.log("Parameter sets:", parameter_sets)
 
+            # Compute the expectation value of the forged operator with respect
+            # to the ansatz at the given parameters
             eval_forged_result = self._evaluate_forged_operator(
                 parameter_sets=parameter_sets,
                 hf_value=self._hf_energy,
@@ -316,68 +428,80 @@ class EntanglementForgedVQE(VQE):
         """Computes the expectation value of the forged operator
         with respect to the ansatz at the given parameters."""
         # These calculations are parameter independent for
-        #   a given operator so could be moved outside the optimization loop:
-        (
-            pauli_names_for_tensor_states,
-            pauli_names_for_superpos_states,
-            w_ij_tensor_states,
-            w_ij_superpos_states,
-        ) = self.forged_operator.construct()
-        # We have a bunch of 6-qb Paulis we want evaluated.
-        # We bundle these in a single operator that will
-        #   use qiskit's standard routines to define the minimum
-        #   number of circuits required to evaluate these Paulis:
-        op_for_generating_tensor_circuits = to_tpb_grouped_weighted_pauli_operator(
-            WeightedPauliOperator(
-                paulis=[[1, Pauli(pname)] for pname in pauli_names_for_tensor_states]
-            ),
-            TPBGroupedWeightedPauliOperator.sorted_grouping,
-        )
-        if pauli_names_for_superpos_states:
-            op_for_generating_superpos_circuits = (
-                to_tpb_grouped_weighted_pauli_operator(
-                    WeightedPauliOperator(
-                        paulis=[
-                            [1, Pauli(pname)]
-                            for pname in pauli_names_for_superpos_states
-                        ]
-                    ),
-                    TPBGroupedWeightedPauliOperator.sorted_grouping,
-                )
-            )
-
-        else:
-            op_for_generating_superpos_circuits = None
+        # a given operator so could be moved outside the optimization loop:
         circuits_to_execute = []
+
         for params_idx, params in enumerate(parameter_sets):
             Log.log("Constructing the circuits for parameter set", params, "...")
-            tensor_circuits_to_execute = prepare_circuits_to_execute(
+
+            # Get all the tensor circuits associated with ansatz U
+            tensor_circuits_to_execute_u = prepare_circuits_to_execute(
                 params,
-                self._tensor_prep_circuits,
-                op_for_generating_tensor_circuits,
+                self._tensor_prep_circuits_u,
+                self._op_for_generating_tensor_circuits,
                 self._ansatz,
                 self._is_sv_sim,
             )
-            if pauli_names_for_superpos_states:
-                superpos_circuits_to_execute = prepare_circuits_to_execute(
+
+            # Get all tensor circuits associated with ansatz V
+            tensor_circuits_to_execute_v = prepare_circuits_to_execute(
+                params,
+                self._tensor_prep_circuits_v,
+                self._op_for_generating_tensor_circuits,
+                self._ansatz,
+                self._is_sv_sim,
+            )
+
+            # Combine all tensor circuits into a single list
+            tensor_circuits_to_execute = (
+                tensor_circuits_to_execute_u + tensor_circuits_to_execute_v
+            )
+
+            if len(self._pauli_names_for_superpos_states) > 0:
+                # Get superposition circuits associated with ansatz U
+                superpos_circuits_to_execute_u = prepare_circuits_to_execute(
                     params,
-                    self._superpos_prep_circuits,
-                    op_for_generating_superpos_circuits,
+                    self._superpos_prep_circuits_u,
+                    self._op_for_generating_superpos_circuits,
                     self._ansatz,
                     self._is_sv_sim,
                 )
+                # Get superposition circuits associated with ansatz V
+                superpos_circuits_to_execute_v = prepare_circuits_to_execute(
+                    params,
+                    self._superpos_prep_circuits_v,
+                    self._op_for_generating_superpos_circuits,
+                    self._ansatz,
+                    self._is_sv_sim,
+                )
+
+                # Combine all superposition circuits into a single list
+                superpos_circuits_to_execute = (
+                    superpos_circuits_to_execute_u + superpos_circuits_to_execute_v
+                )
+
             else:
+                superpos_circuits_to_execute_u = []
+                superpos_circuits_to_execute_v = []
                 superpos_circuits_to_execute = []
+
             if params_idx == 0:
                 Log.log(
                     "inferred number of pauli groups for tensor statepreps:",
-                    len(tensor_circuits_to_execute) / len(self._tensor_prep_circuits),
+                    len(tensor_circuits_to_execute)
+                    / (
+                        len(self._tensor_prep_circuits_u)
+                        + len(self._tensor_prep_circuits_v)
+                    ),
                 )
-                if self._superpos_prep_circuits:
+                if self._superpos_prep_circuits_u:
                     Log.log(
                         "inferred number of pauli groups for superposition statepreps:",
                         len(superpos_circuits_to_execute)
-                        / len(self._superpos_prep_circuits),
+                        / (
+                            len(self._superpos_prep_circuits_u)
+                            + len(self._superpos_prep_circuits_v)
+                        ),
                     )
             circuits_to_execute += (
                 tensor_circuits_to_execute + superpos_circuits_to_execute
@@ -510,15 +634,17 @@ class EntanglementForgedVQE(VQE):
             for is_bootstrap_index, res in enumerate([result] + bootstrap_results):
                 results_extrap, results_raw = eval_forged_op_with_result(
                     res,
-                    w_ij_tensor_states,
-                    w_ij_superpos_states,
+                    self._w_ij_tensor_states,
+                    self._w_ab_superpos_states,
                     params,
-                    self._bitstrings_s,
-                    op_for_generating_tensor_circuits,
-                    op_for_generating_superpos_circuits,
+                    self._bitstrings_s_u,
+                    self._op_for_generating_tensor_circuits,
+                    self._op_for_generating_superpos_circuits,
                     self._zero_noise_extrap,
+                    bitstrings_s_v=self._bitstrings_s_v,
                     hf_value=hf_value,
                     statevector_mode=self._is_sv_sim,
+                    hybrid_superpos_coeffs=self._hybrid_superpos_coeffs,
                     add_this_to_mean_values_displayed=add_this_to_mean_values_displayed,
                     no_bs0_circuits=self._no_bs0_circuits,
                 )

@@ -13,6 +13,7 @@
 """Integration tests for EntanglementForgedVQE module."""
 # pylint: disable=wrong-import-position
 import unittest
+import os
 
 import numpy as np
 from qiskit import BasicAer
@@ -26,6 +27,9 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.algorithms.ground_state_solvers import (
     GroundStateEigensolver,
     NumPyMinimumEigensolverFactory,
+)
+from qiskit_nature.transformers.second_quantization.electronic.active_space_transformer import (
+    ActiveSpaceTransformer,
 )
 from qiskit_nature import settings
 
@@ -45,8 +49,56 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
     def setUp(self):
         np.random.seed(42)
         self.backend = BasicAer.get_backend("statevector_simulator")
+        self.config = EntanglementForgedConfig(
+            backend=self.backend,
+            maxiter=0,
+            initial_params=[0.0],
+            optimizer_name="COBYLA",
+        )
 
-    def test_forged_vqe_for_hydrogen(self):
+        # TS
+        self.mock_ts_ansatz = self.create_mock_ansatz(4)
+        self.hcore_ts = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "TS_one_body.npy")
+        )
+        self.eri_ts = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "TS_two_body.npy")
+        )
+        self.energy_shift_ts = -264.7518219120776
+
+        # O2
+        self.mock_o2_ansatz = self.create_mock_ansatz(8)
+        self.hcore_o2 = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "O2_one_body.npy")
+        )
+        self.eri_o2 = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "O2_two_body.npy")
+        )
+        self.energy_shift_o2 = -99.83894101027317
+
+        # CH3
+        self.mock_ch3_ansatz = self.create_mock_ansatz(6)
+        self.hcore_ch3 = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "CH3_one_body.npy")
+        )
+        self.eri_ch3 = np.load(
+            os.path.join(os.path.dirname(__file__), "test_data", "CH3_two_body.npy")
+        )
+        self.energy_shift_ch3 = -31.90914780401554
+
+    def create_mock_ansatz(self, num_qubits):
+        n_theta = 1
+        theta = Parameter("θ")
+        mock_gate = QuantumCircuit(1, name="mock gate")
+        mock_gate.rz(theta, 0)
+
+        theta_vec = [Parameter("θ%d" % i) for i in range(1)]
+        ansatz = QuantumCircuit(num_qubits)
+        ansatz.append(mock_gate.to_gate({theta: theta_vec[0]}), [0])
+
+        return ansatz
+
+    def test_forged_vqe_H2(self):
         """Test of applying Entanglement Forged VQE to to compute the energy of a H2 molecule."""
         # setup problem
         molecule = Molecule(
@@ -76,7 +128,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-    def test_forged_vqe_for_water(self):  # pylint: disable=too-many-locals
+    def test_forged_vqe_H2O(self):  # pylint: disable=too-many-locals
         """Test of applying Entanglement Forged VQE to to compute the energy of a H20 molecule."""
         # setup problem
         radius_1 = 0.958  # position for the first H atom
@@ -143,7 +195,11 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         converter = QubitConverter(JordanWignerMapper())
 
         solver = EntanglementForgedGroundStateSolver(
-            converter, ansatz, reduced_bitstrings, config, orbitals_to_reduce
+            converter,
+            ansatz,
+            reduced_bitstrings,
+            config,
+            orbitals_to_reduce=orbitals_to_reduce,
         )
         forged_result = solver.solve(problem)
         self.assertAlmostEqual(forged_result.ground_state_energy, -75.68366174497027)
@@ -227,3 +283,222 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         self.assertAlmostEqual(
             -1.137306026563, np.real(result.eigenenergies[0]) + repulsion_energy
         )
+
+    def test_TS_1(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_ts,
+            mo_coeff=np.eye(4, 4),
+            eri=self.eri_ts,
+            num_alpha=2,
+            num_beta=2,
+            nuclear_repulsion_energy=self.energy_shift_ts,
+        )
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [[1, 1, 0, 0], [1, 0, 1, 0], [0, 1, 0, 1]]
+        bitstrings_v = [[1, 1, 0, 0], [1, 0, 1, 0], [0, 1, 0, 1]]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_ts_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-267.5081390468769, res.ground_state_energy)
+
+    def test_TS_2(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_ts,
+            mo_coeff=np.eye(4, 4),
+            eri=self.eri_ts,
+            num_alpha=2,
+            num_beta=2,
+            nuclear_repulsion_energy=self.energy_shift_ts,
+        )
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [
+            [1, 1, 0, 0],
+            [1, 0, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+        ]
+        bitstrings_v = [
+            [1, 1, 0, 0],
+            [1, 0, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 0, 1],
+        ]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_ts_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-267.51696723002567, res.ground_state_energy)
+
+    def test_TS_3(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_ts,
+            mo_coeff=np.eye(4, 4),
+            eri=self.eri_ts,
+            num_alpha=2,
+            num_beta=2,
+            nuclear_repulsion_energy=self.energy_shift_ts,
+        )
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [
+            [1, 1, 0, 0],
+            [0, 0, 1, 1],
+            [1, 0, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 0, 1],
+            [1, 1, 0, 0],
+        ]
+        bitstrings_v = [
+            [1, 1, 0, 0],
+            [1, 1, 0, 0],
+            [1, 0, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [0, 0, 1, 1],
+        ]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_ts_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-267.5203802563949, res.ground_state_energy)
+
+    def test_TS_4(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_ts,
+            mo_coeff=np.eye(4, 4),
+            eri=self.eri_ts,
+            num_alpha=2,
+            num_beta=2,
+            nuclear_repulsion_energy=self.energy_shift_ts,
+        )
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [[1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 0, 0], [1, 0, 1, 0]]
+        bitstrings_v = [[1, 1, 0, 0], [1, 0, 1, 0], [1, 0, 1, 0], [1, 1, 0, 0]]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_ts_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-267.49261903008824, res.ground_state_energy)
+
+    def test_O2_1(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_o2,
+            mo_coeff=np.eye(8, 8),
+            eri=self.eri_o2,
+            num_alpha=6,
+            num_beta=6,
+            nuclear_repulsion_energy=self.energy_shift_o2,
+        )
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [
+            [1, 1, 1, 1, 1, 1, 0, 0],
+            [1, 1, 1, 1, 1, 0, 1, 0],
+            [1, 1, 1, 1, 0, 1, 1, 0],
+            [1, 1, 0, 1, 1, 1, 1, 0],
+        ]
+        bitstrings_v = [
+            [1, 1, 1, 1, 1, 0, 1, 0],
+            [1, 1, 1, 1, 1, 1, 0, 0],
+            [1, 1, 0, 1, 1, 1, 1, 0],
+            [1, 1, 1, 1, 0, 1, 1, 0],
+        ]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_o2_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-147.63645235088566, res.ground_state_energy)
+
+    def test_CH3(self):
+        driver = EntanglementForgedDriver(
+            hcore=self.hcore_ch3,
+            mo_coeff=np.eye(6, 6),
+            eri=self.eri_ch3,
+            num_alpha=3,
+            num_beta=2,
+            nuclear_repulsion_energy=self.energy_shift_ch3,
+        )
+
+        problem = ElectronicStructureProblem(driver)
+        problem.second_q_ops()
+
+        converter = QubitConverter(JordanWignerMapper())
+
+        bitstrings_u = [
+            [1, 1, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0, 1],
+            [1, 0, 1, 0, 1, 0],
+            [1, 0, 1, 1, 0, 0],
+            [0, 1, 1, 1, 0, 0],
+        ]
+        bitstrings_v = [
+            [1, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 1],
+            [1, 0, 0, 0, 1, 0],
+            [1, 0, 0, 1, 0, 0],
+            [0, 1, 0, 1, 0, 0],
+        ]
+
+        calc = EntanglementForgedGroundStateSolver(
+            converter,
+            self.mock_ch3_ansatz,
+            bitstrings_u=bitstrings_u,
+            bitstrings_v=bitstrings_v,
+            config=self.config,
+            orbitals_to_reduce=[],
+        )
+        res = calc.solve(problem)
+        self.assertAlmostEqual(-39.09031477502881, res.ground_state_energy)

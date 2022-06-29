@@ -129,9 +129,7 @@ Notes:
 ### Ansatz & bitstrings
 - It is currently an open problem how to pick the best circuit (ansatze) for VQE (and thus Entanglement Forging) for a given system.
 - It is also currently an open problem how to pick the best bitstring for Entanglement Forging.
-- In the current implementation of the module, the spin-up and spin-down particles are treated symmetrically (U=V for the ansatz with equivalent bitstrings).
-  - It would be useful to be able to specify different bit strings for spin-up/spin down orbitals as this would open the door to open-shell species.
-  - There are plans in the future to break the ansatz and bitstring symmetry. This will be made possible after a new expectation values class is merged in Terra.
+- In the current implementation of the module, the same ansatz circuit is used for both spin-up and spin-down systems, U and V.
 - In the current implementation of the module, the ansatz must be real.
   - For molecular calculations, one can usually force the ansatz to be real. On the other hand, in crystalline solids (away from the gamma point and without inversion symmetry), the Hamiltonian is defined by the complex numbers.
   - There are plans in the future to implement complex ansatze.
