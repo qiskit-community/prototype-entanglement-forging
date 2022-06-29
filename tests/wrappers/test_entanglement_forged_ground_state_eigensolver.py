@@ -56,6 +56,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
             optimizer_name="COBYLA",
         )
 
+        # TS
         self.mock_ts_ansatz = self.create_mock_ansatz(4)
         self.hcore_ts = np.load(
             os.path.join(os.path.dirname(__file__), "test_data", "TS_one_body.npy")
@@ -65,6 +66,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         self.energy_shift_ts = -264.7518219120776
 
+        # O2
         self.mock_o2_ansatz = self.create_mock_ansatz(8)
         self.hcore_o2 = np.load(
             os.path.join(os.path.dirname(__file__), "test_data", "O2_one_body.npy")
@@ -74,15 +76,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         self.energy_shift_o2 = -99.83894101027317
 
-        self.mock_cn_ansatz = self.create_mock_ansatz(8)
-        self.hcore_cn = np.load(
-            os.path.join(os.path.dirname(__file__), "test_data", "CN_one_body.npy")
-        )
-        self.eri_cn = np.load(
-            os.path.join(os.path.dirname(__file__), "test_data", "CN_two_body.npy")
-        )
-        self.energy_shift_cn = -67.185615568892
-
+        # CH3
         self.mock_ch3_ansatz = self.create_mock_ansatz(6)
         self.hcore_ch3 = np.load(
             os.path.join(os.path.dirname(__file__), "test_data", "CH3_one_body.npy")
@@ -104,7 +98,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         return ansatz
 
-    def test_forged_vqe_for_hydrogen(self):
+    def test_forged_vqe_H2(self):
         """Test of applying Entanglement Forged VQE to to compute the energy of a H2 molecule."""
         # setup problem
         molecule = Molecule(
@@ -134,7 +128,7 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
 
         self.assertAlmostEqual(forged_result.ground_state_energy, -1.1219365445030705)
 
-    def test_forged_vqe_for_water(self):  # pylint: disable=too-many-locals
+    def test_forged_vqe_H2O(self):  # pylint: disable=too-many-locals
         """Test of applying Entanglement Forged VQE to to compute the energy of a H20 molecule."""
         # setup problem
         radius_1 = 0.958  # position for the first H atom
@@ -467,49 +461,6 @@ class TestEntanglementForgedGroundStateEigensolver(unittest.TestCase):
         )
         res = calc.solve(problem)
         self.assertAlmostEqual(-147.63645235088566, res.ground_state_energy)
-
-    def test_CN(self):
-        driver = EntanglementForgedDriver(
-            hcore=self.hcore_cn,
-            mo_coeff=np.eye(8, 8),
-            eri=self.eri_cn,
-            num_alpha=5,
-            num_beta=4,
-            nuclear_repulsion_energy=self.energy_shift_cn,
-        )
-
-        problem = ElectronicStructureProblem(driver)
-        problem.second_q_ops()
-
-        converter = QubitConverter(JordanWignerMapper())
-
-        bitstrings_u = [
-            [1, 1, 1, 1, 1, 0, 0, 0],
-            [1, 1, 1, 0, 1, 0, 1, 0],
-            [1, 1, 0, 1, 1, 1, 0, 0],
-            [1, 1, 1, 0, 1, 1, 0, 0],
-            [1, 1, 0, 1, 1, 0, 1, 0],
-            [1, 1, 1, 1, 1, 0, 0, 0],
-        ]
-        bitstrings_v = [
-            [1, 1, 1, 1, 0, 0, 0, 0],
-            [1, 1, 1, 0, 0, 0, 1, 0],
-            [1, 1, 0, 1, 0, 1, 0, 0],
-            [1, 1, 1, 0, 0, 1, 0, 0],
-            [1, 1, 0, 1, 0, 0, 1, 0],
-            [1, 0, 1, 1, 1, 0, 0, 0],
-        ]
-
-        calc = EntanglementForgedGroundStateSolver(
-            converter,
-            self.mock_cn_ansatz,
-            bitstrings_u=bitstrings_u,
-            bitstrings_v=bitstrings_v,
-            config=self.config,
-            orbitals_to_reduce=[],
-        )
-        res = calc.solve(problem)
-        self.assertAlmostEqual(-91.0419294719206, res.ground_state_energy)
 
     def test_CH3(self):
         driver = EntanglementForgedDriver(
