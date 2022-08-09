@@ -167,6 +167,7 @@ class ForgedOperator:
         w_ab = np.zeros((len(superpos_paulis), len(superpos_paulis)))
         # Processes the non-Cholesky operator
         identity_idx = pauli_ordering_for_tensor_states[identity_string]
+        identity_idx_superpos = pauli_ordering_for_superpos_states[identity_string]
         for pname_i, w_i in paulis_each_op[0].items():
             i = pauli_ordering_for_tensor_states[pname_i]
             w_ij[i, identity_idx] += np.real(w_i)  # H_spin-up
@@ -175,8 +176,8 @@ class ForgedOperator:
             # In the special case where bn=bm, we need terms from the
             # single body system represented in the cross terms.
             if self._calculate_tensor_cross_terms:
-                w_ab[i, identity_idx] += np.real(w_i)
-                w_ab[identity_idx, i] += np.real(w_i)
+                w_ab[i, identity_idx_superpos] += np.real(w_i)
+                w_ab[identity_idx_superpos, i] += np.real(w_i)
         # Processes the Cholesky operators (indexed by gamma)
         for paulis_this_gamma in paulis_each_op[1:]:
             for pname_1, w_1 in paulis_this_gamma.items():
