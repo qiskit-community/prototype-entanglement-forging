@@ -27,7 +27,6 @@ from qiskit.quantum_info import Pauli
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
-from qiskit.providers.aer.extensions import SnapshotExpectationValue
 
 from .base_operator import LegacyBaseOperator
 from .common import (
@@ -742,10 +741,7 @@ class WeightedPauliOperator(LegacyBaseOperator):
         instructions = {}
         qr = QuantumRegister(self.num_qubits)
         qc = QuantumCircuit(qr)
-        if use_simulator_snapshot_mode and self.paulis:
-            snapshot = SnapshotExpectationValue("expval", self.paulis)
-            instructions = {"expval_snapshot": snapshot}
-        elif statevector_mode:
+        if statevector_mode:
             for _, pauli in self._paulis:
                 tmp_qc = qc.copy(name="Pauli " + pauli.to_label())
                 if np.all(np.logical_not(pauli.z)) and np.all(
