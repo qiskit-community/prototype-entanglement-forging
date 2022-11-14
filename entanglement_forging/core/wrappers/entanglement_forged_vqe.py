@@ -181,7 +181,7 @@ class EntanglementForgedVQE(VQE):
         self.energy_mean_each_parameter_set = []
         self.energy_std_each_parameter_set = []
 
-        # Paramters for get_energy_evaluation. Moved them here to match parent function signature
+        # Parameters for get_energy_evaluation. Moved them here to match parent function signature
         self._shots_multiplier = 1
         self._bootstrap_trials = 0
 

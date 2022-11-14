@@ -36,7 +36,7 @@ class ForgedOperator:
         h_chol_ops (list(utils.legacy.weighted_pauli_operator.WeightedPauliOperator)):
             TODO  # pylint: disable=fixme
 
-    E.g. a WeightedPauliOperator can be constructued as follows:
+    E.g. a WeightedPauliOperator can be constructed as follows:
     WeightedPauliOperator([[(0.29994114732731),
                             Pauli(z=[False, False, False],
                                   x=[False, False, False])],
