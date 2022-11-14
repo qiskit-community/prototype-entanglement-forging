@@ -8,13 +8,13 @@
     - [Picking the bitstrings](#picking-the-bitstrings)
     - [Designing the ansatz used in Entanglement Forging](#designing-the-ansatz-used-in-entanglement-forging)
     - [Picking the backend](#picking-the-backend)
-4. [⚠️ Current limitations](#%EF%B8%8F-current-limitations)    
+4. [⚠️ Current limitations](#%EF%B8%8F-current-limitations)
     - [Ansatz & bitstrings](#ansatz--bitstrings)
-    - [Orbitals](#orbitals)    
+    - [Orbitals](#orbitals)
     - [Converter](#converter)
     - [Running on quantum hardware](#running-on-quantum-hardware)
-    - [Unsupported Qiskit VQE features](#unsupported-qiskit-vqe-features)    
-5. [References](#references)   
+    - [Unsupported Qiskit VQE features](#unsupported-qiskit-vqe-features)
+5. [References](#references)
 
 
 ## Overview of entanglement forging

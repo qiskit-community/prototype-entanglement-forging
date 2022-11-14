@@ -15,9 +15,9 @@
     - [Running the algorithm](#running-the-algorithm)
     - [Viewing the results](#viewing-the-results)
     - [Verbose](#verbose)
-3. [Troubleshooting](#troubleshooting)    
+3. [Troubleshooting](#troubleshooting)
     - [Getting poor results on the hardware](#getting-poor-results-on-the-hardware)
-    - [For IBM Power users](#for-ibm-power-users)    
+    - [For IBM Power users](#for-ibm-power-users)
 
 This guide is for those who just want to use the package. If you want to extend the module or documentation, read [this other guide](/CONTRIBUTING.md) instead. Installation instructions are only located here to avoid repetition.
 
@@ -47,7 +47,7 @@ Ensure your local environment is compatible with the entanglement-forging packag
     ```
     git clone https://github.com/qiskit-community/prototype-entanglement-forging.git
     ```
-    Alternatively, instead of cloning the original repository, you may choose to clone your personal [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo). You can do so by using the appropriate URL and adding the original repo to the list of remotes (here under the name `upstream`). This will be requiered for contribution unless you are granted write permissions for the original repository.
+    Alternatively, instead of cloning the original repository, you may choose to clone your personal [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo). You can do so by using the appropriate URL and adding the original repo to the list of remotes (here under the name `upstream`). This will be required for contribution unless you are granted write permissions for the original repository.
     ```
     git clone <YOUR-FORK-URL>
     git remote add upstream https://github.com/qiskit-community/prototype-entanglement-forging.git
