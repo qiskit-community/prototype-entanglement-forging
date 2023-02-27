@@ -68,7 +68,7 @@ class EntanglementForgedGroundStateSolver(GroundStateSolver):
         bitstrings_u: Iterable[Iterable[int]],
         config: EntanglementForgedConfig,
         bitstrings_v: Iterable[Iterable[int]] = None,
-        orbitals_to_reduce: bool = None,
+        orbitals_to_reduce: List[int] = None,
     ):
         # Ensure the bitstrings are well formed
         if any(len(bitstrings_u[0]) != len(bitstr) for bitstr in bitstrings_u):
