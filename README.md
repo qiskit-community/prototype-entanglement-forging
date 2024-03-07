@@ -1,3 +1,8 @@
+:triangular_flag_on_post: **This repository has been archived. A more updated version of entanglement forging is available with [circuit-knitting-toolbox v0.5](https://pypi.org/project/circuit-knitting-toolbox/0.5.0/) and prior.**
+
+
+
+
 <!-- SHIELDS -->
 <div align="left">
 
